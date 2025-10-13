@@ -1,0 +1,339 @@
+:root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --background-color: #f8f9fa;
+    --font-color: #333;
+    --border-color: #dee2e6;
+    --hover-bg-color: #e9ecef;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --icon-color: #6c757d;
+}
+
+.fileManager {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.fileManagerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pathContainer,
+.searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pathContainer i,
+.searchContainer i {
+    position: absolute;
+    left: 10px;
+    color: var(--icon-color);
+}
+
+#path-input,
+#search-input {
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    width: 300px;
+    transition: border-color 0.2s;
+}
+
+#path-input:focus,
+#search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.breadcrumb {
+    padding: 0.75rem 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: var(--icon-color);
+    margin: 0 0.5rem;
+}
+
+.fileTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fileTable th,
+.fileTable td {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.fileTable th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.fileTable tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fileTable tbody tr:hover {
+    background-color: var(--hover-bg-color);
+}
+
+.colIcon {
+    width: 40px;
+}
+
+.colName {
+    width: 50%;
+}
+
+.colSize,
+.colModified {
+    width: 20%;
+}
+
+.colActions {
+    width: 10%;
+    text-align: right;
+}
+
+.nodeIcon {
+    color: var(--icon-color);
+    font-size: 1.2rem;
+}
+
+.nodeIcon.fa-folder {
+    color: #ffc107;
+}
+
+/* Directory yellow */
+.nodeIcon.fa-file-image {
+    color: #28a745;
+}
+
+/* Green for images */
+.nodeIcon.fa-file-pdf {
+    color: #dc3545;
+}
+
+/* Red for PDFs */
+.nodeIcon.fa-file-alt {
+    color: #17a2b8;
+}
+
+/* Blue for text */
+.nodeIcon.fa-file-archive {
+    color: #fd7e14;
+}
+
+/* Orange for archives */
+
+.nodeName {
+    display: flex;
+    align-items: center;
+}
+
+.nodeName span {
+    margin-left: 1rem;
+}
+
+.renameInput {
+    margin-left: 1rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 3px;
+    outline: none;
+}
+
+.actionsContainer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+tr:hover .actionsContainer {
+    visibility: visible;
+    opacity: 1;
+}
+
+.actionIcon {
+    margin-left: 1rem;
+    color: var(--icon-color);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.actionIcon:hover {
+    color: var(--primary-color);
+}
+
+.actionIcon.deleteIcon:hover {
+    color: #dc3545;
+}
+
+.newItemOptions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Spinner */
+.fileManagerMain {
+    position: relative;
+    min-height: 300px;
+}
+
+/* Search Modal */
+.searchResultsList {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.searchResultItem {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.searchResultItem:last-child {
+    border-bottom: none;
+}
+
+.searchResultItem i {
+    margin-right: 1rem;
+}
+
+.searchResultPath {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-left: 0.5rem;
+}
+
+/* --- 文件上传区域 --- */
+.dragDropArea {
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.dragDropArea:hover,
+.dragDropArea.dragover {
+    border-color: #007bff;
+    background-color: #f0f8ff;
+}
+
+.dragDropArea .fa-cloud-upload-alt {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.fileListPreview {
+    margin-top: 1rem;
+}
+
+.filePreviewItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.filePreviewItem .fileName {
+    font-size: 0.9rem;
+}
+
+.filePreviewItem .removeFileBtn {
+    color: #dc3545;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.uploadProgressContainer .progressItem {
+    margin-bottom: 10px;
+}
+
+.uploadProgressContainer .progressBar {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: .25rem;
+    height: 1rem;
+}
+
+.uploadProgressContainer .progressBarInner {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: .25rem;
+    transition: width .2s;
+    text-align: center;
+    color: white;
+    font-size: 0.8rem;
+    line-height: 1rem;
+}
+
+/* --- 表单样式 --- */
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.formGroup input[type="text"],
+.formGroup textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* Important */
+    font-size: 1rem;
+}
+
+.formGroup textarea {
+    resize: vertical;
+}
+
+.formActions {
+    text-align: right;
+    margin-top: 2rem;
+}

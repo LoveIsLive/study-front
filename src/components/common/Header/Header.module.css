@@ -1,0 +1,197 @@
+/* 此处粘贴 common_header.css 的全部内容 */
+/* 然后将所有 .class-name 替换为 :global(.class-name) 如果需要全局访问 */
+/* 或者最好是保持模块化，让它只应用于此组件 */
+
+/* 示例： */
+.mainHeader {
+    background-color: var(--bg-color-light);
+    height: 60px;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    position: fixed;
+    /* 固定在顶部 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    /* 确保在最上层 */
+}
+
+.headerContainer {
+    max-width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+}
+
+.headerLogo a {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 40px;
+}
+
+.headerNav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.headerNav li a {
+    display: block;
+    padding: 0 16px;
+    line-height: 60px;
+    /* 垂直居中 */
+    color: var(--text-color-dark);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.headerNav li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.headerNav li a:hover {
+    color: var(--primary-color);
+}
+
+.headerNav li a.active {
+    color: var(--primary-color);
+}
+
+.headerNav li a.active::after {
+    width: 100%;
+}
+
+.headerRight {
+    position: relative;
+}
+
+.userProfileContainer {
+    position: relative;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 24px;
+    transition: background-color 0.3s ease;
+}
+
+.userProfile:hover {
+    background-color: #f0f0f0;
+}
+
+.userProfile img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid var(--border-color);
+}
+
+.userProfile span {
+    font-weight: 500;
+    color: var(--text-color-dark);
+}
+
+.userDropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 280px;
+    background-color: var(--bg-color-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.userDropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdownHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dropdownHeader img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.userInfo .userNameLarge {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.userInfo .userRole {
+    font-size: 14px;
+    color: #666;
+    margin: 4px 0 0;
+}
+
+.dropdownFooter {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid var(--border-color);
+}
+
+.dropdownFooter button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdownFooter button i {
+    margin-right: 8px;
+}
+
+.dropdownFooter button:hover {
+    background-color: var(--primary-hover-color);
+}

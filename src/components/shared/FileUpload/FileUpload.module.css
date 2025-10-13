@@ -1,0 +1,78 @@
+.uploadContainer {
+    width: 100%;
+}
+
+.dragDropArea {
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.dragDropArea:hover,
+.dragDropArea.dragover {
+    border-color: var(--primary-color);
+    background-color: #f0f8ff;
+}
+
+.uploadIcon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.fileListPreview {
+    margin-top: 1rem;
+}
+
+.filePreviewItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.fileName {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.removeFileBtn {
+    color: #dc3545;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+/* 进度条样式 (可由父组件控制显示) */
+.uploadProgressContainer .progressItem {
+    margin-bottom: 10px;
+}
+
+.uploadProgressContainer .progressBar {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: .25rem;
+    height: 1rem;
+}
+
+.uploadProgressContainer .progressBarInner {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: .25rem;
+    transition: width .2s;
+    text-align: center;
+    color: white;
+    font-size: 0.8rem;
+    line-height: 1rem;
+}

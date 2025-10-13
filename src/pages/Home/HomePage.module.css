@@ -1,0 +1,153 @@
+.homeContainer {
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* 动态星空背景 */
+#tsparticles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    /* 确保在内容之下 */
+}
+
+/* 时间线容器 */
+.timelineContainer {
+    position: relative;
+    width: 80%;
+    max-width: 1200px;
+    margin: 80px auto;
+    /* 调整顶部边距 */
+    padding: 50px 0;
+}
+
+/* ... 粘贴 index.css 的其余所有内容 ... */
+.timelinePath {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 100%;
+    z-index: 1;
+}
+
+.timelinePath svg path {
+    /* stroke: url(#line-gradient);  在SVG中直接定义 */
+    stroke-dasharray: 10, 5;
+    animation: dash 10s linear infinite;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -100;
+    }
+}
+
+.timelineContent {
+    position: relative;
+    z-index: 2;
+}
+
+.timelineItem {
+    position: relative;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: all 0.6s ease-out;
+}
+
+.timelineItem.isVisible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.timelineItemInner {
+    position: relative;
+    padding: 30px;
+    background: rgba(14, 25, 45, 0.8);
+    border-radius: 15px;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    width: 45%;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 180, 180, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timelineItemInner:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.7), inset 0 0 20px rgba(0, 220, 220, 0.4);
+}
+
+.timelineItem:nth-child(odd) .timelineItemInner {
+    left: 0;
+    transform-origin: left center;
+}
+
+.timelineItem:nth-child(even) .timelineItemInner {
+    left: 55%;
+    transform-origin: right center;
+}
+
+.timelineItemInner::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: #0ff;
+    border-radius: 50%;
+    border: 4px solid #000;
+    box-shadow: 0 0 20px #0ff;
+    z-index: 3;
+    animation: pulse 2s infinite;
+}
+
+.timelineItem:nth-child(odd) .timelineItemInner::before {
+    right: -45px;
+}
+
+.timelineItem:nth-child(even) .timelineItemInner::before {
+    left: -45px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translateY(-50%) scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+    }
+
+    70% {
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 0 10px 10px rgba(0, 255, 255, 0);
+    }
+
+    100% {
+        transform: translateY(-50%) scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 255, 255, 0);
+    }
+}
+
+.timelineItem h3 {
+    margin-top: 0;
+    font-size: 1.8em;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+}
+
+.timelineItem .time {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.timelineItem p {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #ddd;
+}
