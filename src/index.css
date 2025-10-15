@@ -3,10 +3,8 @@
     font-style: normal;
     font-weight: 900;
     font-display: block;
-    src: url('./assets/webfonts/fa-solid-900.eot');
-    src: url('./assets/webfonts/fa-solid-900.eot?#iefix') format('embedded-opentype'),
-        url('./assets/webfonts/fa-solid-900.woff2') format('woff2'),
-        url('./assets/webfonts/fa-solid-900.ttf') format('truetype');
+    src: url('/webfonts/fa-solid-900.woff2') format('woff2'),
+        url('/webfonts/fa-solid-900.ttf') format('truetype');
 }
 
 .fa,
@@ -35,6 +33,8 @@
 
 html {
     height: 100%;
+    /* --- 关键修正：强制显示滚动条 --- */
+    overflow-y: scroll;
 }
 
 body {
@@ -43,7 +43,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f0f2f5;
-    /* 默认一个柔和的背景色 */
 }
 
 a {
@@ -71,3 +70,44 @@ a {
 .btn-primary:hover {
     background-color: var(--primary-hover-color);
 }
+
+.folder-icon {
+    color: #ffc107;
+}
+
+/* 文件夹 - 黄色 */
+.image-icon {
+    color: #28a745;
+}
+
+/* 图片 - 绿色 */
+.pdf-icon {
+    color: #dc3545;
+}
+
+/* PDF - 红色 */
+.text-icon {
+    color: #17a2b8;
+}
+
+/* 文本 - 蓝色 */
+.archive-icon {
+    color: #fd7e14;
+}
+
+/* 压缩包 - 橙色 */
+.audio-icon {
+    color: #6f42c1;
+}
+
+/* 音频 - 紫色 */
+.video-icon {
+    color: #e83e8c;
+}
+
+/* 视频 - 粉色 */
+.code-icon {
+    color: #333;
+}
+
+/* 代码 - 深灰色 */

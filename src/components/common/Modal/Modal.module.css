@@ -37,6 +37,18 @@
     /* 移除 auto margin */
 }
 
+.modalContent h2 {
+    font-size: 2rem;
+    /* 增大字体 */
+    font-weight: 600;
+    /* 加粗 */
+    color: #333;
+    margin: 0 0 2rem 0;
+    /* 调整下边距 */
+    text-align: left;
+    /* 确保左对齐 */
+}
+
 .modalContent.large {
     max-width: 800px;
 }

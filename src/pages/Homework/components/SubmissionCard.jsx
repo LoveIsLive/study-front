@@ -8,9 +8,10 @@ const SubmissionCard = ({ submission, isStudentView }) => {
 
     const title = isStudentView
         ? `作业: ${sanitizeHTML(submission.homework?.title || '未知作业')}`
-        : `${submission.studentName}`;
+        : `<strong>${submission.studentName}</strong>`;
 
     return (
+        // 关键：应用 itemCard 样式
         <div className={styles.itemCard}>
             <div className={styles.cardHeader}>
                 <h3 className={styles.cardNoclickTitle} dangerouslySetInnerHTML={{ __html: title }} />

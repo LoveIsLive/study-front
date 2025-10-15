@@ -1,11 +1,3 @@
-/* 引入一种现代化的字体 */
-@font-face {
-  font-family: 'Noto Sans SC';
-  src: url('/src/assets/fonts/NotoSansSC-VariableFont_wght.ttf') format('truetype');
-  font-weight: 400 700;
-}
-
-
 /* ================= 变量定义 ================= */
 :root {
   --primary-color: #4A90E2;

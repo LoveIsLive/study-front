@@ -1,4 +1,45 @@
-// 注意：getRoles 和 getUserName 已被 zustand store 替代，不再需要。
+import {
+    faFile, faFilePdf, faFileWord, faFileExcel, faFilePowerpoint,
+    faFileArchive, faFileImage, faFileAudio, faFileVideo, faFileCode, faFileCsv
+} from '@fortawesome/free-solid-svg-icons';
+
+// 返回 { icon 对象, className 字符串 }
+export const getFileIcon = (fileName) => {
+    if (!fileName) {
+        return { icon: faFile, className: '' };
+    }
+
+    const extension = fileName.split('.').pop().toLowerCase();
+
+    // 映射到 icon 对象 和 全局 className
+    const iconMap = {
+        'pdf': { icon: faFilePdf, className: 'pdf-icon' },
+        'doc': { icon: faFileWord, className: 'code-icon' },
+        'docx': { icon: faFileWord, className: 'code-icon' },
+        'xls': { icon: faFileExcel, className: 'code-icon' },
+        'xlsx': { icon: faFileExcel, className: 'code-icon' },
+        'ppt': { icon: faFilePowerpoint, className: 'code-icon' },
+        'pptx': { icon: faFilePowerpoint, className: 'code-icon' },
+        'txt': { icon: faFile, className: 'text-icon' },
+        'csv': { icon: faFileCsv, className: 'code-icon' },
+        'zip': { icon: faFileArchive, className: 'archive-icon' },
+        'rar': { icon: faFileArchive, className: 'archive-icon' },
+        '7z': { icon: faFileArchive, className: 'archive-icon' },
+        'jpg': { icon: faFileImage, className: 'image-icon' },
+        'jpeg': { icon: faFileImage, className: 'image-icon' },
+        'png': { icon: faFileImage, className: 'image-icon' },
+        'gif': { icon: faFileImage, className: 'image-icon' },
+        'mp3': { icon: faFileAudio, className: 'audio-icon' },
+        'wav': { icon: faFileAudio, className: 'audio-icon' },
+        'mp4': { icon: faFileVideo, className: 'video-icon' },
+        'mov': { icon: faFileVideo, className: 'video-icon' },
+        'js': { icon: faFileCode, className: 'code-icon' },
+        'html': { icon: faFileCode, className: 'code-icon' },
+        'css': { icon: faFileCode, className: 'code-icon' },
+    };
+
+    return iconMap[extension] || { icon: faFile, className: '' };
+};
 
 export const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 B';
@@ -112,17 +153,3 @@ export function fileMimeTypeName(file) {
     const ext = file.name.split('.').pop().toLowerCase();
     return mimeTypes[ext] || useType;
 }
-
-export const getFileIconClass = (fileName) => {
-    if (!fileName) return 'fas fa-file';
-    const extension = fileName.split('.').pop().toLowerCase();
-    const iconMap = {
-        'pdf': 'fa-file-pdf', 'doc': 'fa-file-word', 'docx': 'fa-file-word',
-        'xls': 'fa-file-excel', 'xlsx': 'fa-file-excel', 'ppt': 'fa-file-powerpoint',
-        'pptx': 'fa-file-powerpoint', 'zip': 'fa-file-archive', 'rar': 'fa-file-archive',
-        'txt': 'fa-file-alt', 'jpg': 'fa-file-image', 'jpeg': 'fa-file-image',
-        'png': 'fa-file-image', 'gif': 'fa-file-image', 'mp3': 'fa-file-audio', 'wav': 'fa-file-audio',
-        'mp4': 'fa-file-video', 'mov': 'fa-file-video', 'avi': 'fa-file-video'
-    };
-    return `fas ${iconMap[extension] || 'fa-file'}`;
-};

@@ -1,0 +1,130 @@
+/* 选项视图的容器 */
+.newItemOptions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    /* 增加按钮间距 */
+    margin-bottom: 1.5rem;
+}
+
+/* 选项按钮 ("新建目录", "上传文件") 的特殊样式 */
+.optionBtn {
+    padding: 12px 24px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    color: #555;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.optionBtn:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+    color: #000;
+}
+
+/* 表单的通用容器 */
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* 关键：实现左对齐 */
+    gap: 1rem;
+    /* 元素间的垂直间距 */
+}
+
+/* 表单的副标题 (例如 "新建目录", "上传文件") */
+.formSubtitle {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #444;
+    margin: -1rem 0 0.5rem 0;
+    /* 调整位置 */
+}
+
+/* 目录名称输入框 */
+.dirInput {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dirInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* 表单底部的操作区域 (用于放置提交按钮) */
+.formActions {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* --- 进度条相关样式 --- */
+.progressContainer {
+    width: 100%;
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.progressItem {
+    margin-bottom: 12px;
+}
+
+.progressInfo {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.progressFileName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+}
+
+.progressStatus {
+    color: #666;
+}
+
+.statusSuccess {
+    color: #28a745;
+}
+
+.statusError {
+    color: #dc3545;
+}
+
+.progressBarBg {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progressBarFg {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.barError {
+    background-color: #dc3545;
+}

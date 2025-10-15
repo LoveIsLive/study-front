@@ -1,4 +1,6 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import styles from '../HomeworkPage.module.css';
@@ -23,17 +25,27 @@ const HomeworkCard = ({ homework, isTeacher, onViewSubmissions, onDeleteHomework
                     发布者: {homework.teacherName}
                 </div>
             </div>
-            <div className={styles.cardContent} dangerouslySetInnerHTML={{ __html: sanitizeHTML(homework.content) || '<i>无提交内容</i>' }} />
+
+            <div className={styles.cardContent} dangerouslySetInnerHTML={{ __html: sanitizeHTML(homework.content) || '<i>无具体内容</i>' }} />
+
             <div className={styles.cardAttachments}>
                 <AttachmentList attachments={homework.attachments} />
             </div>
+
             {isTeacher && (
                 <div className={styles.cardFooter}>
-                    <button className={styles.btnSecondary} onClick={() => onViewSubmissions(homework.id)}>
-                        <i className="fas fa-users"></i> 查看提交
+                    {/* --- 关键修正：组合使用 .btn 和 .btnSecondary/.btnDanger 类名 --- */}
+                    <button
+                        className={`${styles.btn} ${styles.btnSecondary}`}
+                        onClick={() => onViewSubmissions(homework.id)}
+                    >
+                        <FontAwesomeIcon icon={faUsers} /> 查看提交
                     </button>
-                    <button className={styles.btnDanger} onClick={() => onDeleteHomework(homework.id, homework.title)}>
-                        <i className="fas fa-trash-alt"></i> 删除作业
+                    <button
+                        className={`${styles.btn} ${styles.btnDanger}`}
+                        onClick={() => onDeleteHomework(homework.id, homework.title)}
+                    >
+                        <FontAwesomeIcon icon={faTrashAlt} /> 删除作业
                     </button>
                 </div>
             )}

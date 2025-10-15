@@ -1,41 +1,17 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolder, faFile, faFileImage, faFilePdf, faFileArchive, faFileAudio, faFileVideo, faFileCode, faCopy, faEye, faDownload, faInfoCircle, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { formatFileSize, buildNewPath, isPreviewable, mimeIconMap } from '../../../utils/helpers';
+import { faFolder, faCopy, faEye, faDownload, faInfoCircle, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { formatFileSize, buildNewPath, isPreviewable, getFileIcon } from '../../../utils/helpers';
 import useAuthStore from '../../../store/authStore';
 import { wareApi } from '../../../services/api';
 import styles from '../WarePage.module.css';
 import Swal from 'sweetalert2';
 
-const getFileIcon = (type, mimeTypeName) => {
-    if (type === 0) return faFolder;
-    if (!mimeTypeName) return faFile;
-
-    // MimeIconMap lookup
-    const iconClass = mimeIconMap[mimeTypeName];
-    if (iconClass) {
-        // This part needs a map from 'fas fa-file-pdf' string to FontAwesome icon object
-        const iconName = iconClass.split(' ')[1].replace('fa-', '');
-        const iconMap = {
-            'file-pdf': faFilePdf, 'file-word': faFileCode, 'file-excel': faFileCode,
-            'file-powerpoint': faFileCode, 'file-alt': faFile, 'file-csv': faFileCode,
-            'file-code': faFileCode, 'file-archive': faFileArchive, 'file-binary': faFile, 'hdd': faFile
-        };
-        // Simplified mapping, can be expanded
-        for (const key in iconMap) {
-            if (iconName.includes(key)) return iconMap[key];
-        }
-    }
-
-    if (mimeTypeName.startsWith('image/')) return faFileImage;
-    if (mimeTypeName.startsWith('audio/')) return faFileAudio;
-    if (mimeTypeName.startsWith('video/')) return faFileVideo;
-
-    return faFile;
-};
-
-
 const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
+    const { icon, className } = node.type === 0
+        ? { icon: faFolder, className: 'folder-icon' }
+        : getFileIcon(node.name);
+
     const { user } = useAuthStore();
     const [isRenaming, setIsRenaming] = useState(false);
     const [newName, setNewName] = useState(node.name);
@@ -131,7 +107,7 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
     return (
         <tr onDoubleClick={onDoubleClick}>
             <td className={styles.colIcon}>
-                <FontAwesomeIcon icon={getFileIcon(node.type, node.mimeTypeName)} className={styles.nodeIcon} />
+                <FontAwesomeIcon icon={icon} className={`${styles.nodeIcon} ${className}`} />
             </td>
             <td className={styles.colName}>
                 <div className={styles.nodeName}>

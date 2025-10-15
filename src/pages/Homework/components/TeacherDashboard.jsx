@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { homeworkApi } from '../../../services/api';
 import HomeworkList from './HomeworkList';
 import SubmissionList from './SubmissionList';
-import PublishHomeworkModal from './PublishHomeworkModal';
 import Spinner from '../../../components/common/Spinner/Spinner';
-import styles from '../HomeworkPage.module.css';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 
 const MySwal = withReactContent(Swal);
 
-const TeacherDashboard = ({ view, navigateTo }) => {
+// 接收新的 prop: refreshTrigger
+const TeacherDashboard = ({ view, navigateTo, refreshTrigger }) => {
     const [homeworks, setHomeworks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchHomeworks = async () => {
         setIsLoading(true);
@@ -27,12 +25,6 @@ const TeacherDashboard = ({ view, navigateTo }) => {
             setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (view.name === 'list') {
-            fetchHomeworks();
-        }
-    }, [view]);
 
     const handleDeleteHomework = async (homeworkId, homeworkTitle) => {
         const result = await MySwal.fire({
@@ -48,13 +40,21 @@ const TeacherDashboard = ({ view, navigateTo }) => {
         if (result.isConfirmed) {
             try {
                 await homeworkApi.delete(`/${homeworkId}`);
-                MySwal.fire({ icon: 'success', title: '作业已删除' });
-                fetchHomeworks(); // 重新加载列表
+                MySwal.fire({ icon: 'success', title: '作业已删除', timer: 1500, showConfirmButton: false });
+                fetchHomeworks(); // 直接调用 fetch 重新加载列表
             } catch (error) {
                 MySwal.fire({ icon: 'error', title: '删除失败' });
             }
         }
     };
+
+    // useEffect 现在依赖于 view 和 refreshTrigger
+    useEffect(() => {
+        // 仅当视图是列表时才获取作业
+        if (view.name === 'list') {
+            fetchHomeworks();
+        }
+    }, [view, refreshTrigger]); // 当 view 或 refreshTrigger 变化时，重新运行
 
     if (isLoading) {
         return <Spinner />;
@@ -66,24 +66,12 @@ const TeacherDashboard = ({ view, navigateTo }) => {
 
     return (
         <div>
-            <div style={{ marginBottom: '2rem', textAlign: 'right' }}>
-                <button className={styles.btnPrimary} onClick={() => setIsModalOpen(true)}>
-                    <i className="fas fa-plus"></i> 发布作业
-                </button>
-            </div>
+            {/* 按钮和模态框已移至父组件 */}
             <HomeworkList
                 homeworks={homeworks}
                 onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                 onDeleteHomework={handleDeleteHomework}
                 isTeacher={true}
-            />
-            <PublishHomeworkModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSuccess={() => {
-                    setIsModalOpen(false);
-                    fetchHomeworks();
-                }}
             />
         </div>
     );

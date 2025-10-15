@@ -1,37 +1,51 @@
-/* --- 通用样式 --- */
+/* --- 通用容器 --- */
 .appContainer {
     max-width: 1200px;
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     padding: 0 2rem;
     color: #333;
-    background-color: #f4f7f9;
 }
 
+/* --- 页面主标题区域 --- */
 .appHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
     padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .appHeader h1 {
     color: #2c3e50;
     margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
 }
 
-/* --- 按钮样式 --- */
+/* --- 按钮通用样式 --- */
 .btn {
     padding: 10px 18px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
     transition: all 0.2s ease-in-out;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btnPrimary {
@@ -40,7 +54,7 @@
 }
 
 .btnPrimary:hover {
-    background-color: #0056b3;
+    background-color: #0069d9;
 }
 
 .btnSecondary {
@@ -73,7 +87,7 @@
     text-decoration: underline;
 }
 
-/* --- 列表和卡片样式 --- */
+/* --- 作业卡片样式 --- */
 .listContainer {
     display: flex;
     flex-direction: column;
@@ -102,19 +116,16 @@
     margin-bottom: 1rem;
 }
 
-.cardTitle {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-    cursor: pointer;
-}
-
+.cardTitle,
 .cardNoclickTitle {
     font-size: 1.5rem;
     font-weight: 600;
     color: #2c3e50;
     margin: 0;
+}
+
+.cardTitle {
+    cursor: pointer;
 }
 
 .cardTitle:hover {
@@ -125,6 +136,7 @@
     font-size: 0.85rem;
     color: #888;
     text-align: right;
+    line-height: 1.5;
 }
 
 .cardContent {
@@ -132,10 +144,18 @@
     line-height: 1.6;
     margin-bottom: 1.5rem;
     white-space: pre-wrap;
-    /* 保留换行和空格 */
 }
 
-.cardAttachments h4,
+.cardAttachments h4 {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .submissionFormCard h4 {
     font-size: 1rem;
     color: #333;
@@ -171,6 +191,10 @@
     gap: 10px;
     color: #333;
     font-size: 0.95rem;
+}
+
+.attachmentInfo i {
+    color: #6c757d;
 }
 
 .attachmentActions {

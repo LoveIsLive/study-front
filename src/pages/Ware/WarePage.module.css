@@ -33,20 +33,36 @@
     align-items: center;
 }
 
-.pathContainer i,
-.searchContainer i {
+.inputIcon {
     position: absolute;
-    left: 10px;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
     color: var(--icon-color);
+    z-index: 2;
+    pointer-events: none;
 }
 
-#path-input,
-#search-input {
-    padding: 0.5rem 0.5rem 0.5rem 2rem;
+.pathContainer input,
+.searchContainer input {
+    padding-left: 40px;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    padding-right: 0.6rem;
+
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 6px;
     width: 300px;
-    transition: border-color 0.2s;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fdfdfd;
+}
+
+.pathContainer input:focus,
+.searchContainer input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 #path-input:focus,
@@ -124,33 +140,8 @@
 .nodeIcon {
     color: var(--icon-color);
     font-size: 1.2rem;
+    vertical-align: middle;
 }
-
-.nodeIcon.fa-folder {
-    color: #ffc107;
-}
-
-/* Directory yellow */
-.nodeIcon.fa-file-image {
-    color: #28a745;
-}
-
-/* Green for images */
-.nodeIcon.fa-file-pdf {
-    color: #dc3545;
-}
-
-/* Red for PDFs */
-.nodeIcon.fa-file-alt {
-    color: #17a2b8;
-}
-
-/* Blue for text */
-.nodeIcon.fa-file-archive {
-    color: #fd7e14;
-}
-
-/* Orange for archives */
 
 .nodeName {
     display: flex;

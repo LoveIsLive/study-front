@@ -31,7 +31,7 @@ const WareHeader = ({ onNew, onSearch, onPathChange, isTeacher }) => {
             </div>
             <div className={styles.headerCenter}>
                 <div className={styles.pathContainer}>
-                    <FontAwesomeIcon icon={faTerminal} />
+                    <FontAwesomeIcon icon={faTerminal} className={styles.inputIcon} />
                     <input
                         type="text"
                         id="path-input"
@@ -44,7 +44,7 @@ const WareHeader = ({ onNew, onSearch, onPathChange, isTeacher }) => {
             </div>
             <div className={styles.headerRight}>
                 <div className={styles.searchContainer}>
-                    <FontAwesomeIcon icon={faSearch} />
+                    <FontAwesomeIcon icon={faSearch} className={styles.inputIcon} />
                     <input
                         type="text"
                         id="search-input"

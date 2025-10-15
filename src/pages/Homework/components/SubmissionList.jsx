@@ -4,6 +4,9 @@ import Spinner from '../../../components/common/Spinner/Spinner';
 import SubmissionCard from './SubmissionCard';
 import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
 
 const SubmissionList = ({ homeworkId, onBack, isStudentView = false, submissions: studentSubmissions }) => {
     const [submissions, setSubmissions] = useState([]);
@@ -40,7 +43,9 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false, submissions
         <div className={styles.view}>
             {!isStudentView && (
                 <div className={styles.viewHeader}>
-                    <button onClick={onBack} className={styles.btnSecondary}><i className="fas fa-arrow-left"></i> 返回作业列表</button>
+                    <button onClick={onBack} className={`${styles.btn} ${styles.btnSecondary}`}>
+                        <FontAwesomeIcon icon={faArrowLeft} /> 返回作业列表
+                    </button>
                     <h2>{homeworkTitle} 的提交列表</h2>
                 </div>
             )}
