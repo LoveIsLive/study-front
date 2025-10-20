@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useAuthStore from '../../store/authStore';
 import TeacherDashboard from './components/TeacherDashboard';
 import StudentDashboard from './components/StudentDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import PublishHomeworkModal from './components/PublishHomeworkModal';
 import styles from './HomeworkPage.module.css';
 
@@ -11,18 +12,26 @@ const HomeworkPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+    // 当用户角色变化时，重置视图到初始状态
+    useEffect(() => {
+        setView({ name: 'list', data: null });
+    }, [user.isAdmin, user.isTeacher]);
+
     const navigateTo = useCallback((viewName, viewData = null) => {
         setView({ name: viewName, data: viewData });
     }, []);
 
     const handlePublishSuccess = () => {
         setIsModalOpen(false);
-        // 递增 refreshTrigger 的值，这将作为 prop 传递给 TeacherDashboard
-        // TeacherDashboard 中的 useEffect 会监听到这个值的变化，并重新获取数据
         setRefreshTrigger(t => t + 1);
     };
 
     const renderContent = () => {
+        if (!user) return <Spinner />; // 增加一个加载保护
+
+        if (user.isAdmin) {
+            return <AdminDashboard view={view} navigateTo={navigateTo} />;
+        }
         if (user.isTeacher) {
             return <TeacherDashboard view={view} navigateTo={navigateTo} refreshTrigger={refreshTrigger} />;
         }
@@ -33,8 +42,7 @@ const HomeworkPage = () => {
         <div className={styles.appContainer}>
             <header className={styles.appHeader}>
                 <h1>作业区</h1>
-                {/* 仅当是教师、且处于列表视图时，才显示“发布作业”按钮 */}
-                {user.isTeacher && view.name === 'list' && (
+                {user && user.isTeacher && view.name === 'list' && (
                     <div>
                         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setIsModalOpen(true)}>
                             <i className="fas fa-plus"></i> 发布作业
@@ -47,8 +55,7 @@ const HomeworkPage = () => {
                 {renderContent()}
             </main>
 
-            {/* 模态框的渲染和状态管理由主页面负责 */}
-            {user.isTeacher && (
+            {user && user.isTeacher && (
                 <PublishHomeworkModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}

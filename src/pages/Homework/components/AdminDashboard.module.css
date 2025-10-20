@@ -1,0 +1,117 @@
+.searchContainer {
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* 输入框和按钮之间的间距 */
+}
+
+.inputWrapper {
+    position: relative;
+    flex-grow: 1;
+    /* 让输入框容器占据尽可能多的空间 */
+}
+
+.searchIcon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #aaa;
+    pointer-events: none;
+    /* 确保图标不会影响点击 */
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 40px 12px 30px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease-in-out;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.clearButton {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    line-height: 1;
+    display: none;
+    /* 默认隐藏 */
+}
+
+.clearButton:hover {
+    color: #333;
+}
+
+.inputWrapper.hasValue .clearButton {
+    display: block;
+}
+
+.classListContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.classCard {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid transparent;
+}
+
+.classCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-color);
+}
+
+.className {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.classMemberCount {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 16px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.homeworkHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.homeworkHeader h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.75rem;
+}

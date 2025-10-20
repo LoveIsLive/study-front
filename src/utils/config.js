@@ -11,6 +11,7 @@ export const config = {
     back_SUBMISSION_PREFIX: '/submission',
     back_ATTACH_PREFIX: '/attach',
     back_WARE_PREFIX: '/ware/home',
+    back_CLASS_PREFIX: '/classes',
 
 
     // 前端常量配置 (用于路由)

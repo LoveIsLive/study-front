@@ -35,10 +35,11 @@ const LoginPage = () => {
                 throw new Error(response.data.message || '登录失败');
             }
         } catch (error) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: '登录失败',
                 text: error.response?.data?.message || error.message || '服务器发生错误',
+                timer: 1500
             });
         } finally {
             setIsLoading(false);

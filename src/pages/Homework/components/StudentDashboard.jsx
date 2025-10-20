@@ -16,7 +16,7 @@ const StudentDashboard = ({ view, navigateTo }) => {
     const fetchAllHomeworks = async () => {
         setIsLoading(true);
         try {
-            const response = await homeworkApi.get('/all');
+            const response = await homeworkApi.get('/student/all');
             setHomeworks(response.data.data || []);
         } catch (error) {
             Swal.fire({ icon: 'error', title: '加载作业列表失败' });

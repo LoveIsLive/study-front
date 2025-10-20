@@ -1,12 +1,17 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import useAuthStore from '../../../store/authStore';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import styles from '../HomeworkPage.module.css';
 
 const HomeworkCard = ({ homework, isTeacher, onViewSubmissions, onDeleteHomework, onSelectHomework }) => {
+    const { user } = useAuthStore(); // 获取当前用户信息
     const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
+
+    // 权限判断：是否应该显示操作按钮
+    const canOperate = user && (user.isAdmin || user.isTeacher);
 
     return (
         <div className={styles.itemCard}>
@@ -32,9 +37,9 @@ const HomeworkCard = ({ homework, isTeacher, onViewSubmissions, onDeleteHomework
                 <AttachmentList attachments={homework.attachments} />
             </div>
 
-            {isTeacher && (
+            {/* 使用 canOperate 进行权限判断 */}
+            {isTeacher && canOperate && (
                 <div className={styles.cardFooter}>
-                    {/* --- 关键修正：组合使用 .btn 和 .btnSecondary/.btnDanger 类名 --- */}
                     <button
                         className={`${styles.btn} ${styles.btnSecondary}`}
                         onClick={() => onViewSubmissions(homework.id)}

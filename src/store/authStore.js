@@ -2,11 +2,30 @@ import { create } from 'zustand';
 import { jwtDecode } from 'jwt-decode';
 import { config } from '../utils/config';
 
+const getInitialClass = () => {
+    const classData = localStorage.getItem('selectedClass');
+    try {
+        return classData ? JSON.parse(classData) : null;
+    } catch (e) {
+        return null;
+    }
+};
+
 const useAuthStore = create((set, get) => ({
     token: localStorage.getItem(config.tokenName),
     user: null,
+    selectedClass: getInitialClass(),
 
     isAuthenticated: () => !!get().token,
+
+    setSelectedClass: (classInfo) => {
+        if (classInfo) {
+            localStorage.setItem('selectedClass', JSON.stringify(classInfo));
+        } else {
+            localStorage.removeItem('selectedClass');
+        }
+        set({ selectedClass: classInfo });
+    },
 
     login: (token) => {
         localStorage.setItem(config.tokenName, token);
@@ -16,7 +35,8 @@ const useAuthStore = create((set, get) => ({
 
     logout: () => {
         localStorage.removeItem(config.tokenName);
-        set({ token: null, user: null });
+        localStorage.removeItem('selectedClass');
+        set({ token: null, user: null, selectedClass: null });
     },
 
     decodeToken: () => {
@@ -29,6 +49,7 @@ const useAuthStore = create((set, get) => ({
                         name: decoded.sub || "",
                         roles: decoded.roles || [],
                         isTeacher: (decoded.roles || []).includes("ROLE_TEACHER"),
+                        isAdmin: (decoded.roles || []).includes("ROLE_ADMIN"),
                     }
                 });
             } catch (error) {
