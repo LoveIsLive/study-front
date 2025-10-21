@@ -6,6 +6,7 @@ import WarePage from './pages/Ware/WarePage';
 import ErrorPage from './pages/Error/ErrorPage';
 import MainLayout from './components/common/Layout/MainLayout';
 import PrivateRoute from './components/common/PrivateRoute/PrivateRoute';
+import OrganizationPage from './pages/Organization/OrganizationPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/homework" element={<HomeworkPage />} />
           <Route path="/ware/home/*" element={<WarePage />} />
+          <Route path="/organization" element={<OrganizationPage />} />
         </Route>
       </Route>
 

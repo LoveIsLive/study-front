@@ -6,12 +6,14 @@ export const config = {
     // 后端常量配置
     back_base_url: '/api/v1',
     back_AUTH_PREFIX: '/auth',
+    back_USER_PREFIX: '/user',
     back_INDEX_PREFIX: '/index',
     back_HOMEWORK_PREFIX: '/homework',
     back_SUBMISSION_PREFIX: '/submission',
     back_ATTACH_PREFIX: '/attach',
     back_WARE_PREFIX: '/ware/home',
     back_CLASS_PREFIX: '/classes',
+    back_CLASSMEMBER_PREFIX: '/classmember',
 
 
     // 前端常量配置 (用于路由)

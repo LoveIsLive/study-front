@@ -162,7 +162,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
                 <div className={adminStyles.classListContainer}>
                     {classes.length > 0 ? (
                         classes.map(cls => (
-                            <div key={cls.id} className={adminStyles.classCard} onDoubleClick={() => handleClassSelect(cls)}>
+                            <div key={cls.id} className={adminStyles.classCard} onClick={() => handleClassSelect(cls)}>
                                 <div className={adminStyles.className}>{cls.name}</div>
                                 <div className={adminStyles.classMemberCount}>
                                     {cls.memberCount ?? '--'} 人

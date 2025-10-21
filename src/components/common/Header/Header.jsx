@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../../store/authStore';
 import { config } from '../../../utils/config';
 import styles from './Header.module.css';
@@ -73,11 +75,25 @@ const Header = () => {
                                     <img src={avatarUrl} alt="User Avatar" />
                                     <div className={styles.userInfo}>
                                         <p className={styles.userNameLarge}>{user.name}</p>
-                                        <p className={styles.userRole}>{user.isTeacher ? '教师' : '学生'}</p>
+                                        <p className={styles.userRole}>{user.isAdmin ? '管理员' : (user.isTeacher ? '教师' : '学生')}</p>
                                     </div>
                                 </div>
+
+                                {/* --- 3. 新增下拉菜单的主体部分 --- */}
+                                <ul className={styles.dropdownMenu}>
+                                    <li>
+                                        <Link to="/organization">
+                                            <FontAwesomeIcon icon={faUsers} />
+                                            <span>{user.isAdmin ? '组织管理' : '我的班级'}</span>
+                                        </Link>
+                                    </li>
+                                    {/* 可以在这里添加更多菜单项，如“个人中心”等 */}
+                                </ul>
+
                                 <div className={styles.dropdownFooter}>
-                                    <button onClick={handleLogout}><i className="fas fa-sign-out-alt"></i> 退出登录</button>
+                                    <button onClick={handleLogout}>
+                                        <FontAwesomeIcon icon={faSignOutAlt} /> 退出登录
+                                    </button>
                                 </div>
                             </div>
                         )}

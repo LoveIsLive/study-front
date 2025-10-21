@@ -1,0 +1,41 @@
+.pageContainer {
+    max-width: 1200px;
+    margin: 2.5rem auto;
+    padding: 0 2rem;
+}
+
+.pageHeader {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pageHeader h1 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.pageContent {
+    /* 内容区域样式 */
+}
+
+.errorState {
+    text-align: center;
+    padding: 4rem;
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+}
+
+.placeholder {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.1rem;
+    color: #888;
+    background-color: #fafafa;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+}

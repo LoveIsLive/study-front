@@ -1,3 +1,4 @@
+/* ================= 字体定义 ================= */
 @font-face {
     font-family: 'Font Awesome 5 Free';
     font-style: normal;
@@ -5,12 +6,6 @@
     font-display: block;
     src: url('/webfonts/fa-solid-900.woff2') format('woff2'),
         url('/webfonts/fa-solid-900.ttf') format('truetype');
-}
-
-.fa,
-.fas {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
 }
 
 /* ================= 变量定义 ================= */
@@ -33,7 +28,7 @@
 
 html {
     height: 100%;
-    /* --- 关键修正：强制显示滚动条 --- */
+    /* 强制显示滚动条，防止页面内容切换时布局跳动 */
     overflow-y: scroll;
 }
 
@@ -43,32 +38,79 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f0f2f5;
+    color: var(--text-color-dark);
 }
 
 a {
     text-decoration: none;
+    color: var(--primary-color);
 }
 
-/* 按钮基础样式 (可被模块覆盖) */
+a:hover {
+    color: var(--primary-hover-color);
+}
+
+/* ================= 通用按钮样式 ================= */
 .btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-color-light);
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease-in-out;
+    font-size: 0.9rem;
+    font-family: inherit;
+    /* 继承body字体 */
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    color: white;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-color-dark);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .btn-primary {
     background-color: var(--primary-color);
+    color: var(--text-color-light);
+    border-color: var(--primary-color);
 }
 
 .btn-primary:hover {
     background-color: var(--primary-hover-color);
+    border-color: var(--primary-hover-color);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: var(--text-color-light);
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: var(--text-color-light);
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* ================= 通用图标样式 ================= */
+.fa,
+.fas {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
 }
 
 .folder-icon {
