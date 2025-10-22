@@ -43,7 +43,7 @@ const AdminView = () => {
                 await classesApi.put(`/${editingClass.id}`, classData);
                 Swal.fire({ icon: 'success', title: '班级更新成功', timer: 1500, showConfirmButton: false });
             } else { // 创建模式
-                await classesApi.post('/create', classDara);
+                await classesApi.post('/create', classData);
                 Swal.fire({ icon: 'success', title: '班级创建成功', timer: 1500, showConfirmButton: false });
             }
             setIsModalOpen(false);

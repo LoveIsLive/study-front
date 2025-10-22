@@ -7,6 +7,8 @@ import HomeworkList from './HomeworkList';
 import SubmissionList from './SubmissionList';
 import styles from '../HomeworkPage.module.css';
 import adminStyles from './AdminDashboard.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const AdminDashboard = ({ view, navigateTo }) => {
     const { selectedClass, setSelectedClass } = useAuthStore();
@@ -123,7 +125,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
                 <div className={adminStyles.homeworkHeader}>
                     <h2>{selectedClass.name} - 作业列表</h2>
                     <button onClick={handleBackToClasses} className={`${styles.btn} ${styles.btnSecondary}`}>
-                        <i className="fas fa-arrow-left"></i> 返回班级列表
+                        <FontAwesomeIcon icon={faArrowLeft} /> 返回班级列表
                     </button>
                 </div>
                 <HomeworkList
@@ -141,7 +143,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
             <div className={adminStyles.searchContainer}>
                 {/* 1. 包裹输入框和图标 */}
                 <div className={`${adminStyles.inputWrapper} ${searchTerm ? adminStyles.hasValue : ''}`}>
-                    <i className={`fas fa-search ${adminStyles.searchIcon}`}></i>
+                    <FontAwesomeIcon icon={faSearch} className={adminStyles.searchIcon} />
                     <input
                         type="text"
                         placeholder="按名称模糊搜索班级...回车"
@@ -155,7 +157,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
                 </div>
                 {/* 3. 添加搜索按钮 */}
                 <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleSearchClick}>
-                    搜索
+                    <FontAwesomeIcon icon={faSearch} /> 搜索
                 </button>
             </div>
             {isLoading ? <Spinner /> : (

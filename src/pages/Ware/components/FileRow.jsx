@@ -6,6 +6,7 @@ import useAuthStore from '../../../store/authStore';
 import { wareApi } from '../../../services/api';
 import styles from '../WarePage.module.css';
 import Swal from 'sweetalert2';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 
 const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
     const { icon, className } = node.type === 0
@@ -17,6 +18,8 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
     const [newName, setNewName] = useState(node.name);
 
     const fullPath = buildNewPath(currentPath, node.name);
+
+    const [isCopied, handleCopy] = useCopyToClipboard();
 
     const handleRename = async () => {
         if (newName && newName !== node.name) {
@@ -62,7 +65,7 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
     const handleAction = async (action) => {
         try {
             if (action === 'copy') {
-                await navigator.clipboard.writeText(fullPath);
+                await handleCopy(fullPath);
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '路径已复制', showConfirmButton: false, timer: 1500 });
             }
             if (action === 'details') {

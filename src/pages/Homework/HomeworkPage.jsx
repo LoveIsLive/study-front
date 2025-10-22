@@ -5,6 +5,8 @@ import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import PublishHomeworkModal from './components/PublishHomeworkModal';
 import styles from './HomeworkPage.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const HomeworkPage = () => {
     const { user } = useAuthStore();
@@ -45,7 +47,7 @@ const HomeworkPage = () => {
                 {user && user.isTeacher && view.name === 'list' && (
                     <div>
                         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setIsModalOpen(true)}>
-                            <i className="fas fa-plus"></i> 发布作业
+                            <FontAwesomeIcon icon={faPlus} />  发布作业
                         </button>
                     </div>
                 )}
