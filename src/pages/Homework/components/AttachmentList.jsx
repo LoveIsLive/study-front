@@ -11,9 +11,9 @@ const AttachmentList = ({ attachments }) => {
         return <p style={{ color: '#888', fontSize: '0.9em' }}>无附件</p>;
     }
 
-    const handleFileAction = async (path, action) => {
+    const handleFileAction = async (path, fileName, action) => {
         try {
-            const res = await attachApi.get('/download/get/downloadId', { params: { path } });
+            const res = await attachApi.get('/download/get/downloadId', { params: { path, fileName } });
             const token = res.data.data;
             const baseUrl = attachApi.defaults.baseURL;
 
@@ -56,13 +56,13 @@ const AttachmentList = ({ attachments }) => {
                                         icon={faEye}
                                         className={styles.actionIcon}
                                         title="预览"
-                                        onClick={() => handleFileAction(att.filePath, 'preview')}
+                                        onClick={() => handleFileAction(att.filePath, att.fileName, 'preview')}
                                     />}
                                 <FontAwesomeIcon
                                     icon={faDownload}
                                     className={styles.actionIcon}
                                     title="下载"
-                                    onClick={() => handleFileAction(att.filePath, 'download')}
+                                    onClick={() => handleFileAction(att.filePath, att.fileName, 'download')}
                                 />
                             </div>
                         </li>

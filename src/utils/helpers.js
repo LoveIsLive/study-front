@@ -34,6 +34,7 @@ export const getFileIcon = (fileName) => {
         'mp4': { icon: faFileVideo, className: 'video-icon' },
         'mov': { icon: faFileVideo, className: 'video-icon' },
         'js': { icon: faFileCode, className: 'code-icon' },
+        'jsx': { icon: faFileCode, className: 'code-icon' },
         'html': { icon: faFileCode, className: 'code-icon' },
         'css': { icon: faFileCode, className: 'code-icon' },
     };

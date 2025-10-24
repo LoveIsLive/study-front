@@ -137,7 +137,7 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
                     {node.type === 1 && isPreviewable(node.mimeTypeName) && <FontAwesomeIcon icon={faEye} className={styles.actionIcon} title="预览" onClick={() => handleAction('preview')} />}
                     {node.type === 1 && <FontAwesomeIcon icon={faDownload} className={styles.actionIcon} title="下载" onClick={() => handleAction('download')} />}
                     <FontAwesomeIcon icon={faInfoCircle} className={styles.actionIcon} title="属性" onClick={() => handleAction('details')} />
-                    {user.isTeacher && (
+                    {(user.isTeacher || user.isAdmin) && (
                         <>
                             <FontAwesomeIcon icon={faEdit} className={styles.actionIcon} title="重命名" onClick={() => setIsRenaming(true)} />
                             <FontAwesomeIcon icon={faTrashAlt} className={`${styles.actionIcon} ${styles.deleteIcon}`} title="删除" onClick={handleDelete} />

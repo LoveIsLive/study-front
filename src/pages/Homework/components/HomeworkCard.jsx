@@ -1,12 +1,12 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../../store/authStore';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import styles from '../HomeworkPage.module.css';
 
-const HomeworkCard = ({ homework, isTeacher, onViewSubmissions, onDeleteHomework, onSelectHomework }) => {
+const HomeworkCard = ({ homework, isTeacher, onEdit, onViewSubmissions, onDeleteHomework, onSelectHomework }) => {
     const { user } = useAuthStore(); // 获取当前用户信息
     const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
 
@@ -40,6 +40,12 @@ const HomeworkCard = ({ homework, isTeacher, onViewSubmissions, onDeleteHomework
             {/* 使用 canOperate 进行权限判断 */}
             {isTeacher && canOperate && (
                 <div className={styles.cardFooter}>
+                    <button
+                        className={`${styles.btn} ${styles.btnSecondary}`}
+                        onClick={() => onEdit(homework)}
+                    >
+                        <FontAwesomeIcon icon={faEdit} /> 编辑
+                    </button>
                     <button
                         className={`${styles.btn} ${styles.btnSecondary}`}
                         onClick={() => onViewSubmissions(homework.id)}

@@ -154,7 +154,7 @@ const WarePage = () => {
                 onNew={() => setNewItemModalOpen(true)}
                 onSearch={handleSearch}
                 onPathChange={handlePathInputChange}
-                isTeacher={user.isTeacher}
+                isTeacher={user.isTeacher || user.isAdmin}
             />
             <Breadcrumb currentPath={currentPath} navigate={navigate} />
 

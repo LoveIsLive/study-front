@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { homeworkApi } from '../../../services/api';
 import HomeworkList from './HomeworkList';
 import SubmissionList from './SubmissionList';
@@ -8,12 +8,13 @@ import Swal from 'sweetalert2';
 
 const MySwal = withReactContent(Swal);
 
-// 接收新的 prop: refreshTrigger
-const TeacherDashboard = ({ view, navigateTo, refreshTrigger }) => {
+// 接收 onEditHomework 和 refreshTrigger props
+const TeacherDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) => {
     const [homeworks, setHomeworks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchHomeworks = async () => {
+    // --- fetchHomeworks 现在使用 useCallback ---
+    const fetchHomeworks = useCallback(async () => {
         setIsLoading(true);
         try {
             const response = await homeworkApi.get('/teacher/all');
@@ -24,7 +25,7 @@ const TeacherDashboard = ({ view, navigateTo, refreshTrigger }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []); // 依赖项为空
 
     const handleDeleteHomework = async (homeworkId, homeworkTitle) => {
         const result = await MySwal.fire({
@@ -41,22 +42,21 @@ const TeacherDashboard = ({ view, navigateTo, refreshTrigger }) => {
             try {
                 await homeworkApi.delete(`/${homeworkId}`);
                 MySwal.fire({ icon: 'success', title: '作业已删除', timer: 1500, showConfirmButton: false });
-                fetchHomeworks(); // 直接调用 fetch 重新加载列表
+                fetchHomeworks(); // 删除成功后刷新列表
             } catch (error) {
                 MySwal.fire({ icon: 'error', title: '删除失败' });
             }
         }
     };
 
-    // useEffect 现在依赖于 view 和 refreshTrigger
+    // useEffect 现在依赖于 fetchHomeworks 和 refreshTrigger
     useEffect(() => {
-        // 仅当视图是列表时才获取作业
         if (view.name === 'list') {
             fetchHomeworks();
         }
-    }, [view, refreshTrigger]); // 当 view 或 refreshTrigger 变化时，重新运行
+    }, [view.name, fetchHomeworks, refreshTrigger]);
 
-    if (isLoading) {
+    if (isLoading && view.name === 'list') {
         return <Spinner />;
     }
 
@@ -66,11 +66,12 @@ const TeacherDashboard = ({ view, navigateTo, refreshTrigger }) => {
 
     return (
         <div>
-            {/* 按钮和模态框已移至父组件 */}
+            {/* 将 onEditHomework 传递给 HomeworkList */}
             <HomeworkList
                 homeworks={homeworks}
                 onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                 onDeleteHomework={handleDeleteHomework}
+                onEditHomework={onEditHomework} // <-- 传递 prop
                 isTeacher={true}
             />
         </div>

@@ -10,7 +10,7 @@ import adminStyles from './AdminDashboard.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons';
 
-const AdminDashboard = ({ view, navigateTo }) => {
+const AdminDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) => {
     const { selectedClass, setSelectedClass } = useAuthStore();
     const [classes, setClasses] = useState([]);
     const [homeworks, setHomeworks] = useState([]);
@@ -54,7 +54,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
         } else if (!selectedClass) {
             fetchClasses();
         }
-    }, [selectedClass, view.name, fetchClasses, fetchHomeworks]);
+    }, [selectedClass, view.name, fetchClasses, fetchHomeworks, refreshTrigger]);
 
     // 1. 输入框内容变化时，只更新 state
     const handleSearchChange = (e) => {
@@ -133,6 +133,7 @@ const AdminDashboard = ({ view, navigateTo }) => {
                     isTeacher={true} // 管理员复用教师卡片的可操作性
                     onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                     onDeleteHomework={handleDeleteHomework}
+                    onEditHomework={onEditHomework}
                 />
             </div>
         );
