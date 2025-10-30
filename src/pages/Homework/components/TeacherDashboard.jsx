@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 const MySwal = withReactContent(Swal);
 
 // 接收 onEditHomework 和 refreshTrigger props
-const TeacherDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) => {
+const TeacherDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
     const [homeworks, setHomeworks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -61,7 +61,10 @@ const TeacherDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) 
     }
 
     if (view.name === 'submissionList') {
-        return <SubmissionList homeworkId={view.data} onBack={() => navigateTo('list')} />;
+        return <SubmissionList
+            homeworkId={view.data}
+            onBack={() => navigateTo('list')}
+            onOpenDiscussion={onOpenDiscussion} />;
     }
 
     return (
@@ -72,7 +75,7 @@ const TeacherDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) 
                 onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                 onDeleteHomework={handleDeleteHomework}
                 onEditHomework={onEditHomework} // <-- 传递 prop
-                isTeacher={true}
+                onOpenDiscussion={onOpenDiscussion}
             />
         </div>
     );

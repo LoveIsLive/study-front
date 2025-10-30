@@ -48,12 +48,21 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.65;
+}
+
+
 .btnPrimary {
     background-color: #007bff;
     color: white;
 }
 
-.btnPrimary:hover {
+.btnPrimary:hover:not(:disabled) {
     background-color: #0069d9;
 }
 
@@ -62,7 +71,7 @@
     color: white;
 }
 
-.btnSecondary:hover {
+.btnSecondary:hover:not(:disabled) {
     background-color: #5a6268;
 }
 
@@ -71,7 +80,7 @@
     color: white;
 }
 
-.btnDanger:hover {
+.btnDanger:hover:not(:disabled) {
     background-color: #c82333;
 }
 
@@ -94,12 +103,17 @@
     gap: 1.5rem;
 }
 
-.itemCard {
+.itemCard,
+.submissionDetailCard {
+    position: relative;
+    overflow: hidden;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 1.5rem 2rem;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .itemCard:hover {
@@ -122,6 +136,8 @@
     font-weight: 600;
     color: #2c3e50;
     margin: 0;
+    /* 已更新：增加右内边距，防止标题被折角遮挡 */
+    padding-right: 5rem;
 }
 
 .cardTitle {
@@ -137,6 +153,8 @@
     color: #888;
     text-align: right;
     line-height: 1.5;
+    flex-shrink: 0;
+    margin-left: 1rem;
 }
 
 .cardContent {
@@ -144,6 +162,7 @@
     line-height: 1.6;
     margin-bottom: 1.5rem;
     white-space: pre-wrap;
+    flex-grow: 1;
 }
 
 .cardAttachments h4 {
@@ -224,6 +243,52 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+
+    &:empty {
+        display: none;
+    }
+}
+
+
+/* --- 折角状态UI --- */
+.statusRibbon::after {
+    content: attr(data-status);
+    position: absolute;
+    /* 已更新：微调位置，防止遮挡内容 */
+    top: 18px;
+    right: -32px;
+    width: 120px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    transform: rotate(45deg);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.statusSubmitted::after {
+    background-color: #007bff;
+    /* 蓝色 - 已提交 */
+}
+
+.statusResubmitted::after {
+    background-color: #28a745;
+    /* 绿色 - 重新提交 */
+}
+
+.statusUpdated::after {
+    background-color: #ffc107;
+    /* 黄色 - 作业更新 */
+    color: #212529;
+}
+
+.statusReturned::after {
+    background-color: #dc3545;
+    /* 红色 - 被退回 */
 }
 
 /* --- 视图切换 & 标题 --- */
@@ -296,6 +361,13 @@
     font-size: 1rem;
 }
 
+.formGroup input:disabled,
+.formGroup textarea:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+
 .formGroup textarea {
     resize: vertical;
 }
@@ -339,6 +411,9 @@
     border-radius: 8px;
     padding: 1.5rem 2rem;
     margin-bottom: 2rem;
+    position: static;
+    /* This card should not have a ribbon */
+    overflow: visible;
 }
 
 .detailCardHeader {
@@ -427,7 +502,6 @@
 
 .existingAttachmentList li span {
     flex-grow: 1;
-    /* 让文件名占据多余空间 */
     font-size: 0.9rem;
 }
 

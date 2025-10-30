@@ -1,10 +1,15 @@
 import React from 'react';
 import HomeworkCard from './HomeworkCard';
 import styles from '../HomeworkPage.module.css';
+import useAuthStore from '../../../store/authStore';
 
-const HomeworkList = ({ homeworks, onViewSubmissions, onDeleteHomework, onSelectHomework, isTeacher, onEditHomework }) => {
+const HomeworkList = ({ homeworks, onViewSubmissions, onDeleteHomework,
+    onSelectHomework, onEditHomework, onOpenDiscussion }) => {
+    const { user } = useAuthStore();
+    const isManage = user && (user.isTeacher || user.isAdmin);
+
     if (!homeworks || homeworks.length === 0) {
-        return <p className={styles.placeholderText}>{isTeacher ? '您还没有发布任何作业' : '当前没有作业'}</p>;
+        return <p className={styles.placeholderText}>{isManage ? '您还没有发布任何作业' : '当前没有作业'}</p>;
     }
 
     return (
@@ -13,11 +18,11 @@ const HomeworkList = ({ homeworks, onViewSubmissions, onDeleteHomework, onSelect
                 <HomeworkCard
                     key={hw.id}
                     homework={hw}
-                    isTeacher={isTeacher}
                     onViewSubmissions={onViewSubmissions}
                     onDeleteHomework={onDeleteHomework}
                     onSelectHomework={onSelectHomework}
                     onEdit={onEditHomework}
+                    onOpenDiscussion={onOpenDiscussion}
                 />
             ))}
         </div>

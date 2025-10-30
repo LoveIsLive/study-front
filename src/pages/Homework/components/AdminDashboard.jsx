@@ -10,7 +10,7 @@ import adminStyles from './AdminDashboard.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons';
 
-const AdminDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) => {
+const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
     const { selectedClass, setSelectedClass } = useAuthStore();
     const [classes, setClasses] = useState([]);
     const [homeworks, setHomeworks] = useState([]);
@@ -116,7 +116,11 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) =>
     }
 
     if (selectedClass && view.name === 'submissionList') {
-        return <SubmissionList homeworkId={view.data} onBack={() => navigateTo('list')} isAdminView={true} />;
+        return <SubmissionList
+            homeworkId={view.data}
+            onBack={() => navigateTo('list')}
+            isAdminView={true}
+            onOpenDiscussion={onOpenDiscussion} />;
     }
 
     if (selectedClass) {
@@ -130,10 +134,10 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, refreshTrigger }) =>
                 </div>
                 <HomeworkList
                     homeworks={homeworks}
-                    isTeacher={true} // 管理员复用教师卡片的可操作性
                     onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                     onDeleteHomework={handleDeleteHomework}
                     onEditHomework={onEditHomework}
+                    onOpenDiscussion={onOpenDiscussion}
                 />
             </div>
         );

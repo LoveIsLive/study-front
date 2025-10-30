@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { homeworkApi, submissionApi } from '../../../services/api';
 import HomeworkList from './HomeworkList';
 import SubmissionDetailView from './SubmissionDetailView';
-import SubmissionList from './SubmissionList'; // 复用 SubmissionList 显示“我的提交”
+import SubmissionList from './SubmissionList';
+import SubmissionModal from './SubmissionModal';
 import Spinner from '../../../components/common/Spinner/Spinner';
 import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
 
-const StudentDashboard = ({ view, navigateTo }) => {
+const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
     const [activeTab, setActiveTab] = useState('all-homework');
     const [homeworks, setHomeworks] = useState([]);
     const [submissions, setSubmissions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingSubmission, setEditingSubmission] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-    const fetchAllHomeworks = async () => {
+    const fetchAllHomeworks = useCallback(async () => {
         setIsLoading(true);
         try {
             const response = await homeworkApi.get('/student/all');
@@ -23,9 +27,9 @@ const StudentDashboard = ({ view, navigateTo }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
-    const fetchMySubmissions = async () => {
+    const fetchMySubmissions = useCallback(async () => {
         setIsLoading(true);
         try {
             const response = await submissionApi.get('/student/all');
@@ -35,7 +39,7 @@ const StudentDashboard = ({ view, navigateTo }) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (view.name === 'list') {
@@ -45,41 +49,90 @@ const StudentDashboard = ({ view, navigateTo }) => {
                 fetchMySubmissions();
             }
         }
-    }, [view, activeTab]);
+    }, [view, activeTab, fetchAllHomeworks, fetchMySubmissions]);
 
-    if (view.name === 'submissionDetail') {
-        return <SubmissionDetailView homeworkId={view.data} onBack={() => navigateTo('list')} />;
-    }
+    const handleOpenEditModal = (submission) => {
+        setEditingSubmission(submission);
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setEditingSubmission(null);
+    };
+
+    const handleModalSuccess = () => {
+        handleModalClose();
+        // 如果当前在详情页，我们不导航，而是更新触发器来刷新子组件
+        if (view.name === 'submissionDetail') {
+            setRefreshTrigger(t => t + 1); // 递增触发器
+        } else {
+            // 如果是在列表页（例如将来可能在列表页直接修改），则刷新列表
+            fetchMySubmissions();
+        }
+    };
+
+    // 已修复：重构渲染逻辑，将视图切换和模态框渲染分离
+    const renderCurrentView = () => {
+        if (isLoading) {
+            return <Spinner />;
+        }
+
+        if (view.name === 'submissionDetail') {
+            return <SubmissionDetailView
+                homeworkId={view.data}
+                onBack={() => navigateTo('list')}
+                onEditSubmission={handleOpenEditModal}
+                refreshTrigger={refreshTrigger}
+            />;
+        }
+
+        // 默认显示列表视图
+        return (
+            <>
+                <div className={styles.tabsContainer}>
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'all-homework' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('all-homework')}
+                    >
+                        所有作业
+                    </button>
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('my-submissions')}
+                    >
+                        我的提交
+                    </button>
+                </div>
+                {activeTab === 'all-homework' &&
+                    <HomeworkList
+                        homeworks={homeworks}
+                        onSelectHomework={(homeworkId) => navigateTo('submissionDetail', homeworkId)}
+                        onOpenDiscussion={onOpenDiscussion}
+                    />}
+                {activeTab === 'my-submissions' &&
+                    <SubmissionList
+                        submissions={submissions}
+                        isStudentView={true}
+                        onEditSubmission={handleOpenEditModal}
+                        onOpenDiscussion={onOpenDiscussion}
+                    />}
+            </>
+        );
+    };
 
     return (
         <div>
-            <div className={styles.tabsContainer}>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'all-homework' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('all-homework')}
-                >
-                    所有作业
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('my-submissions')}
-                >
-                    我的提交
-                </button>
-            </div>
+            {/* 视图内容 */}
+            {renderCurrentView()}
 
-            {isLoading ? <Spinner /> : (
-                <>
-                    {activeTab === 'all-homework' &&
-                        <HomeworkList
-                            homeworks={homeworks}
-                            onSelectHomework={(homeworkId) => navigateTo('submissionDetail', homeworkId)}
-                            isTeacher={false}
-                        />}
-                    {activeTab === 'my-submissions' &&
-                        <SubmissionList submissions={submissions} isStudentView={true} />}
-                </>
-            )}
+            {/* 模态框始终在组件树中，仅通过 isOpen 控制可见性 */}
+            <SubmissionModal
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+                onSuccess={handleModalSuccess}
+                editingSubmission={editingSubmission}
+            />
         </div>
     );
 };

@@ -1,21 +1,35 @@
-// src/pages/Homework/components/SubmissionDetailView.jsx (最终修正版)
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBookOpen, faCheck, faSpinner, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faBookOpen, faCheck, faSpinner, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import { useUploader } from '../../../hooks/useUploader';
 import { homeworkApi, submissionApi } from '../../../services/api';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
+import DiscussionBoard from './Discussion/DiscussionBoard';
 import FileUpload from '../../../components/shared/FileUpload/FileUpload';
 import Spinner from '../../../components/common/Spinner/Spinner';
 
 import progressStyles from '../../Ware/components/NewItemModal.module.css';
 import styles from '../HomeworkPage.module.css';
 
-const SubmissionDetailView = ({ homeworkId, onBack }) => {
+// 状态显示辅助函数 (匹配中文状态)
+const getStatusInfo = (status) => {
+    switch (status) {
+        case '被退回':
+            return { text: '被退回', className: styles.statusReturned };
+        case '作业有更新':
+            return { text: '作业有更新', className: styles.statusUpdated };
+        case '重新提交':
+            return { text: '重新提交', className: styles.statusResubmitted };
+        case '已提交':
+        default:
+            return { text: '已提交', className: styles.statusSubmitted };
+    }
+};
+
+const SubmissionDetailView = ({ homeworkId, onBack, onEditSubmission, refreshTrigger }) => {
     const [homework, setHomework] = useState(null);
     const [submission, setSubmission] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -26,22 +40,23 @@ const SubmissionDetailView = ({ homeworkId, onBack }) => {
         uploadProgress,
         isUploading,
         startUpload,
-        updateFileProgress,
+        updateFileProgress, // 保留以备将来更复杂的进度处理
         setIsUploading,
         resetUploader
     } = useUploader();
 
-    // --- 关键修正部分 ---
-    // 1. fetchData 不再需要 useCallback 包装，因为它只在 useEffect 内部被调用。
     const fetchData = async () => {
         setIsLoading(true);
         try {
+            // 获取作业本身的详细信息
             const hwRes = await homeworkApi.get(`/${homeworkId}`);
             setHomework(hwRes.data.data);
             try {
+                // 尝试获取学生对此作业的提交记录
                 const subRes = await submissionApi.get(`/student/${homeworkId}/submission`);
                 setSubmission(subRes.data.data);
             } catch (error) {
+                // 如果返回404，说明学生还未提交，这是正常情况
                 if (error.response?.status !== 404) throw error;
                 setSubmission(null);
             }
@@ -52,52 +67,44 @@ const SubmissionDetailView = ({ homeworkId, onBack }) => {
         }
     };
 
-    // 2. useEffect 直接依赖于 homeworkId。
-    //    这样，只有当 homeworkId 真正发生变化时（例如从一个作业详情页切换到另一个），
-    //    才会重新获取数据，同时也保证了组件首次加载时一定会执行。
     useEffect(() => {
         fetchData();
-    }, [homeworkId]);
+    }, [homeworkId, refreshTrigger]);
 
-
+    // 处理首次提交作业的函数
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
             const { smallFiles, largeFileAttachmentIds } = await startUpload(files);
 
-            updateFileProgress('form', { status: '提交作业...' });
             const dto = { homeworkId, content, attachmentUploadIds: largeFileAttachmentIds };
             const formData = new FormData();
             formData.append('dto', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
 
             smallFiles.forEach(file => {
-                updateFileProgress(file.name, { percent: 0, status: '上传中...' });
                 formData.append('files', file);
             });
 
-            await submissionApi.post('/submit', formData, {
-                onUploadProgress: (progressEvent) => {
-                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    smallFiles.forEach(file => updateFileProgress(file.name, { percent, status: '上传中...' }));
-                }
-            });
+            await submissionApi.post('/submit', formData);
 
-            files.forEach(file => updateFileProgress(file.name, { percent: 100, status: '成功' }));
             Swal.fire({ icon: 'success', title: '作业提交成功!', timer: 1500, showConfirmButton: false });
             resetUploader();
-            fetchData();
+            fetchData(); // 成功后重新加载数据，显示已提交的视图
 
         } catch (error) {
             console.error("Failed during submission:", error);
-            Swal.fire({ icon: 'error', title: '提交失败', text: '请检查进度列表后重试。' });
+            Swal.fire({ icon: 'error', title: '提交失败', text: '请检查网络后重试。' });
         } finally {
             setIsUploading(false);
         }
     };
 
     if (isLoading) return <Spinner />;
-    if (!homework) return <p>作业加载失败或不存在。</p>;
+    if (!homework) return <p className={styles.placeholderText}>作业加载失败或不存在。</p>;
+
+    const statusInfo = submission ? getStatusInfo(submission.status) : null;
+    const cardClasses = submission ? `${styles.submissionDetailCard} ${styles.statusRibbon} ${statusInfo.className}` : styles.submissionDetailCard;
 
     return (
         <div className={styles.view}>
@@ -108,27 +115,54 @@ const SubmissionDetailView = ({ homeworkId, onBack }) => {
                 <h2>{homework.title}</h2>
             </div>
 
+            <div className={styles.homeworkDetailCard}>
+                <div className={styles.detailCardHeader}>
+                    <h3><FontAwesomeIcon icon={faBookOpen} /> 作业详情</h3>
+                    <div className={styles.cardMeta}>
+                        发布者: {homework.teacherName || '未知教师'} <br />
+                        修改日期: {new Date(homework.updateTime).toLocaleString('zh-CN')}
+                    </div>
+                </div>
+                <div className={styles.cardContent} dangerouslySetInnerHTML={{ __html: sanitizeHTML(homework.content) || '<i>教师没有填写具体内容。</i>' }} />
+                <AttachmentList attachments={homework.attachments} />
+            </div>
+
+            {/* --- 作业公共讨论区 --- */}
+            <div className={styles.submissionFormCard} style={{ marginTop: '2rem' }}>
+                <h3>公共讨论区</h3>
+                <DiscussionBoard ownerId={homeworkId} ownerType="homework" />
+            </div>
+
             {submission ? (
-                <div className={styles.submissionDetailCard}>
-                    <h3>我的提交</h3>
+                // --- 已提交作业的视图 ---
+                <div className={cardClasses} data-status={statusInfo.text}>
+                    <div className={styles.cardHeader}>
+                        <h3>我的提交</h3>
+                        <div className={styles.cardMeta}>
+                            提交者: {submission.studentName} <br />
+                            提交于: {new Date(submission.createTime).toLocaleString('zh-CN')}
+                        </div>
+                    </div>
                     <p><strong>提交内容:</strong></p>
                     <p dangerouslySetInnerHTML={{ __html: sanitizeHTML(submission.content) || '<i>无提交内容</i>' }} />
                     <br />
                     <AttachmentList attachments={submission.attachments} />
+
+                    {/* 如果作业状态为“被退回”，则显示修改按钮 */}
+                    {(submission.status === '被退回' || submission.status === '作业有更新') && (
+                        <div className={styles.cardFooter}>
+                            <button
+                                className={`${styles.btn} ${styles.btnPrimary}`}
+                                onClick={() => onEditSubmission(submission)}
+                            >
+                                <FontAwesomeIcon icon={faEdit} /> 修改提交
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
+                // --- 首次提交作业的视图 ---
                 <div>
-                    <div className={styles.homeworkDetailCard}>
-                        <div className={styles.detailCardHeader}>
-                            <h3><FontAwesomeIcon icon={faBookOpen} /> 作业详情</h3>
-                            <div className={styles.cardMeta}>
-                                发布者: {homework.teacherName || '未知教师'} <br />
-                                发布于: {new Date(homework.createTime).toLocaleString('zh-CN')}
-                            </div>
-                        </div>
-                        <div className={styles.cardContent} dangerouslySetInnerHTML={{ __html: sanitizeHTML(homework.content) || '<i>教师没有填写具体内容。</i>' }} />
-                        <AttachmentList attachments={homework.attachments} />
-                    </div>
                     <div className={styles.submissionFormCard}>
                         <h3>提交作业</h3>
                         <form onSubmit={handleSubmit}>

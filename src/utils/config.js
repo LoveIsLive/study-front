@@ -14,6 +14,7 @@ export const config = {
     back_WARE_PREFIX: '/ware/home',
     back_CLASS_PREFIX: '/classes',
     back_CLASSMEMBER_PREFIX: '/classmember',
+    back_DISCUSSION_PREFIX: '/discussion',
 
 
     // 前端常量配置 (用于路由)

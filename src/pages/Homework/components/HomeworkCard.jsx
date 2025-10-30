@@ -1,12 +1,12 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faTrashAlt, faEdit, faComments } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../../store/authStore';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import styles from '../HomeworkPage.module.css';
 
-const HomeworkCard = ({ homework, isTeacher, onEdit, onViewSubmissions, onDeleteHomework, onSelectHomework }) => {
+const HomeworkCard = ({ homework, onEdit, onViewSubmissions, onDeleteHomework, onSelectHomework, onOpenDiscussion }) => {
     const { user } = useAuthStore(); // 获取当前用户信息
     const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
 
@@ -17,7 +17,7 @@ const HomeworkCard = ({ homework, isTeacher, onEdit, onViewSubmissions, onDelete
         <div className={styles.itemCard}>
             <div className={styles.cardHeader}>
                 <div>
-                    {isTeacher ? (
+                    {canOperate ? (
                         <h3 className={styles.cardNoclickTitle}>{sanitizeHTML(homework.title)}</h3>
                     ) : (
                         <h3 className={styles.cardTitle} onClick={() => onSelectHomework(homework.id)}>
@@ -26,7 +26,7 @@ const HomeworkCard = ({ homework, isTeacher, onEdit, onViewSubmissions, onDelete
                     )}
                 </div>
                 <div className={styles.cardMeta}>
-                    发布于: {formatDate(homework.createTime)} <br />
+                    修改日期: {formatDate(homework.updateTime)} <br />
                     发布者: {homework.teacherName}
                 </div>
             </div>
@@ -37,29 +37,41 @@ const HomeworkCard = ({ homework, isTeacher, onEdit, onViewSubmissions, onDelete
                 <AttachmentList attachments={homework.attachments} />
             </div>
 
-            {/* 使用 canOperate 进行权限判断 */}
-            {isTeacher && canOperate && (
-                <div className={styles.cardFooter}>
-                    <button
-                        className={`${styles.btn} ${styles.btnSecondary}`}
-                        onClick={() => onEdit(homework)}
-                    >
-                        <FontAwesomeIcon icon={faEdit} /> 编辑
-                    </button>
-                    <button
-                        className={`${styles.btn} ${styles.btnSecondary}`}
-                        onClick={() => onViewSubmissions(homework.id)}
-                    >
-                        <FontAwesomeIcon icon={faUsers} /> 查看提交
-                    </button>
-                    <button
-                        className={`${styles.btn} ${styles.btnDanger}`}
-                        onClick={() => onDeleteHomework(homework.id, homework.title)}
-                    >
-                        <FontAwesomeIcon icon={faTrashAlt} /> 删除作业
-                    </button>
-                </div>
-            )}
+            <div className={styles.cardFooter}>
+                <button
+                    className={`${styles.btn} ${styles.btnSecondary}`}
+                    onClick={() => onOpenDiscussion({
+                        ownerId: homework.id,
+                        ownerType: 'homework',
+                        title: homework.title
+                    })}
+                >
+                    <FontAwesomeIcon icon={faComments} /> 讨论区
+                </button>
+
+                {canOperate && (
+                    <>
+                        <button
+                            className={`${styles.btn} ${styles.btnSecondary}`}
+                            onClick={() => onEdit(homework)}
+                        >
+                            <FontAwesomeIcon icon={faEdit} /> 编辑
+                        </button>
+                        <button
+                            className={`${styles.btn} ${styles.btnSecondary}`}
+                            onClick={() => onViewSubmissions(homework.id)}
+                        >
+                            <FontAwesomeIcon icon={faUsers} /> 查看提交
+                        </button>
+                        <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={() => onDeleteHomework(homework.id, homework.title)}
+                        >
+                            <FontAwesomeIcon icon={faTrashAlt} /> 删除作业
+                        </button>
+                    </>
+                )}
+            </div>
         </div>
     );
 };

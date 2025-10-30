@@ -4,6 +4,7 @@ import TeacherDashboard from './components/TeacherDashboard';
 import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import HomeworkModal from './components/HomeworkModal';
+import DiscussionDrawer from './components/DiscussionDrawer';
 import Spinner from '../../components/common/Spinner/Spinner';
 import styles from './HomeworkPage.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +18,7 @@ const HomeworkPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingHomework, setEditingHomework] = useState(null); // null for create, object for edit
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [discussionTarget, setDiscussionTarget] = useState(null);
 
     useEffect(() => {
         setView({ name: 'list', data: null });
@@ -25,6 +27,15 @@ const HomeworkPage = () => {
     const navigateTo = useCallback((viewName, viewData = null) => {
         setView({ name: viewName, data: viewData });
     }, []);
+
+    // --- 讨论区模态框控制 ---
+    const handleOpenDiscussion = useCallback((target) => {
+        setDiscussionTarget(target);
+    }, []);
+
+    const handleCloseDiscussion = () => {
+        setDiscussionTarget(null);
+    };
 
     // --- 统一的模态框控制逻辑 ---
     const handleOpenCreateModal = () => {
@@ -56,6 +67,7 @@ const HomeworkPage = () => {
                 view={view}
                 navigateTo={navigateTo}
                 onEditHomework={handleOpenEditModal}
+                onOpenDiscussion={handleOpenDiscussion}
                 refreshTrigger={refreshTrigger}
             />;
         }
@@ -64,10 +76,14 @@ const HomeworkPage = () => {
                 view={view}
                 navigateTo={navigateTo}
                 onEditHomework={handleOpenEditModal}
+                onOpenDiscussion={handleOpenDiscussion}
                 refreshTrigger={refreshTrigger}
             />;
         }
-        return <StudentDashboard view={view} navigateTo={navigateTo} />;
+        return <StudentDashboard
+            view={view}
+            navigateTo={navigateTo}
+            onOpenDiscussion={handleOpenDiscussion} />;
     };
 
     return (
@@ -99,6 +115,11 @@ const HomeworkPage = () => {
                     editingHomework={editingHomework}
                 />
             )}
+
+            <DiscussionDrawer
+                target={discussionTarget}
+                onClose={handleCloseDiscussion}
+            />
         </div>
     );
 };
