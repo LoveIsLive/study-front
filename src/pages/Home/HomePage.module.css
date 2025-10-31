@@ -214,3 +214,23 @@
         transform: rotate(360deg);
     }
 }
+
+/* 为可点击的卡片添加鼠标指针和更平滑的过渡 */
+.clickable {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+/* 增强可点击卡片的悬停效果 */
+.clickable:hover {
+    transform: translateY(-12px) scale(1.04);
+    box-shadow: 0 0 60px rgba(0, 255, 255, 0.8), inset 0 0 25px rgba(0, 220, 220, 0.5);
+    border-color: rgba(0, 255, 255, 0.8);
+}
+
+/* 为可点击卡片添加点击时的“按下”效果 */
+.clickable:active {
+    transform: translateY(-8px) scale(1.02);
+    transition-duration: 0.1s;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), inset 0 0 20px rgba(0, 220, 220, 0.4);
+}

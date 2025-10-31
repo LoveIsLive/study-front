@@ -1,6 +1,7 @@
 // src/pages/Home/HomePage.jsx (最终优化版)
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import gsap from 'gsap';
@@ -12,11 +13,19 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HomePage = () => {
     // ... (所有 state 和 hooks 的定义保持不变)
+    const navigate = useNavigate();
     const [engineReady, setEngineReady] = useState(false);
     const [dataReady, setDataReady] = useState(false);
     const [isPageReady, setIsPageReady] = useState(false);
     const [timelineData, setTimelineData] = useState([]);
     const isMounted = useRef(true);
+
+    const handleCardClick = (location) => {
+        // 只有当 location 存在时才执行导航
+        if (location) {
+            navigate('/ware/home/' + location);
+        }
+    };
 
     // ... (所有 useEffect 和 useMemo 的逻辑保持不变)
     useEffect(() => {
@@ -119,7 +128,11 @@ const HomePage = () => {
                         <div className={styles.timelineContent}>
                             {timelineData.map((item, index) => (
                                 <div key={index} className={styles.timelineItem}>
-                                    <div className={styles.timelineItemInner}>
+                                    {/* 4. 关键修改：添加 onClick 和条件 className */}
+                                    <div
+                                        className={`${styles.timelineItemInner} ${item.location ? styles.clickable : ''}`}
+                                        onClick={() => handleCardClick(item.location)}
+                                    >
                                         <h3>{item.title}</h3>
                                         <div className={styles.time}>{item.time}</div>
                                         <p>{item.description}</p>

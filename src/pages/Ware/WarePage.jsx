@@ -48,7 +48,7 @@ const WarePage = () => {
 
     // --- 关键修正部分 ---
     useEffect(() => {
-        const rawPathFromUrl = location.pathname.replace('/ware/home', '') || '/';
+        const rawPathFromUrl = location.pathname.replace(/^\/ware\/home/, '') || '/';
 
         try {
             const decodedPath = decodeURIComponent(rawPathFromUrl);
