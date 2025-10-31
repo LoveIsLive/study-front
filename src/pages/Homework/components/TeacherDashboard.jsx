@@ -5,15 +5,17 @@ import SubmissionList from './SubmissionList';
 import Spinner from '../../../components/common/Spinner/Spinner';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import styles from '../HomeworkPage.module.css'; // 引入样式
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const MySwal = withReactContent(Swal);
 
-// 接收 onEditHomework 和 refreshTrigger props
-const TeacherDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
+// 接收 onOpenCreateModal, onEditHomework 和 refreshTrigger props
+const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
     const [homeworks, setHomeworks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // --- fetchHomeworks 现在使用 useCallback ---
     const fetchHomeworks = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -25,7 +27,7 @@ const TeacherDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, 
         } finally {
             setIsLoading(false);
         }
-    }, []); // 依赖项为空
+    }, []);
 
     const handleDeleteHomework = async (homeworkId, homeworkTitle) => {
         const result = await MySwal.fire({
@@ -42,14 +44,13 @@ const TeacherDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, 
             try {
                 await homeworkApi.delete(`/${homeworkId}`);
                 MySwal.fire({ icon: 'success', title: '作业已删除', timer: 1500, showConfirmButton: false });
-                fetchHomeworks(); // 删除成功后刷新列表
+                fetchHomeworks();
             } catch (error) {
                 MySwal.fire({ icon: 'error', title: '删除失败' });
             }
         }
     };
 
-    // useEffect 现在依赖于 fetchHomeworks 和 refreshTrigger
     useEffect(() => {
         if (view.name === 'list') {
             fetchHomeworks();
@@ -69,12 +70,17 @@ const TeacherDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, 
 
     return (
         <div>
-            {/* 将 onEditHomework 传递给 HomeworkList */}
+            <div className={styles.dashboardHeader}>
+                <h2>我发布的</h2>
+                <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onOpenCreateModal}>
+                    <FontAwesomeIcon icon={faPlus} /> 发布作业
+                </button>
+            </div>
             <HomeworkList
                 homeworks={homeworks}
                 onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                 onDeleteHomework={handleDeleteHomework}
-                onEditHomework={onEditHomework} // <-- 传递 prop
+                onEditHomework={onEditHomework}
                 onOpenDiscussion={onOpenDiscussion}
             />
         </div>

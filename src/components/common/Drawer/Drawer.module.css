@@ -29,8 +29,12 @@
     top: 0;
     right: 0;
     width: 100%;
-    max-width: 600px;
-    /* 抽屉的最大宽度 */
+    /* ▼▼▼ 修改默认最大宽度 ▼▼▼ */
+    max-width: 90vw;
+    /* 最大不超过视口宽度的90% */
+    width: 800px;
+    /* 默认宽度 */
+    /* ▲▲▲ 修改默认最大宽度 ▲▲▲ */
     height: 100%;
     background-color: #ffffff;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15);
@@ -38,10 +42,46 @@
     flex-direction: column;
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-width: 400px;
 }
 
 .drawerContainer.open .drawer {
     transform: translateX(0);
+}
+
+.resizer {
+    position: absolute;
+    top: 0;
+    left: -5px;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+    /* 新增：让手柄在视觉上更明确 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 在手柄内部创建一个可视化的垂直线 */
+.resizer::before {
+    content: '';
+    width: 2px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 2px;
+    transition: background-color 0.2s ease;
+}
+
+.resizer:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+    /* 悬停时显示蓝色提示条 */
+}
+
+.resizer:hover::before {
+    background-color: var(--primary-color, #007bff);
+    /* 使用主色调 */
+    opacity: 0.5;
 }
 
 .header {

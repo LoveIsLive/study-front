@@ -1,42 +1,105 @@
+/* --- Discussion.module.css (最终修复版) --- */
+
 /* --- 讨论区容器 --- */
 .discussionBoard {
-    padding: 1rem;
-    max-height: 70vh;
-    overflow-y: auto;
+    /* 继承 Drawer 的 padding */
+}
+
+.postCount {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 /* --- 帖子通用样式 --- */
 .post {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    position: relative;
+}
+
+.post+.post {
+    margin-top: 1.25rem;
 }
 
 .avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #007bff;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    font-size: 1.2rem;
     flex-shrink: 0;
+    background-color: var(--primary-color);
+    z-index: 2;
 }
 
-.postContent {
+/* 包含头部、内容、操作的整个帖子区域 */
+.postWrapper {
     flex-grow: 1;
-    background-color: #f8f9fa;
-    border-radius: 8px;
+}
+
+/* 帖子内容的气泡 */
+.postBubble {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 12px;
     padding: 0.8rem 1.2rem;
     border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* 
+   ▼▼▼ 这是核心修复 ▼▼▼
+   所有的悬浮效果（边框变色、阴影加深）都只绑定到 .postBubble:hover 上。
+   之前多余的 .post:hover .postBubble 规则已被删除。
+*/
+.postBubble:hover {
+    border-color: var(--primary-color, #007bff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 制作指向头像的小三角 */
+.postBubble::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: -11px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 12px solid #e9ecef;
+    /* 边框颜色 */
+}
+
+.postBubble::after {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: -9px;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 10px solid #ffffff;
+    /* 内部颜色 */
 }
 
 .postHeader {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.75rem;
     margin-bottom: 0.5rem;
 }
 
@@ -54,13 +117,35 @@
     white-space: pre-wrap;
     line-height: 1.6;
     color: #333;
+    word-break: break-word;
 }
 
+/* 操作按钮默认隐藏，悬停显示 (单一、干净的定义) */
 .postActions {
-    margin-top: 0.8rem;
+    position: absolute;
+    top: -16px;
+    right: 10px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    gap: 0.25rem;
+    padding: 4px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/*
+   ▼▼▼ 这是核心修复 ▼▼▼
+   操作按钮的显示也只依赖于 .postBubble:hover。
+*/
+.postBubble:hover .postActions {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .actionButton {
@@ -68,80 +153,98 @@
     border: none;
     color: #6c757d;
     cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 16px;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    gap: 4px;
 }
 
 .actionButton:hover {
-    background-color: #e9ecef;
-    color: #007bff;
+    background-color: #f1f3f5;
+    color: var(--primary-color);
 }
-
 
 /* --- 回复区 --- */
 .replies {
     margin-top: 1rem;
-    padding-left: 3.5rem;
-    /* 根据 (avatar width + gap) 调整 */
-    border-left: 2px solid #e9ecef;
+    padding-left: 56px;
+    /* (avatar width + gap) */
+    position: relative;
+}
+
+/* 优雅的连接线 */
+.replies::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    /* (avatar width / 2) */
+    top: -1rem;
+    /* 从父帖子的头像下方开始 */
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.replies .post::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    /* 对齐头像中心 */
+    left: -36px;
+    /* (padding-left - avatar-width/2) */
+    width: 20px;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
 }
 
 /* --- 讨论表单 --- */
 .discussionForm {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
+    margin-top: 1.5rem;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
 }
 
 .discussionForm textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid transparent;
+    /* 默认无边框 */
+    border-radius: 8px;
     box-sizing: border-box;
     font-size: 1rem;
     resize: vertical;
     min-height: 80px;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
 }
 
 .discussionForm textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.2);
 }
 
 .formActions {
     display: flex;
     justify-content: flex-end;
     gap: 0.8rem;
+    margin-top: 0.8rem;
 }
 
 .cancelButton {
-    background-color: #f1f3f5;
+    background-color: #e9ecef;
 }
 
 .cancelButton:hover {
     background-color: #dee2e6;
-}
-
-.postCount {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.postCount i {
-    margin-right: 8px;
 }
 
 .placeholder {

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBookOpen, faCheck, faSpinner, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
+
+import {
+    faEdit, faInfoCircle,
+    faCheckCircle, faExclamationTriangle, faTimesCircle, faBookOpen, faCheck, faSpinner, faArrowLeft
+} from '@fortawesome/free-solid-svg-icons';
 
 import { useUploader } from '../../../hooks/useUploader';
 import { homeworkApi, submissionApi } from '../../../services/api';
@@ -18,14 +22,14 @@ import styles from '../HomeworkPage.module.css';
 const getStatusInfo = (status) => {
     switch (status) {
         case '被退回':
-            return { text: '被退回', className: styles.statusReturned };
+            return { text: '被退回', className: styles.statusReturned, icon: faTimesCircle };
         case '作业有更新':
-            return { text: '作业有更新', className: styles.statusUpdated };
+            return { text: '作业有更新', className: styles.statusUpdated, icon: faExclamationTriangle };
         case '重新提交':
-            return { text: '重新提交', className: styles.statusResubmitted };
+            return { text: '重新提交', className: styles.statusResubmitted, icon: faCheckCircle };
         case '已提交':
         default:
-            return { text: '已提交', className: styles.statusSubmitted };
+            return { text: '已提交', className: styles.statusSubmitted, icon: faInfoCircle };
     }
 };
 
@@ -135,12 +139,18 @@ const SubmissionDetailView = ({ homeworkId, onBack, onEditSubmission, refreshTri
 
             {submission ? (
                 // --- 已提交作业的视图 ---
-                <div className={cardClasses} data-status={statusInfo.text}>
+                <div className={cardClasses}>
                     <div className={styles.cardHeader}>
-                        <h3>我的提交</h3>
+                        <div>
+                            <h3>我的提交</h3>
+                            <div className={`${styles.statusTag} ${statusInfo.className}`}>
+                                <FontAwesomeIcon icon={statusInfo.icon} />
+                                <span>{statusInfo.text}</span>
+                            </div>
+                        </div>
                         <div className={styles.cardMeta}>
                             提交者: {submission.studentName} <br />
-                            提交于: {new Date(submission.createTime).toLocaleString('zh-CN')}
+                            修改时间: {new Date(submission.updateTime).toLocaleDateString('zh-CN')}
                         </div>
                     </div>
                     <p><strong>提交内容:</strong></p>

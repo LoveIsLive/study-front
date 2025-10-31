@@ -6,24 +6,24 @@
     color: #333;
 }
 
-/* --- 页面主标题区域 --- */
-.appHeader {
+/* --- 页面主标题区域 (现在用于各 Dashboard 内部) --- */
+.dashboardHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.appHeader h1 {
+.dashboardHeader h2 {
     color: #2c3e50;
     margin: 0;
     font-size: 2rem;
     font-weight: 600;
 }
 
-/* --- 按钮通用样式 --- */
+/* --- 按钮通用样式 (使用全局 .btn) --- */
 .btn {
     padding: 10px 18px;
     border: none;
@@ -56,27 +56,26 @@
     opacity: 0.65;
 }
 
-
 .btnPrimary {
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .btnPrimary:hover:not(:disabled) {
-    background-color: #0069d9;
+    background-color: var(--primary-hover-color);
 }
 
 .btnSecondary {
-    background-color: #6c757d;
+    background-color: var(--secondary-color);
     color: white;
 }
 
 .btnSecondary:hover:not(:disabled) {
-    background-color: #5a6268;
+    background-color: var(--secondary-hover-color);
 }
 
 .btnDanger {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: white;
 }
 
@@ -87,7 +86,7 @@
 .actionBtn {
     background: transparent;
     border: none;
-    color: #007bff;
+    color: var(--primary-color);
     cursor: pointer;
     font-size: 0.9rem;
 }
@@ -108,17 +107,20 @@
     position: relative;
     overflow: hidden;
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
+    /* 更大的圆角 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 1.5rem 2rem;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     display: flex;
     flex-direction: column;
+    border: 1px solid transparent;
 }
 
 .itemCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-color);
 }
 
 .cardHeader {
@@ -136,8 +138,7 @@
     font-weight: 600;
     color: #2c3e50;
     margin: 0;
-    /* 已更新：增加右内边距，防止标题被折角遮挡 */
-    padding-right: 5rem;
+    padding-right: 1rem;
 }
 
 .cardTitle {
@@ -145,7 +146,7 @@
 }
 
 .cardTitle:hover {
-    color: #007bff;
+    color: var(--primary-color);
 }
 
 .cardMeta {
@@ -212,10 +213,6 @@
     font-size: 0.95rem;
 }
 
-.attachmentInfo i {
-    color: #6c757d;
-}
-
 .attachmentActions {
     display: flex;
     align-items: center;
@@ -223,7 +220,7 @@
 }
 
 .actionIcon {
-    color: #007bff;
+    color: var(--primary-color);
     cursor: pointer;
     font-size: 1.1rem;
     opacity: 0.7;
@@ -233,7 +230,7 @@
 .actionIcon:hover {
     opacity: 1;
     transform: scale(1.15);
-    color: #0056b3;
+    color: var(--primary-hover-color);
 }
 
 .cardFooter {
@@ -243,52 +240,52 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+}
 
-    &:empty {
-        display: none;
-    }
+.cardFooter:empty {
+    display: none;
 }
 
 
-/* --- 折角状态UI --- */
-.statusRibbon::after {
-    content: attr(data-status);
-    position: absolute;
-    /* 已更新：微调位置，防止遮挡内容 */
-    top: 18px;
-    right: -32px;
-    width: 120px;
-    height: 26px;
-    display: flex;
+.statusTag {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 0.8rem;
+    gap: 0.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    /* 胶囊形状 */
+    font-size: 0.85rem;
     font-weight: 600;
+    margin-top: 0.5rem;
+    /* 与内容保持间距 */
     color: #fff;
-    transform: rotate(45deg);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
 }
 
-.statusSubmitted::after {
-    background-color: #007bff;
-    /* 蓝色 - 已提交 */
+.statusSubmitted {
+    background-color: #17a2b8;
+    /* 信息蓝 */
+    box-shadow: 0 2px 5px rgba(23, 162, 184, 0.3);
 }
 
-.statusResubmitted::after {
+.statusResubmitted {
     background-color: #28a745;
-    /* 绿色 - 重新提交 */
+    /* 成功绿 */
+    box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
 }
 
-.statusUpdated::after {
+.statusUpdated {
     background-color: #ffc107;
-    /* 黄色 - 作业更新 */
+    /* 警告黄 */
     color: #212529;
+    /* 黄色背景需要深色文字 */
+    box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
 }
 
-.statusReturned::after {
+.statusReturned {
     background-color: #dc3545;
-    /* 红色 - 被退回 */
+    /* 危险红 */
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
 }
 
 /* --- 视图切换 & 标题 --- */
@@ -311,33 +308,38 @@
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
 /* --- Tab 样式 (学生) --- */
 .tabsContainer {
     margin-bottom: 2rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
 }
 
 .tabBtn {
-    padding: 12px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     border: none;
     background-color: transparent;
     font-size: 1.1rem;
-    color: #666;
+    font-weight: 500;
+    color: var(--text-color-secondary);
     border-bottom: 3px solid transparent;
-    margin-bottom: -1px;
+    margin-bottom: -2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .tabBtn.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
 }
 
 /* --- 表单样式 --- */
@@ -354,11 +356,19 @@
 .formGroup input[type="text"],
 .formGroup textarea {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px;
     box-sizing: border-box;
     font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.2);
 }
 
 .formGroup input:disabled,
@@ -366,7 +376,6 @@
     background-color: #e9ecef;
     cursor: not-allowed;
 }
-
 
 .formGroup textarea {
     resize: vertical;
@@ -387,7 +396,7 @@
 
 .spinner {
     border: 6px solid #f3f3f3;
-    border-top: 6px solid #007bff;
+    border-top: 6px solid var(--primary-color);
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -412,7 +421,6 @@
     padding: 1.5rem 2rem;
     margin-bottom: 2rem;
     position: static;
-    /* This card should not have a ribbon */
     overflow: visible;
 }
 
@@ -515,5 +523,5 @@
 }
 
 .deleteAttachmentBtn:hover {
-    color: #dc3545;
+    color: var(--danger-color);
 }

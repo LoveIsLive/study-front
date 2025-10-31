@@ -8,6 +8,22 @@ import styles from './Discussion.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments } from '@fortawesome/free-solid-svg-icons';
 
+const countPostsRecursively = (postsArray) => {
+    let count = 0;
+    if (!postsArray || postsArray.length === 0) {
+        return 0;
+    }
+
+    for (const post of postsArray) {
+        count++; // 加上帖子本身
+        // 如果帖子有回复，则递归地加上回复的数量
+        if (post.replies && post.replies.length > 0) {
+            count += countPostsRecursively(post.replies);
+        }
+    }
+    return count;
+};
+
 const DiscussionBoard = ({ ownerId, ownerType }) => {
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -64,8 +80,7 @@ const DiscussionBoard = ({ ownerId, ownerType }) => {
         }
     };
 
-    const postCount = posts.reduce((acc, post) => acc + 1 + (post.children?.length || 0), 0);
-
+    const postCount = countPostsRecursively(posts);
     if (isLoading) return <Spinner />;
 
     return (

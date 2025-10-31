@@ -1,6 +1,9 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faUndo, faComments } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEdit, faUndo, faComments, faInfoCircle,
+    faCheckCircle, faExclamationTriangle, faTimesCircle
+} from '@fortawesome/free-solid-svg-icons';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import styles from '../HomeworkPage.module.css';
@@ -9,33 +12,39 @@ import styles from '../HomeworkPage.module.css';
 const getStatusInfo = (status) => {
     switch (status) {
         case '被退回':
-            return { text: '被退回', className: styles.statusReturned };
+            return { text: '被退回', className: styles.statusReturned, icon: faTimesCircle };
         case '作业有更新':
-            return { text: '作业有更新', className: styles.statusUpdated };
+            return { text: '作业有更新', className: styles.statusUpdated, icon: faExclamationTriangle };
         case '重新提交':
-            return { text: '重新提交', className: styles.statusResubmitted };
+            return { text: '重新提交', className: styles.statusResubmitted, icon: faCheckCircle };
         case '已提交':
         default:
-            return { text: '已提交', className: styles.statusSubmitted };
+            return { text: '已提交', className: styles.statusSubmitted, icon: faInfoCircle };
     }
 };
 
 const SubmissionCard = ({ submission, isStudentView, onReturn, onEdit, onOpenDiscussion }) => {
-    const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
+    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('zh-CN');
     const statusInfo = getStatusInfo(submission.status);
 
     const title = isStudentView
         ? `作业: ${sanitizeHTML(submission.homework?.title || '未知作业')}`
         : `<strong>${submission.studentName}</strong>`;
 
-    const cardClasses = `${styles.itemCard} ${styles.statusRibbon} ${statusInfo.className}`;
+    const cardClasses = `${styles.itemCard}`;
 
     return (
-        <div className={cardClasses} data-status={statusInfo.text}>
+        <div className={cardClasses}>
             <div className={styles.cardHeader}>
-                <h3 className={styles.cardNoclickTitle} dangerouslySetInnerHTML={{ __html: title }} />
+                <div>
+                    <h3 className={styles.cardNoclickTitle} dangerouslySetInnerHTML={{ __html: title }} />
+                    <div className={`${styles.statusTag} ${statusInfo.className}`}>
+                        <FontAwesomeIcon icon={statusInfo.icon} />
+                        <span>{statusInfo.text}</span>
+                    </div>
+                </div>
                 <div className={styles.cardMeta}>
-                    提交于: {formatDate(submission.createTime)} <br />
+                    修改时间: {formatDate(submission.updateTime)} <br />
                     {isStudentView && `提交者: ${submission.studentName}`}
                 </div>
             </div>

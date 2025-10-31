@@ -10,13 +10,30 @@
 
 /* ================= 变量定义 ================= */
 :root {
-    --primary-color: #4A90E2;
-    --primary-hover-color: #357ABD;
+    --primary-color: #FF7B54;
+    /* 活力珊瑚橙 */
+    --primary-hover-color: #E86A44;
+    --secondary-color: #6c757d;
+    /* 中性灰 */
+    --secondary-hover-color: #5a6268;
+    --success-color: #28a745;
+    /* 成功绿 */
+    --danger-color: #dc3545;
+    /* 危险红 */
+    --warning-color: #ffc107;
+    /* 警告黄 */
+    --info-color: #17a2b8;
+    /* 信息蓝 */
+
     --text-color-light: #ffffff;
     --text-color-dark: #333333;
+    --text-color-secondary: #6c757d;
+
+    --bg-color: #f4f6f8;
+    /* 更柔和的背景灰 */
     --bg-color-light: #ffffff;
     --border-color: #e0e0e0;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ================= 基础样式重置 ================= */
@@ -28,7 +45,6 @@
 
 html {
     height: 100%;
-    /* 强制显示滚动条，防止页面内容切换时布局跳动 */
     overflow-y: scroll;
 }
 
@@ -37,7 +53,7 @@ body {
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f0f2f5;
+    background-color: var(--bg-color);
     color: var(--text-color-dark);
 }
 
@@ -52,25 +68,28 @@ a:hover {
 
 /* ================= 通用按钮样式 ================= */
 .btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    /* 更圆润的边角 */
     background-color: var(--bg-color-light);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    /* 字体加粗 */
     font-family: inherit;
-    /* 继承body字体 */
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     color: var(--text-color-dark);
+    box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px var(--shadow-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 .btn-primary {
@@ -85,20 +104,20 @@ a:hover {
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: var(--secondary-color);
     color: var(--text-color-light);
-    border-color: #6c757d;
+    border-color: var(--secondary-color);
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: var(--secondary-hover-color);
     border-color: #545b62;
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: var(--text-color-light);
-    border-color: #dc3545;
+    border-color: var(--danger-color);
 }
 
 .btn-danger:hover {
@@ -117,39 +136,30 @@ a:hover {
     color: #ffc107;
 }
 
-/* 文件夹 - 黄色 */
 .image-icon {
     color: #28a745;
 }
 
-/* 图片 - 绿色 */
 .pdf-icon {
     color: #dc3545;
 }
 
-/* PDF - 红色 */
 .text-icon {
     color: #17a2b8;
 }
 
-/* 文本 - 蓝色 */
 .archive-icon {
     color: #fd7e14;
 }
 
-/* 压缩包 - 橙色 */
 .audio-icon {
     color: #6f42c1;
 }
 
-/* 音频 - 紫色 */
 .video-icon {
     color: #e83e8c;
 }
 
-/* 视频 - 粉色 */
 .code-icon {
     color: #333;
 }
-
-/* 代码 - 深灰色 */

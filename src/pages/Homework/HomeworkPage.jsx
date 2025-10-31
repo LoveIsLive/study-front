@@ -7,25 +7,45 @@ import HomeworkModal from './components/HomeworkModal';
 import DiscussionDrawer from './components/DiscussionDrawer';
 import Spinner from '../../components/common/Spinner/Spinner';
 import styles from './HomeworkPage.module.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const HomeworkPage = () => {
     const { user } = useAuthStore();
     const [view, setView] = useState({ name: 'list', data: null });
 
-    // --- 状态管理重构 ---
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingHomework, setEditingHomework] = useState(null); // null for create, object for edit
+    const [editingHomework, setEditingHomework] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [discussionTarget, setDiscussionTarget] = useState(null);
 
-    useEffect(() => {
-        setView({ name: 'list', data: null });
-    }, [user?.isAdmin, user?.isTeacher]);
-
+    // --- 路由逻辑 ---
     const navigateTo = useCallback((viewName, viewData = null) => {
-        setView({ name: viewName, data: viewData });
+        let hash = '#/';
+        if (viewName === 'submissionDetail' && viewData) {
+            hash = `#/homework/${viewData}`;
+        } else if (viewName === 'submissionList' && viewData) {
+            hash = `#/submissions/${viewData}`;
+        }
+        window.location.hash = hash;
+    }, []);
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.slice(1);
+            const parts = hash.split('/').filter(p => p);
+
+            if (parts[0] === 'homework' && parts[1]) {
+                setView({ name: 'submissionDetail', data: parts[1] });
+            } else if (parts[0] === 'submissions' && parts[1]) {
+                setView({ name: 'submissionList', data: parts[1] });
+            } else {
+                setView({ name: 'list', data: null });
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        handleHashChange(); // Initial load
+
+        return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
     // --- 讨论区模态框控制 ---
@@ -50,18 +70,17 @@ const HomeworkPage = () => {
 
     const handleModalClose = () => {
         setIsModalOpen(false);
-        setEditingHomework(null); // 关闭时总是清空
+        setEditingHomework(null);
     };
 
     const handleModalSuccess = () => {
         handleModalClose();
-        setRefreshTrigger(t => t + 1); // 触发子组件刷新
+        setRefreshTrigger(t => t + 1);
     };
 
     const renderContent = () => {
         if (!user) return <Spinner />;
 
-        // 将模态框的控制函数传递给子组件
         if (user.isAdmin) {
             return <AdminDashboard
                 view={view}
@@ -75,6 +94,7 @@ const HomeworkPage = () => {
             return <TeacherDashboard
                 view={view}
                 navigateTo={navigateTo}
+                onOpenCreateModal={handleOpenCreateModal} // 传递创建函数
                 onEditHomework={handleOpenEditModal}
                 onOpenDiscussion={handleOpenDiscussion}
                 refreshTrigger={refreshTrigger}
@@ -88,25 +108,11 @@ const HomeworkPage = () => {
 
     return (
         <div className={styles.appContainer}>
-            <header className={styles.appHeader}>
-                <h1>作业区</h1>
-                {/* --- 按钮显示逻辑修正 --- */}
-                {/* 只有纯教师角色在列表视图时才显示“发布作业”按钮 */}
-                {user && user.isTeacher && !user.isAdmin && view.name === 'list' && (
-                    <div>
-                        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleOpenCreateModal}>
-                            <FontAwesomeIcon icon={faPlus} /> 发布作业
-                        </button>
-                    </div>
-                )}
-            </header>
-
+            {/* 全局 Header 已被移除 */}
             <main id="app-main-content">
                 {renderContent()}
             </main>
 
-            {/* --- 统一渲染 HomeworkModal --- */}
-            {/* 只有教师或管理员才能打开此模态框 */}
             {user && (user.isTeacher || user.isAdmin) && (
                 <HomeworkModal
                     isOpen={isModalOpen}
