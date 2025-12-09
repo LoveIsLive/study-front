@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../Header/Header';
+import AIFloatingBall from '../../shared/AI/AIFloatingBall';
 import styles from './MainLayout.module.css';
 
 const MainLayout = () => {
@@ -10,6 +11,7 @@ const MainLayout = () => {
             <main className={styles.mainContent}>
                 <Outlet />
             </main>
+            <AIFloatingBall />
         </>
     );
 };

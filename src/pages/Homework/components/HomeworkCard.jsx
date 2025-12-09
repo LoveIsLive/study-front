@@ -48,6 +48,14 @@ const HomeworkCard = ({ homework, onEdit, onViewSubmissions, onDeleteHomework, o
                 >
                     <FontAwesomeIcon icon={faComments} /> 讨论区
                 </button>
+                {!canOperate && (
+                    <button
+                        className={`${styles.btn} ${styles.btnSecondary}`}
+                        onClick={() => onSelectHomework(homework.id)}
+                    >
+                        <FontAwesomeIcon icon={faUsers} /> 提交/查看
+                    </button>
+                )}
 
                 {canOperate && (
                     <>
