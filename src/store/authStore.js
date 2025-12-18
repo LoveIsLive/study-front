@@ -3,31 +3,12 @@ import { jwtDecode } from 'jwt-decode';
 import { config } from '../utils/config';
 import { userApi } from '../services/api';
 
-const getInitialClass = () => {
-    const classData = localStorage.getItem('selectedClass');
-    try {
-        return classData ? JSON.parse(classData) : null;
-    } catch (e) {
-        return null;
-    }
-};
-
 const useAuthStore = create((set, get) => ({
     token: localStorage.getItem(config.tokenName),
     user: null, // 存储来自 Token 的核心信息 (name, roles)
     detailInfo: null, // 存储来自 /detailInfo 的额外信息 (classMember, etc.)
-    selectedClass: getInitialClass(), // 仅管理员使用
 
     isAuthenticated: () => !!get().token,
-
-    setSelectedClass: (classInfo) => {
-        if (classInfo) {
-            localStorage.setItem('selectedClass', JSON.stringify(classInfo));
-        } else {
-            localStorage.removeItem('selectedClass');
-        }
-        set({ selectedClass: classInfo });
-    },
 
     // --- 新增：获取并设置用户详细信息 ---
     fetchDetailInfo: async () => {
@@ -39,7 +20,8 @@ const useAuthStore = create((set, get) => ({
             // 注意：我们只取需要的数据，避免覆盖 token 中的权威信息
             set({
                 detailInfo: {
-                    classMember: info.classMember
+                    classMember: info.classMember,
+                    schoolMember: info.schoolMember
                     // 可以在这里扩展其他额外信息，如 age, gender 等
                 }
             });
@@ -59,8 +41,7 @@ const useAuthStore = create((set, get) => ({
 
     logout: () => {
         localStorage.removeItem(config.tokenName);
-        localStorage.removeItem('selectedClass');
-        set({ token: null, user: null, detailInfo: null, selectedClass: null });
+        set({ token: null, user: null, detailInfo: null });
     },
 
     decodeToken: () => {
@@ -75,6 +56,7 @@ const useAuthStore = create((set, get) => ({
                         roles: decoded.roles || [],
                         isTeacher: (decoded.roles || []).includes("ROLE_TEACHER"),
                         isAdmin: (decoded.roles || []).includes("ROLE_ADMIN"),
+                        isPrincipal: (decoded.roles || []).includes("ROLE_PRINCIPAL"),
                     }
                 });
             } catch (error) {

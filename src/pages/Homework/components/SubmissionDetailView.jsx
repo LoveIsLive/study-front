@@ -113,7 +113,7 @@ const SubmissionDetailView = ({ homeworkId, onBack, onEditSubmission, refreshTri
     return (
         <div className={styles.view}>
             <div className={styles.viewHeader}>
-                <button onClick={onBack} className={`${styles.btn} ${styles.btnSecondary}`}>
+                <button onClick={onBack} className={`${styles.btn} ${styles.btnPrimary}`}>
                     <FontAwesomeIcon icon={faArrowLeft} /> 返回作业列表
                 </button>
                 <h2>{homework.title}</h2>

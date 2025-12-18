@@ -16,7 +16,9 @@ const ClassDetailView = ({ classId, className, onBack }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const canManageMembers = user && (user.isAdmin || user.isTeacher);
+    // --- 修复点：增加 user.isPrincipal 判断 ---
+    // 允许 Admin、校长、教师管理班级成员
+    const canManageMembers = user && (user.isAdmin || user.isTeacher || user.isPrincipal);
 
     const fetchMembers = useCallback(async () => {
         setIsLoading(true);
@@ -73,13 +75,13 @@ const ClassDetailView = ({ classId, className, onBack }) => {
     return (
         <div className={styles.detailContainer}>
             <div className={styles.header}>
-                {/* 如果 onBack 存在 (管理员视图)，则显示返回按钮 */}
+                {/* 如果 onBack 存在 (管理员/校长视图)，则显示返回按钮 */}
                 {onBack && (
-                    <button onClick={onBack} className="btn btn-secondary">
+                    <button onClick={onBack} className="btn btn-primary">
                         <FontAwesomeIcon icon={faArrowLeft} /> 返回班级列表
                     </button>
                 )}
-                {/* --- 关键修改：将添加按钮移动到右上角 --- */}
+                {/* 只要有权限，就显示添加按钮 */}
                 {canManageMembers && (
                     <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
                         <FontAwesomeIcon icon={faUserPlus} /> 添加成员

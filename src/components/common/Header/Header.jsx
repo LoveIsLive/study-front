@@ -7,6 +7,7 @@ import useAuthStore from '../../../store/authStore';
 import { config } from '../../../utils/config';
 import styles from './Header.module.css';
 import ChangePasswordModal from './ChangePasswordModal';
+import { usernameProcessor } from '../../../utils/helpers';
 
 const Header = () => {
     const { user, logout } = useAuthStore();
@@ -70,15 +71,16 @@ const Header = () => {
                         <div className={styles.userProfileContainer}>
                             <div className={styles.userProfile} onClick={toggleDropdown}>
                                 <img src={avatarUrl} alt="User Avatar" />
-                                <span>{user.name}</span>
+                                <span>{usernameProcessor(user.name)}</span>
                             </div>
                             {isDropdownVisible && (
                                 <div className={`${styles.userDropdown} ${styles.show}`}>
                                     <div className={styles.dropdownHeader}>
                                         <img src={avatarUrl} alt="User Avatar" />
                                         <div className={styles.userInfo}>
-                                            <p className={styles.userNameLarge}>{user.name}</p>
-                                            <p className={styles.userRole}>{user.isAdmin ? '管理员' : (user.isTeacher ? '教师' : '学生')}</p>
+                                            <p className={styles.userNameLarge}>{usernameProcessor(user.name)}</p>
+                                            <p className={styles.userRole}>{user.isAdmin ? '管理员' :
+                                                (user.isPrincipal ? '校长' : (user.isTeacher ? '教师' : '学生'))}</p>
                                         </div>
                                     </div>
 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faLock, faEye, faEyeSlash, faSchool, faUserShield, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../store/authStore';
 import { authApi } from '../../services/api';
 import { config } from '../../utils/config';
@@ -11,24 +11,65 @@ import styles from './LoginPage.module.css';
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [selectedSchoolId, setSelectedSchoolId] = useState('');
+    const [schools, setSchools] = useState([]);
+
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAdminLogin, setIsAdminLogin] = useState(false);
+
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
 
+    // 加载学校列表
+    useEffect(() => {
+        const fetchSchools = async () => {
+            try {
+                const response = await authApi.get('/public/schools');
+                if (response.data.code === 200) {
+                    const schoolList = response.data.data || [];
+                    setSchools(schoolList);
+                    // --- 修复：默认选中第一个学校 ---
+                    if (schoolList.length > 0) {
+                        setSelectedSchoolId(schoolList[0].id);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch schools", error);
+            }
+        };
+        if (!isAdminLogin) {
+            fetchSchools();
+        }
+    }, [isAdminLogin]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!isAdminLogin && !selectedSchoolId) {
+            Swal.fire({ icon: 'warning', title: '请选择学校' });
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const response = await authApi.post('/login', { username, password });
+            const payload = {
+                username,
+                password,
+                schoolId: isAdminLogin ? null : selectedSchoolId
+            };
+
+            const response = await authApi.post('/login', payload);
+
             if (response.data && response.data.code === 200 && response.data.data) {
                 const token = response.data.data;
                 login(token);
                 await Swal.fire({
                     icon: 'success',
                     title: '登录成功!',
+                    text: isAdminLogin ? '欢迎管理员' : '欢迎进入教学系统',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1000
                 });
                 navigate(config.front_HOME_PAGE_URL);
             } else {
@@ -46,17 +87,48 @@ const LoginPage = () => {
         }
     };
 
+    const toggleMode = () => {
+        setIsAdminLogin(!isAdminLogin);
+        setUsername('');
+        setPassword('');
+        // 切换模式时重置或重新获取默认值
+        if (isAdminLogin && schools.length > 0) {
+            setSelectedSchoolId(schools[0].id);
+        }
+    };
+
     return (
         <div className={styles.pageContainer}>
-            <div className={styles.loginBox}>
-                <h2>教学系统登录</h2>
+            <div className={`${styles.loginBox} ${isAdminLogin ? styles.adminMode : ''}`}>
+                <div className={styles.headerIcon}>
+                    <FontAwesomeIcon icon={isAdminLogin ? faUserShield : faChalkboardTeacher} />
+                </div>
+                <h2>{isAdminLogin ? '系统管理员登录' : '智慧教学系统'}</h2>
+
                 <form id="login-form" onSubmit={handleSubmit}>
+                    {!isAdminLogin && (
+                        <div className={styles.inputGroup}>
+                            <FontAwesomeIcon icon={faSchool} className={styles.leftIcon} />
+                            <select
+                                className={styles.selectInput}
+                                value={selectedSchoolId}
+                                onChange={(e) => setSelectedSchoolId(e.target.value)}
+                                required={!isAdminLogin}
+                            >
+                                <option value="" disabled>请选择您的学校</option>
+                                {schools.map(school => (
+                                    <option key={school.id} value={school.id}>{school.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <div className={styles.inputGroup}>
                         <FontAwesomeIcon icon={faUser} className={styles.leftIcon} />
                         <input
                             type="text"
                             id="username"
-                            placeholder="用户名"
+                            placeholder={isAdminLogin ? "管理员账号" : "姓名"}
                             required
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
@@ -78,10 +150,17 @@ const LoginPage = () => {
                             onClick={() => setShowPassword(!showPassword)}
                         />
                     </div>
+
                     <button type="submit" className={styles.loginButton} disabled={isLoading}>
-                        {isLoading ? '登录中...' : '登 录'}
+                        {isLoading ? '登录中...' : (isAdminLogin ? '管 理 员 登 录' : '登 录')}
                     </button>
                 </form>
+
+                <div className={styles.footerLinks}>
+                    <span onClick={toggleMode} className={styles.linkBtn}>
+                        {isAdminLogin ? '返回师生登录' : '管理员登录入口'}
+                    </span>
+                </div>
             </div>
         </div>
     );

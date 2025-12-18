@@ -81,7 +81,8 @@ const HomeworkPage = () => {
     const renderContent = () => {
         if (!user) return <Spinner />;
 
-        if (user.isAdmin) {
+        // 修复：Admin 和 Principal 都使用 AdminDashboard
+        if (user.isAdmin || user.isPrincipal) {
             return <AdminDashboard
                 view={view}
                 navigateTo={navigateTo}
@@ -108,12 +109,12 @@ const HomeworkPage = () => {
 
     return (
         <div className={styles.appContainer}>
-            {/* 全局 Header 已被移除 */}
             <main id="app-main-content">
                 {renderContent()}
             </main>
 
-            {user && (user.isTeacher || user.isAdmin) && (
+            {/* 修复：Teacher 或 Admin 或 Principal 可以编辑 */}
+            {user && (user.isTeacher || user.isAdmin || user.isPrincipal) && (
                 <HomeworkModal
                     isOpen={isModalOpen}
                     onClose={handleModalClose}

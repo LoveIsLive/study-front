@@ -154,3 +154,8 @@ export function fileMimeTypeName(file) {
     const ext = file.name.split('.').pop().toLowerCase();
     return mimeTypes[ext] || useType;
 }
+
+export function usernameProcessor(username) {
+    if (!username) return username;
+    return username.indexOf('_') !== -1 ? username.substring(username.indexOf('_') + 1) : username;
+}

@@ -70,7 +70,7 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
         <div className={styles.view}>
             {!isStudentView && (
                 <div className={styles.viewHeader}>
-                    <button onClick={onBack} className={`${styles.btn} ${styles.btnSecondary}`}>
+                    <button onClick={onBack} className={`${styles.btn} ${styles.btnPrimary}`}>
                         <FontAwesomeIcon icon={faArrowLeft} /> 返回作业列表
                     </button>
                     <h2>{homeworkTitle} 的提交列表</h2>

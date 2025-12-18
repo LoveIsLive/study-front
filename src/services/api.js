@@ -13,6 +13,8 @@ export const wareApi = createApiClient(config.back_WARE_PREFIX);
 export const classesApi = createApiClient(config.back_CLASS_PREFIX);
 export const classMemberApi = createApiClient(config.back_CLASSMEMBER_PREFIX);
 export const discussionApi = createApiClient(config.back_DISCUSSION_PREFIX);
+export const schoolApi = createApiClient(config.back_SCHOOL_PREFIX);
+export const schoolMemberApi = createApiClient(config.back_SCHOOL_MEMBER_PREFIX);
 
 // 如果有不带前缀的API，也可以创建一个基础客户端
 export const baseApi = createApiClient('');
