@@ -6,7 +6,7 @@ import { faPaperPlane, faSpinner, faTimes } from '@fortawesome/free-solid-svg-ic
 import { useUploader } from '../../../hooks/useUploader';
 import Modal from '../../../components/common/Modal/Modal';
 import FileUpload from '../../../components/shared/FileUpload/FileUpload';
-import { homeworkApi } from '../../../services/api';
+import { homeworkApi, attachApi } from '../../../services/api';
 import { getFileIcon } from '../../../utils/helpers';
 
 import progressStyles from '../../Ware/components/NewItemModal.module.css';
@@ -31,7 +31,7 @@ const HomeworkModal = ({ isOpen, onClose, onSuccess, editingHomework }) => {
         updateFileProgress,
         setIsUploading,
         resetUploader
-    } = useUploader();
+    } = useUploader(attachApi);
 
     // 判断当前是创建模式还是编辑模式
     const isEditMode = !!editingHomework;

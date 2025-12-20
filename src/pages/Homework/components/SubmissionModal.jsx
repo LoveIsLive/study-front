@@ -6,7 +6,7 @@ import { faPaperPlane, faSpinner, faTimes } from '@fortawesome/free-solid-svg-ic
 import { useUploader } from '../../../hooks/useUploader';
 import Modal from '../../../components/common/Modal/Modal';
 import FileUpload from '../../../components/shared/FileUpload/FileUpload';
-import { submissionApi } from '../../../services/api';
+import { submissionApi, attachApi } from '../../../services/api';
 import { getFileIcon } from '../../../utils/helpers';
 
 import progressStyles from '../../Ware/components/NewItemModal.module.css';
@@ -27,7 +27,7 @@ const SubmissionModal = ({ isOpen, onClose, onSuccess, editingSubmission }) => {
         startUpload,
         setIsUploading,
         resetUploader
-    } = useUploader();
+    } = useUploader(attachApi);
 
     const isEditMode = !!editingSubmission;
 

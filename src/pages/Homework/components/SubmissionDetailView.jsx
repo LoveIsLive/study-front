@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { useUploader } from '../../../hooks/useUploader';
-import { homeworkApi, submissionApi } from '../../../services/api';
+import { homeworkApi, submissionApi, attachApi } from '../../../services/api';
 import { sanitizeHTML } from '../../../utils/helpers';
 import AttachmentList from './AttachmentList';
 import DiscussionBoard from './Discussion/DiscussionBoard';
@@ -47,7 +47,7 @@ const SubmissionDetailView = ({ homeworkId, onBack, onEditSubmission, refreshTri
         updateFileProgress, // 保留以备将来更复杂的进度处理
         setIsUploading,
         resetUploader
-    } = useUploader();
+    } = useUploader(attachApi);
 
     const fetchData = async () => {
         setIsLoading(true);
