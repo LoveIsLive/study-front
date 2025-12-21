@@ -737,3 +737,7 @@
         transform: scale(1);
     }
 }
+
+.swalHighZIndex {
+    z-index: 3000 !important;
+}

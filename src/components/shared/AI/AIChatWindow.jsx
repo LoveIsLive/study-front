@@ -45,7 +45,11 @@ const RemoteFileCard = ({ fileItem }) => {
                 window.open(url, '_blank');
             }
         } catch (e) {
-            Swal.fire({ toast: true, icon: 'error', title: '无法预览文件', position: 'top' });
+            Swal.fire({
+                toast: true, icon: 'error', title: '无法预览文件', position: 'top', customClass: {
+                    container: styles.swalHighZIndex
+                }
+            });
         }
     };
 
@@ -208,7 +212,11 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     const handleFileSelect = (e) => {
         const newFiles = Array.from(e.target.files).filter(file => {
             if (file.size > 10 * 1024 * 1024) {
-                Swal.fire({ toast: true, icon: 'warning', title: `${file.name} 超过 10MB` });
+                Swal.fire({
+                    toast: true, icon: 'warning', title: `${file.name} 超过 10MB`, customClass: {
+                        container: styles.swalHighZIndex
+                    }
+                });
                 return false;
             }
             return true;
@@ -340,7 +348,9 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
         e.stopPropagation();
         const result = await Swal.fire({
             title: '删除会话?', text: "无法恢复", icon: 'warning',
-            showCancelButton: true, confirmButtonColor: '#ff7675', confirmButtonText: '删除', width: '320px'
+            showCancelButton: true, confirmButtonColor: '#ff7675', confirmButtonText: '删除', width: '320px', customClass: {
+                container: styles.swalHighZIndex
+            }
         });
         if (!result.isConfirmed) return;
         try {
