@@ -436,6 +436,11 @@
     background: #fdcb6e;
 }
 
+.switchTrack.blueTrack.active {
+    background: #74b9ff;
+    /* 区别于 Agent 模式的黄色 */
+}
+
 .switchKnob {
     width: 16px;
     height: 16px;
@@ -740,4 +745,30 @@
 
 .swalHighZIndex {
     z-index: 3000 !important;
+}
+
+/* 底部工具栏布局调整 */
+.toolbar {
+    display: flex;
+    gap: 12px;
+    /* 增加间距 */
+    flex-wrap: wrap;
+    /* 允许换行以适应小屏幕 */
+}
+
+/* 图表容器 */
+.chartContainer {
+    width: 100%;
+    margin-top: 10px;
+    animation: fadeIn 0.5s ease;
+}
+
+.chartExplanation {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #555;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--chat-primary);
 }

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTimes, faPaperPlane, faBrain, faSpinner, faBars,
     faPlus, faCommentDots, faExclamationCircle, faTools, faTrashAlt,
-    faPaperclip, faFileAlt, faCodeBranch
+    faPaperclip, faFileAlt, faCodeBranch, faBuilding
 } from '@fortawesome/free-solid-svg-icons';
 import ReactMarkdown from 'react-markdown';
 import Swal from 'sweetalert2';
@@ -15,6 +15,7 @@ import { baseApi } from '../../../services/api';
 import { useDraggable } from '../../../hooks/useDraggable';
 import { formatFileSize } from '../../../utils/helpers';
 import styles from './AIChatWindow.module.css';
+import AIChart from './AIChart';
 
 const ThinkingBubble = () => (
     <div className={styles.thinkingBubble}>
@@ -24,11 +25,6 @@ const ThinkingBubble = () => (
         <span style={{ fontSize: '0.85rem', color: '#0984e3', marginLeft: '6px' }}>AI 正在思考...</span>
     </div>
 );
-
-// ... RemoteFileCard 和 LocalFileCard 代码与之前版本一致，无需变动 ...
-// 重点是 RemoteFileCard 内的 div className={styles.fileChip} 
-// 和 LocalFileCard 内的 div className={styles.fileChip} 
-// 现在会自动应用新的 CSS 样式 (白色半透明或普通白色)
 
 const RemoteFileCard = ({ fileItem }) => {
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -120,7 +116,8 @@ const LocalFileCard = ({ file, onRemove, onPreview }) => {
 
 const AIChatWindow = ({ onClose, initialSessionId }) => {
     const { token } = useAuthStore();
-    const { context } = useAIStore();
+    // 获取 AI Store 中的状态和方法
+    const { context, availableScene, isSceneActive, toggleSceneActive } = useAIStore();
 
     // --- State ---
     const [currentSessionId, setCurrentSessionId] = useState(initialSessionId);
@@ -184,11 +181,14 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                     if (m.type === 'tool' && m.role === 'assistant') {
                         try {
                             const messageObj = JSON.parse(m.content);
+                            // 检查是否有 EChartsTool 调用
+                            const isChart = messageObj.tool_calls?.some(t => t.function.name === 'EChartsTool');
                             return {
                                 ...m,
                                 type: 'agent_result',
                                 content: messageObj.content,
-                                toolCalls: messageObj.tool_calls
+                                toolCalls: messageObj.tool_calls,
+                                isChart // 标记图表
                             };
                         } catch (e) { return { ...m, type: 'text', content: m.content }; }
                     }
@@ -262,7 +262,7 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
         const requestDTO = {
             sessionId: currentSessionId,
             message: userText || ' ',
-            scene: context.scene,
+            scene: context.scene, // 使用 store 中的 scene
             sceneParams: context.sceneParams
         };
         formData.append('request', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
@@ -272,13 +272,17 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             if (useAgent) {
                 const response = await baseApi.post('/llm/chat/agent', formData);
                 const messageObj = response.data.data;
+                // 检测是否包含图表工具
+                const isChart = messageObj.tool_calls?.some(t => t.function.name === 'EChartsTool');
+
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMsgId ? {
                         ...msg,
                         isWaitingFirstResponse: false,
                         type: 'agent_result',
                         content: messageObj.content,
-                        toolCalls: messageObj.tool_calls
+                        toolCalls: messageObj.tool_calls,
+                        isChart
                     } : msg
                 ));
             } else {
@@ -402,15 +406,29 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                     {msg.content && <ReactMarkdown>{msg.content}</ReactMarkdown>}
                     {tools.map((toolCall, idx) => {
                         const func = toolCall.function;
+                        let args = {};
+                        try { args = JSON.parse(func.arguments); } catch (e) { args = func.arguments; }
+
+                        // 1. ReplayTool
                         if (func.name === 'ReplayTool') {
-                            let text = "";
-                            try { text = JSON.parse(func.arguments).message; } catch (e) { text = func.arguments; }
-                            return <div key={idx} style={{ marginTop: '10px' }}><ReactMarkdown>{text}</ReactMarkdown></div>;
+                            return <div key={idx} style={{ marginTop: '10px' }}><ReactMarkdown>{args.message || args}</ReactMarkdown></div>;
                         }
+
+                        // 2. EChartsTool
+                        if (func.name === 'EChartsTool') {
+                            const option = JSON.parse(args.option);
+                            return (
+                                <div key={idx} className={styles.chartContainer}>
+                                    <AIChart option={option} title={args.explanation} />
+                                </div>
+                            );
+                        }
+
+                        // 3. Other Tools
                         return (
                             <div key={idx} className={styles.toolContainer}>
                                 <div className={styles.toolHeader}><FontAwesomeIcon icon={faCodeBranch} /> 调用工具: {func.name}</div>
-                                <div className={styles.toolBody}>{func.arguments}</div>
+                                <div className={styles.toolBody}>{JSON.stringify(args, null, 2)}</div>
                             </div>
                         );
                     })}
@@ -489,6 +507,23 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                                     </div>
                                     <span>Agent 模式</span>
                                 </div>
+
+                                {/* 场景感知开关 */}
+                                {availableScene && (
+                                    <div
+                                        className={styles.agentSwitch}
+                                        onClick={toggleSceneActive}
+                                        title={`开启后，AI将获取${availableScene === 'organization' ? '组织架构' : '当前页面'}相关数据`}
+                                    >
+                                        <div className={`${styles.switchTrack} ${styles.blueTrack} ${isSceneActive ? styles.active : ''}`}>
+                                            <div className={styles.switchKnob}></div>
+                                        </div>
+                                        <span>
+                                            <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '4px', color: isSceneActive ? '#0984e3' : '#b2bec3' }} />
+                                            {availableScene === 'organization' ? '获取组织数据' : '获取页面数据'}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {selectedFiles.length > 0 && (

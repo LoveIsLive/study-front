@@ -4,9 +4,12 @@ import AdminView from './components/AdminView';
 import MemberView from './components/MemberView';
 import Spinner from '../../components/common/Spinner/Spinner';
 import styles from './OrganizationPage.module.css';
+import { useSceneAwareness } from '../../hooks/useSceneAwareness';
 
 const OrganizationPage = () => {
     const { user, detailInfo } = useAuthStore();
+
+    useSceneAwareness('organization');
 
     // 教师和学生需要等待 detailInfo 加载完成才能显示班级
     // 管理员和校长(AdminView) 使用自己的 API 加载，所以不需要强制等待 detailInfo
