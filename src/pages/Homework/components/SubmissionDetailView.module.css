@@ -1,0 +1,319 @@
+.pageWrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 60px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.header {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.backBtn {
+    background: #F2F3F5;
+    border: none;
+    color: #4E5969;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.backBtn:hover {
+    background: #E5E6EB;
+    color: #1D2129;
+}
+
+.headerInfo h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.5rem;
+    color: #1D2129;
+}
+
+.meta {
+    display: flex;
+    gap: 16px;
+    color: #86909C;
+    font-size: 0.9rem;
+}
+
+/* Layout */
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards */
+.card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.cardHeader {
+    padding: 16px 24px;
+    border-bottom: 1px solid #F2F3F5;
+    font-weight: 600;
+    color: #1D2129;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FCFCFD;
+}
+
+.cardBody {
+    padding: 24px;
+}
+
+/* Status Badge */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 12px;
+}
+
+.statusInfo {
+    background: #E8F3FF;
+    color: #165DFF;
+}
+
+.statusSuccess {
+    background: #E8FFEA;
+    color: #00B42A;
+}
+
+.statusWarning {
+    background: #FFF7E8;
+    color: #FF7D00;
+}
+
+.statusDanger {
+    background: #FFECE8;
+    color: #F53F3F;
+}
+
+.statusGraded {
+    background: #FFF0F6;
+    color: #EB2F96;
+}
+
+.totalScoreDisplay {
+    margin-left: 16px;
+    font-size: 1.1rem;
+    color: #FF7B54;
+    font-weight: bold;
+}
+
+/* Teacher Actions */
+.teacherActions {
+    display: flex;
+    gap: 10px;
+}
+
+.actionBtn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btnGrade {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btnGrade:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btnReturn {
+    border-color: #F53F3F;
+    color: #F53F3F;
+}
+
+.btnReturn:hover {
+    background: #F53F3F;
+    color: #fff;
+}
+
+/* Content Styles */
+.richText {
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+}
+
+.placeholder {
+    color: #C9CDD4;
+    font-style: italic;
+}
+
+.textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #E5E6EB;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    transition: all 0.2s;
+    background: #F7F8FA;
+}
+
+.textarea:focus {
+    background: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.1);
+}
+
+.noteSection,
+.generalCommentBox {
+    margin-top: 20px;
+}
+
+.noteSection label,
+.generalCommentBox label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4E5969;
+}
+
+.noteDisplay,
+.commentText {
+    padding: 12px;
+    background: #F7F8FA;
+    border-radius: 6px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.generalCommentBox {
+    background: #FFF7F0;
+    padding: 16px;
+    border: 1px solid #FFD8BF;
+    border-radius: 8px;
+}
+
+/* Footer & Buttons */
+.footerActions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed #E5E6EB;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.gradingFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: #fff;
+}
+
+.totalPreview {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.totalPreview strong {
+    color: #FF7B54;
+    font-size: 1.4rem;
+    margin-left: 6px;
+}
+
+.gradingBtnGroup,
+.btnGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btnPrimary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btnPrimary:hover {
+    background: var(--primary-hover-color);
+    transform: translateY(-1px);
+}
+
+.btnSecondary {
+    background: #F2F3F5;
+    color: #4E5969;
+}
+
+.btnSecondary:hover {
+    background: #E5E6EB;
+}
+
+/* Attachments */
+.attachmentArea {
+    margin-top: 20px;
+}
+
+.uploadBox {
+    margin-top: 15px;
+    border: 1px dashed #C9CDD4;
+    padding: 16px;
+    border-radius: 8px;
+    background: #F7F8FA;
+}
+
+.uploadBox label {
+    display: block;
+    margin-bottom: 10px;
+    color: #4E5969;
+    font-weight: 500;
+}

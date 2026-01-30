@@ -1,0 +1,282 @@
+/* components/shared/QuestionEngine/Builder/Builder.module.css */
+
+.builderContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    /* 移除硬间距 */
+}
+
+/* --- AI 助手 --- */
+.topToolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f0f0f0;
+}
+
+.aiTriggerBtn {
+    background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+}
+
+.aiTriggerBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+}
+
+.magicIcon {
+    font-size: 1.1rem;
+}
+
+.aiTag {
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: normal;
+}
+
+.tips {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* --- 题目列表 --- */
+.questionList {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* --- 题目卡片 (核心美化) --- */
+.questionCard {
+    /* 默认透明，无背景，无边框 */
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    /* 内边距：上下宽一点，左右为了Hover效果留出空间 */
+    padding: 30px 20px 30px 40px;
+    margin: 0 -20px;
+    /* 抵消左右Padding，保持对齐 */
+
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* 悬停状态：极淡的灰背景 */
+.questionCard:hover {
+    background: #F9FAFB;
+}
+
+/* 选中/编辑状态：纯白背景 + 阴影 + 左侧高亮条 */
+.questionCard:focus-within {
+    background: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    /* 柔和阴影 */
+    z-index: 10;
+}
+
+/* 选中状态左侧指示条 */
+.questionCard::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 30px;
+    bottom: 30px;
+    width: 4px;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.questionCard:focus-within::before {
+    opacity: 1;
+}
+
+/* 序号 */
+.indexNum {
+    position: absolute;
+    left: 10px;
+    top: 32px;
+    width: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #86909C;
+    /* 浅灰，不抢眼 */
+    text-align: right;
+}
+
+.questionCard:focus-within .indexNum {
+    color: var(--primary-color);
+}
+
+/* 卡片头部 */
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 16px;
+}
+
+.headerLeft {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.typeBadge {
+    display: inline-block;
+    width: fit-content;
+    font-size: 11px;
+    color: #86909C;
+    background: #F2F3F5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* 题目标题输入框 */
+.titleInput {
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: transparent;
+    font-size: 16px;
+    /* 字体加大 */
+    font-weight: 600;
+    color: #1D2129;
+    padding: 4px 0;
+    width: 100%;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.titleInput:focus {
+    border-bottom-color: #E5E6EB;
+}
+
+.titleInput::placeholder {
+    color: #C9CDD4;
+    font-weight: 400;
+}
+
+/* 右侧操作栏 */
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    /* 默认隐藏 */
+    transition: opacity 0.2s;
+}
+
+/* 鼠标悬停卡片时才显示操作栏 */
+.questionCard:hover .headerRight,
+.questionCard:focus-within .headerRight {
+    opacity: 1;
+}
+
+.scoreInputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #86909C;
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.scoreInput {
+    width: 24px;
+    border: none;
+    text-align: center;
+    color: #1D2129;
+    font-weight: 600;
+    outline: none;
+}
+
+.actions button {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: #C9CDD4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.actions button:hover {
+    background: #F2F3F5;
+    color: #4E5969;
+}
+
+.actions button.deleteBtn:hover {
+    background: #FFECE8;
+    color: #F53F3F;
+}
+
+/* 底部添加栏 */
+.addBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 0;
+    margin-top: 20px;
+    border-top: 1px dashed transparent;
+    transition: all 0.2s;
+}
+
+.builderContainer:hover .addBar {
+    border-top-color: #F2F3F5;
+}
+
+.addTypeBtn {
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4E5969;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+}
+
+.addTypeBtn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

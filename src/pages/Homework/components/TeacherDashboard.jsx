@@ -5,13 +5,13 @@ import SubmissionList from './SubmissionList';
 import Spinner from '../../../components/common/Spinner/Spinner';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import styles from '../HomeworkPage.module.css'; // 引入样式
+import styles from '../HomeworkPage.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const MySwal = withReactContent(Swal);
 
-// 接收 onOpenCreateModal, onEditHomework 和 refreshTrigger props
+// 修改点：props 中 onOpenCreateModal 和 onEditHomework 现在由父组件 HomeworkPage 传入，用于跳转路由
 const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
     const [homeworks, setHomeworks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +29,7 @@ const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework,
         }
     }, []);
 
+    // 删除逻辑保持不变
     const handleDeleteHomework = async (homeworkId, homeworkTitle) => {
         const result = await MySwal.fire({
             title: `确认删除作业 "${homeworkTitle}"?`,
@@ -55,7 +56,7 @@ const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework,
         if (view.name === 'list') {
             fetchHomeworks();
         }
-    }, [view.name, fetchHomeworks, refreshTrigger]);
+    }, [view.name, fetchHomeworks, refreshTrigger]); // 监听 refreshTrigger 以刷新列表
 
     if (isLoading && view.name === 'list') {
         return <Spinner />;
@@ -65,7 +66,11 @@ const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework,
         return <SubmissionList
             homeworkId={view.data}
             onBack={() => navigateTo('list')}
-            onOpenDiscussion={onOpenDiscussion} />;
+            onOpenDiscussion={onOpenDiscussion}
+            // 关键修复：老师点击某学生的提交 -> 这里的 ID 必须是 Submission ID
+            // 并且 viewName 必须是 submissionGrading 以便 HomeworkPage 正确路由
+            onViewDetail={(submissionId) => navigateTo('submissionGrading', submissionId)}
+        />;
     }
 
     return (
@@ -80,7 +85,7 @@ const TeacherDashboard = ({ view, navigateTo, onOpenCreateModal, onEditHomework,
                 homeworks={homeworks}
                 onViewSubmissions={(homeworkId) => navigateTo('submissionList', homeworkId)}
                 onDeleteHomework={handleDeleteHomework}
-                onEditHomework={onEditHomework}
+                onEditHomework={onEditHomework} // 这里点击会触发父组件跳转路由
                 onOpenDiscussion={onOpenDiscussion}
             />
         </div>

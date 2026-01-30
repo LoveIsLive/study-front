@@ -107,7 +107,8 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                 {activeTab === 'all-homework' &&
                     <HomeworkList
                         homeworks={homeworks}
-                        onSelectHomework={(homeworkId) => navigateTo('submissionDetail', homeworkId)}
+                        // 关键：学生点击作业，进入 homeworkDetail 模式，ID 为 homework.id
+                        onSelectHomework={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
                         onOpenDiscussion={onOpenDiscussion}
                     />}
                 {activeTab === 'my-submissions' &&
@@ -116,6 +117,8 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                         isStudentView={true}
                         onEditSubmission={handleOpenEditModal}
                         onOpenDiscussion={onOpenDiscussion}
+                        // 关键：学生查看我的提交详情，本质也是看作业详情页，ID 为 homeworkId
+                        onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
                     />}
             </>
         );

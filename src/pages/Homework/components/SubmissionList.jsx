@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
-    submissions: studentSubmissions, onEditSubmission, onOpenDiscussion }) => {
+    submissions: studentSubmissions, onEditSubmission, onOpenDiscussion, onViewDetail }) => {
     const [submissions, setSubmissions] = useState([]);
     const [homeworkTitle, setHomeworkTitle] = useState('');
     const [isLoading, setIsLoading] = useState(!isStudentView);
@@ -87,6 +87,7 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
                             onReturn={handleReturnSubmission}
                             onEdit={onEditSubmission}
                             onOpenDiscussion={onOpenDiscussion}
+                            onViewDetail={onViewDetail}
                         />
                     ))
                 ) : (

@@ -1,0 +1,318 @@
+/* pages/Homework/components/HomeworkEditorPage.module.css */
+
+/* --- 1. 全局容器 --- */
+.editorPage {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #F4F6F8;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- 2. 顶部操作栏 (保持不变) --- */
+.topBar {
+    height: 64px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E6EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    z-index: 20;
+    flex-shrink: 0;
+}
+
+.barLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.barRight {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    flex: 1;
+}
+
+.backBtn {
+    border: 1px solid #F2F3F5;
+    background: #FFF;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: #4E5969;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.backBtn:hover {
+    border-color: #C9CDD4;
+    background: #F7F8FA;
+    color: #1D2129;
+}
+
+.saveStatus {
+    font-size: 12px;
+    color: #86909C;
+}
+
+/* 模式切换 & 按钮 */
+.modeSwitcher {
+    background: #F2F3F5;
+    padding: 3px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.modeBtn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #4E5969;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.modeBtn.active {
+    background: #FFFFFF;
+    color: #6C5CE7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+.dividerVertical {
+    width: 1px;
+    height: 20px;
+    background: #E5E6EB;
+}
+
+.publishBtn {
+    background: linear-gradient(135deg, #FF7B54 0%, #FF5722 100%);
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(255, 87, 34, 0.2);
+    transition: transform 0.2s;
+}
+
+.publishBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+}
+
+/* --- 3. 工作区容器 --- */
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    position: relative;
+}
+
+/* --- 4. 左侧编辑器区域 (核心修复) --- */
+.editorArea {
+    flex: 1;
+    /* 允许 Y 轴滚动 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* 增加底部 padding，防止内容贴底，确保滚动到底部有空间 */
+    padding: 40px 0 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    scroll-behavior: smooth;
+}
+
+/* --- 5. 白纸容器 (核心修复) --- */
+.paper {
+    position: relative;
+    width: 100%;
+    max-width: 850px;
+    min-width: 400px;
+    background: #FFFFFF;
+    margin: 0 20px;
+
+    /* [修复点 1] 使用 auto 而非 fit-content，兼容性更好且行为更符合预期 */
+    height: auto;
+    /* [修复点 2] 关键属性：防止 flex 子项被压缩，确保内容超出视口时能撑开高度 */
+    flex-shrink: 0;
+
+    min-height: 800px;
+
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E9E9E9;
+    border-radius: 4px;
+
+    /* 内部间距 */
+    padding: 60px 80px 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+
+    transition: padding 0.3s ease;
+}
+
+/* 当 AI 面板打开时，调整内边距以适应更窄的视野 */
+.workspace.hasPanel .paper {
+    padding: 40px 50px 60px;
+}
+
+/* --- 内部元素样式 --- */
+.titleInput {
+    font-size: 34px;
+    font-weight: 700;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #1D2129;
+    padding: 10px 0;
+    background: transparent;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    border-bottom: 2px solid transparent;
+}
+
+.titleInput:focus {
+    border-bottom-color: #E5E6EB;
+}
+
+.titleInput::placeholder {
+    color: #C9CDD4;
+}
+
+.metaLine {
+    height: 1px;
+    background: #F2F3F5;
+    margin: 10px 0 40px;
+}
+
+.builderWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* 确保构建器占满宽度 */
+}
+
+.simpleEditor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+}
+
+.contentInput {
+    width: 100%;
+    flex: 1;
+    min-height: 500px;
+    border: none;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    resize: none;
+    outline: none;
+    background: transparent;
+}
+
+.noteSection {
+    margin-bottom: 30px;
+    padding: 16px;
+    background: #F7F8FA;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.noteSection:focus-within {
+    background: #FFF;
+    border-color: #E5E6EB;
+}
+
+.noteSection label {
+    display: block;
+    font-size: 12px;
+    color: #86909C;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.noteInput {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    color: #4E5969;
+}
+
+.attachmentSection {
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px dashed #E5E6EB;
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4E5969;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.existingFiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.fileChip {
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #1D2129;
+}
+
+.fileName {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attachmentSection :global(.dragDropArea) {
+    border: 1px dashed #C9CDD4 !important;
+    background: #F7F8FA !important;
+}

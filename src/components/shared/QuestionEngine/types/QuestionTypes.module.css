@@ -1,0 +1,274 @@
+/* components/shared/QuestionEngine/types/QuestionTypes.module.css */
+
+.editorContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* 紧凑排列 */
+    width: 100%;
+}
+
+.optionRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 6px 0;
+    /* 增加点击区域 */
+    position: relative;
+    border-bottom: 1px solid transparent;
+}
+
+/* 鼠标滑过某一行选项时，显示极淡的辅助线 */
+.optionRow:hover {
+    border-bottom-color: #FAFAFA;
+}
+
+/* --- Checkbox/Radio 样式优化 --- */
+.checkIcon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #E0E0E0;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+
+.checkIcon:hover {
+    color: #CCC;
+    transform: scale(1.1);
+}
+
+.checkIcon.active {
+    color: #48BB78;
+    /* 成功绿 */
+}
+
+.optionLabel {
+    font-size: 14px;
+    color: #888;
+    width: 24px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* 选项输入 - 只有底边框 */
+.optionInput {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    border-bottom: 1px solid transparent;
+    /* 默认无底边框 */
+    background: transparent;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.2s;
+    outline: none;
+}
+
+/* 悬停显示底边框 */
+.optionInput:hover {
+    border-bottom-color: #EEE;
+}
+
+/* 聚焦显示明显底边框 */
+.optionInput:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+/* 删除按钮 */
+.iconBtn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #E0E0E0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.optionRow:hover .iconBtn {
+    opacity: 1;
+}
+
+/* 只有 Hover 行才显示 */
+.iconBtn:hover {
+    color: #F53F3F;
+    background: #FFF5F5;
+    border-radius: 4px;
+}
+
+/* 添加选项按钮 */
+.addOptionBtn {
+    background: transparent;
+    border: none;
+    padding: 10px 0;
+    margin-left: 56px;
+    /* 对齐文本 */
+    color: #AAA;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    width: fit-content;
+}
+
+.addOptionBtn:hover {
+    color: var(--primary-color);
+}
+
+/* --- 问答题 --- */
+.fieldGroup {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.fieldGroup label {
+    font-size: 12px;
+    color: #BBB;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.textarea,
+.input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #444;
+    background: #FAFAFA;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+.textarea:focus,
+.input:focus {
+    background: #FFF;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.1);
+}
+
+/* 选项容器 */
+.playerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* 选项之间的间距 */
+    margin-top: 10px;
+}
+
+/* 单个选项卡片 */
+.playerOption {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #E5E6EB;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    user-select: none;
+    /* 防止双击选中文字 */
+}
+
+/* 悬停效果 */
+.playerOption:hover {
+    border-color: var(--primary-color, #FF7B54);
+    background-color: #FFF7F0;
+    /* 极淡的主题色背景 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 选中状态 */
+.playerOption.selected {
+    border-color: var(--primary-color, #FF7B54);
+    background-color: #FFF7F0;
+    color: var(--primary-color, #FF7B54);
+    font-weight: 500;
+}
+
+/* 只读状态 (如已提交或不可编辑) */
+.playerOption.readOnly {
+    cursor: default;
+    background-color: #F7F8FA;
+    color: #86909C;
+}
+
+.playerOption.readOnly:hover {
+    border-color: #E5E6EB;
+    background-color: #F7F8FA;
+    box-shadow: none;
+}
+
+/* --- 图标区域 (圆圈或方框) --- */
+.optionMarker {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* 1. 自定义单选圆圈 (Radio) */
+.radioCircle {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #C9CDD4;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+/* 选中时的外圈颜色 */
+.playerOption.selected .radioCircle {
+    border-color: var(--primary-color, #FF7B54);
+}
+
+/* 选中时的内芯 (实心点) */
+.radioChecked {
+    background-color: var(--primary-color, #FF7B54);
+    border-color: var(--primary-color, #FF7B54);
+    box-shadow: inset 0 0 0 3px #fff;
+    /* 利用内阴影制造白色圆点 */
+}
+
+/* 2. 复选框图标颜色 (FontAwesome) */
+.optionMarker svg {
+    font-size: 1.2rem;
+    color: #C9CDD4;
+    transition: color 0.2s;
+}
+
+.playerOption.selected .optionMarker svg {
+    color: var(--primary-color, #FF7B54);
+}
+
+/* 选项文字 */
+.optionText {
+    font-size: 15px;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.optionText strong {
+    margin-right: 8px;
+    font-weight: 600;
+}

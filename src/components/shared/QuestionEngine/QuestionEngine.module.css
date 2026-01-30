@@ -1,0 +1,256 @@
+/* Container */
+.builderContainer,
+.playerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Question Card */
+.questionCard {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.questionCard:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.8rem;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.typeBadge {
+    font-size: 0.75rem;
+    background: #e7f5ff;
+    color: #007bff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.titleInput {
+    flex: 1;
+    border: 1px solid transparent;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.titleInput:focus {
+    border-color: #007bff;
+    background: #f8f9fa;
+    outline: none;
+}
+
+/* Options (Choice) */
+.optionList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.optionItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.optionRadio,
+.optionCheckbox {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #ccc;
+    transition: color 0.2s;
+}
+
+.optionRadio.checked,
+.optionCheckbox.checked {
+    color: #28a745;
+}
+
+.optionTextInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Player Specific */
+.playerOption {
+    padding: 10px 15px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+}
+
+.playerOption:hover {
+    background-color: #f8f9fa;
+}
+
+.playerOption.selected {
+    background-color: #e7f5ff;
+    border-color: #007bff;
+}
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 1rem;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+/* AI Generator */
+.aiBox {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #ddd;
+}
+
+.aiInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+
+/* QuestionEngine.module.css 追加 */
+
+.divider {
+    border: 0;
+    border-top: 1px dashed #E5E6EB;
+    margin: 20px 0;
+}
+
+/* 参考答案区域 */
+.referenceBox {
+    background-color: #F7F8FA;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #4E5969;
+}
+
+.refRow {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.refLabel {
+    min-width: 80px;
+    color: #1D2129;
+}
+
+/* 教师批改输入框 */
+.gradingInputBox {
+    background-color: #FFF7F0;
+    /* 浅橙色背景 */
+    border: 1px solid #FFD8BF;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.gradingHeader {
+    font-weight: bold;
+    color: #FF7B54;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.gradingRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.gradingRow label {
+    font-size: 0.9rem;
+    min-width: 60px;
+    color: #555;
+}
+
+.scoreInput {
+    width: 80px;
+    padding: 6px;
+    border: 1px solid #FFD8BF;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #FF7B54;
+}
+
+.commentInput {
+    flex: 1;
+    padding: 6px;
+    border: 1px solid #FFD8BF;
+    border-radius: 4px;
+}
+
+/* 批改结果展示 */
+.gradingResultBox {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid transparent;
+}
+
+.resultSuccess {
+    background-color: #F6FFED;
+    border-left-color: #52C41A;
+}
+
+.resultDanger {
+    background-color: #FFF2F0;
+    border-left-color: #FF4D4F;
+}
+
+.resultScore {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.resultScore span {
+    font-size: 1.2rem;
+    color: #1D2129;
+}
+
+.resultComment {
+    font-size: 0.9rem;
+    color: #666;
+}

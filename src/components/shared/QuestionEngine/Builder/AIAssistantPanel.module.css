@@ -1,0 +1,558 @@
+/* components/shared/QuestionEngine/Builder/AIAssistantPanel.module.css */
+
+/* --- 布局容器 --- */
+.panelWrapper {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    background: #fff;
+    border-left: 1px solid #E5E6EB;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+    z-index: 50;
+    flex-shrink: 0;
+    /* 关键修复 1: 移除 transition: width，解决拖拽卡顿 */
+    /* transition: width 0.1s ease-out;  <-- 删除这行 */
+}
+
+/* 拖拽把手 */
+.resizeHandle {
+    width: 8px;
+    /* 加宽一点便于点击 */
+    height: 100%;
+    cursor: col-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -4px;
+    top: 0;
+    z-index: 100;
+    transition: background 0.2s;
+}
+
+.resizeHandle:hover,
+.resizeHandle.resizing {
+    background: rgba(108, 92, 231, 0.3);
+}
+
+.handleBar {
+    width: 2px;
+    height: 30px;
+    background: #ccc;
+    border-radius: 2px;
+}
+
+/* 内容区域容器 */
+.panelContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    min-width: 0;
+    /* 防止子元素溢出 */
+}
+
+/* --- Header --- */
+.header {
+    /* 关键修复 2: 防止头部被压缩 */
+    flex-shrink: 0;
+    padding: 14px 20px;
+    border-bottom: 1px solid #F2F3F5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    color: #1D2129;
+}
+
+.avatarIcon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statusBadge {
+    font-size: 0.7rem;
+    background: #E8FFEA;
+    color: #00B42A;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.closeBtn {
+    border: none;
+    background: transparent;
+    color: #86909C;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.closeBtn:hover {
+    background: #F2F3F5;
+    color: #1D2129;
+}
+
+/* --- Chat Area --- */
+.chatArea {
+    flex: 1;
+    /* 占据剩余空间 */
+    overflow-y: auto;
+    padding: 20px;
+    background: #F7F8FA;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 消息气泡样式保持不变 */
+.messageRow {
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.rowUser {
+    justify-content: flex-end;
+}
+
+.rowAi {
+    justify-content: flex-start;
+}
+
+.aiAvatar {
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6C5CE7;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.bubbleUser {
+    background: #6C5CE7;
+    color: white;
+    border-bottom-right-radius: 2px;
+}
+
+.bubbleAi {
+    background: #fff;
+    color: #1D2129;
+    border: 1px solid #E5E6EB;
+    border-top-left-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.errorMsg {
+    color: #F53F3F;
+}
+
+.fileListMsg {
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.fileTag {
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.loadingIcon {
+    margin-right: 6px;
+}
+
+/* 预览卡片样式 */
+.previewCard {
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.previewHeader {
+    padding: 10px 14px;
+    background: #FAFAFA;
+    border-bottom: 1px dashed #E5E6EB;
+}
+
+.previewTitleBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.previewTitleMain {
+    font-weight: 600;
+    color: #1D2129;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+}
+
+.previewDesc {
+    font-size: 0.8rem;
+    color: #86909C;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.previewStats {
+    margin-top: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.statTag {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    background: #E5E6EB;
+    color: #4E5969;
+    border-radius: 4px;
+}
+
+.previewBody {
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.questionItem {
+    padding: 10px 14px;
+    border-bottom: 1px solid #F2F3F5;
+}
+
+.qHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.qIndex {
+    font-weight: bold;
+    color: #86909C;
+}
+
+.qScore {
+    margin-left: auto;
+    color: #FF7B54;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.qTitle {
+    font-size: 0.9rem;
+    color: #1D2129;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.qOptionsPreview {
+    padding-left: 8px;
+    border-left: 2px solid #F2F3F5;
+}
+
+.miniOpt {
+    display: block;
+    font-size: 0.8rem;
+    color: #86909C;
+}
+
+.importBtn {
+    width: 100%;
+    border: none;
+    background: #F0F9FF;
+    color: #0984E3;
+    padding: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.importBtn:hover {
+    background: #0984E3;
+    color: white;
+}
+
+/* --- Input Area (修复重点) --- */
+.inputArea {
+    /* 关键修复 3: 防止输入区被压缩 */
+    flex-shrink: 0;
+    padding: 14px;
+    border-top: 1px solid #E5E6EB;
+    background: #fff;
+    z-index: 10;
+}
+
+.uploadPreview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.fileChip {
+    font-size: 0.8rem;
+    background: #F2F3F5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fileChip button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #86909C;
+}
+
+.inputContainer {
+    display: flex;
+    align-items: flex-end;
+    /* 底部对齐 */
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #E5E6EB;
+    border-radius: 12px;
+    padding: 8px;
+    transition: all 0.2s;
+}
+
+.inputContainer:focus-within {
+    border-color: #6C5CE7;
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+}
+
+.inputContainer.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: none;
+    max-height: 120px;
+    min-height: 24px;
+    padding: 2px;
+    line-height: 1.5;
+}
+
+.attachBtn,
+.sendBtn {
+    border: none;
+    background: transparent;
+    color: #86909C;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.attachBtn:hover {
+    background: #F2F3F5;
+    color: #1D2129;
+}
+
+.sendBtn:hover {
+    background: #6C5CE7;
+    color: white;
+}
+
+.sendBtn:disabled {
+    color: #E5E6EB;
+    background: transparent;
+    cursor: not-allowed;
+}
+
+/* --- Diff 预览卡片 --- */
+.diffContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    /* 限制高度，内部滚动 */
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.diffItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #E5E6EB;
+    background: #fff;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.diffItem:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 状态边框色 */
+.diffItem.added {
+    border-left: 4px solid #00B42A;
+    background: #E8FFEA;
+}
+
+.diffItem.modified {
+    border-left: 4px solid #FF7D00;
+    background: #FFF7E8;
+}
+
+.diffItem.deleted {
+    border-left: 4px solid #F53F3F;
+    background: #FFF0F0;
+    opacity: 0.8;
+}
+
+.diffCheck {
+    margin-top: 4px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #6C5CE7;
+}
+
+.diffContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.diffHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.diffTag {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tagAdded {
+    color: #00B42A;
+    background: rgba(0, 180, 42, 0.1);
+}
+
+.tagMod {
+    color: #FF7D00;
+    background: rgba(255, 125, 0, 0.1);
+}
+
+.tagDel {
+    color: #F53F3F;
+    background: rgba(245, 63, 63, 0.1);
+}
+
+.diffTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1D2129;
+    margin-bottom: 4px;
+}
+
+.diffDetails {
+    font-size: 0.85rem;
+    color: #86909C;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.changeChip {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.oldValue {
+    text-decoration: line-through;
+    color: #999;
+    margin-right: 4px;
+}
+
+.newValue {
+    color: #333;
+    font-weight: 600;
+}
+
+.applyBar {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selectAllLabel {
+    font-size: 0.9rem;
+    color: #4E5969;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
