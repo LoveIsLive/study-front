@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faArrowLeft, faUser, faClock, faCheckCircle, faTimesCircle,
-    faInfoCircle, faExclamationTriangle, faPaperclip, faSpinner, faPenNib, faUndo, faTimes
+    faInfoCircle, faExclamationTriangle, faPaperclip, faSpinner, faPenNib, faUndo, faTimes, faMagic // <--- 添加 faMagic
 } from '@fortawesome/free-solid-svg-icons';
 
 import useAuthStore from '../../../store/authStore';
@@ -52,8 +52,15 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
     const [files, setFiles] = useState([]);
     const [questions, setQuestions] = useState([]);
 
+    const maxScore = useMemo(() => {
+        if (!questions || questions.length === 0) return 0;
+        return questions.reduce((acc, q) => acc + (q.score || 0), 0);
+    }, [questions]);
+
     // 教师批改状态
     const [isGrading, setIsGrading] = useState(false);
+    const [isAIGrading, setIsAIGrading] = useState(false); // <--- 新增状态
+
     const [gradingData, setGradingData] = useState({
         generalComment: '',
         details: {}
@@ -193,6 +200,38 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
     };
 
     // --- 教师批改逻辑 ---
+    // --- 新增：请求 AI 一键批改 ---
+    const handleAIGrade = async () => {
+        setIsAIGrading(true);
+        try {
+            const res = await submissionApi.post(`/${submission.id}/ai-grade`);
+            const aiData = res.data.data;
+
+            // 将后端传回的数据直接 Apply 到当前组件的状态中
+            setGradingData({
+                generalComment: aiData.generalComment || '',
+                details: aiData.details || {}
+            });
+
+            // 自动开启批改模式，以便教师能够看到分数框并可以修改
+            setIsGrading(true);
+
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: '✨ AI 批改完成！',
+                text: '请核对分数和评语，确认无误后点击右下角【确认评分】',
+                showConfirmButton: false,
+                timer: 4000
+            });
+        } catch (error) {
+            Swal.fire('AI 批改失败', error.response?.data?.message || '服务器繁忙，请稍后重试', 'error');
+        } finally {
+            setIsAIGrading(false);
+        }
+    };
+
     const currentTotalScore = useMemo(() => {
         let total = 0;
         if (gradingData && gradingData.details) {
@@ -309,21 +348,34 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                                 {submission && <StatusBadge status={submission.status} />}
                                 {submission && submission.score !== null && (
                                     <span className={styles.totalScoreDisplay}>
-                                        总分: {submission.score}
+                                        得分: {submission.score} {maxScore > 0 ? `/ ${maxScore}` : ''}
                                     </span>
                                 )}
                             </div>
 
-                            {/* --- 教师操作按钮组 (核心修复) --- */}
+                            {/* --- 教师操作按钮组 --- */}
                             {isTeacher && submission && (
                                 <div className={styles.teacherActions}>
-                                    {/* 切换批改状态按钮 */}
-                                    {submission.status !== '被退回' && (
+
+
+                                    {isStructured && (submission.status === '已提交' || submission.status === '重新提交' || submission.status === '已批改') && (
+                                        <button
+                                            className={`${styles.actionBtn} ${styles.btnAiGrade}`}
+                                            onClick={handleAIGrade}
+                                            disabled={isAIGrading}
+                                        >
+                                            <FontAwesomeIcon icon={isAIGrading ? faSpinner : faMagic} spin={isAIGrading} />
+                                            {isAIGrading ? ' 批改中...' : ' AI一键批改'}
+                                        </button>
+                                    )}
+
+                                    {/* 原有的切换批改状态按钮 */}
+                                    {(submission.status === '已提交' || submission.status === '重新提交' || submission.status === '已批改') && (
                                         <button
                                             className={`${styles.actionBtn} ${isGrading ? styles.btnSecondary : styles.btnGrade}`}
                                             onClick={() => setIsGrading(!isGrading)}
+                                            disabled={isAIGrading} // AI批改中禁用
                                         >
-                                            {/* 图标根据状态变化 */}
                                             <FontAwesomeIcon icon={isGrading ? faTimes : faPenNib} />
                                             {isGrading
                                                 ? ' 退出批改'
@@ -332,13 +384,15 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                                         </button>
                                     )}
 
-                                    <button
-                                        className={`${styles.actionBtn} ${styles.btnReturn}`}
-                                        onClick={handleReturnSubmission}
-                                        disabled={submission.status === '被退回'}
-                                    >
-                                        <FontAwesomeIcon icon={faUndo} /> 退回
-                                    </button>
+                                    {(submission.status !== '已批改') && (
+                                        <button
+                                            className={`${styles.actionBtn} ${styles.btnReturn}`}
+                                            onClick={handleReturnSubmission}
+                                            disabled={submission.status === '被退回' || isAIGrading}
+                                        >
+                                            <FontAwesomeIcon icon={faUndo} /> 退回
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -355,6 +409,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                                     isGradingMode={isGrading}
                                     gradingData={gradingData}
                                     onGradingChange={handleDetailGradingChange}
+                                    submissionStatus={submission?.status}
                                 />
                             ) : (
                                 <div className={styles.simpleModeWrapper}>

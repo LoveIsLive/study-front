@@ -38,6 +38,18 @@ const SubmissionCard = ({ submission, isStudentView, onReturn, onEdit, onOpenDis
     const hasContent = submission.content && submission.content.trim().length > 0;
     const hasAnswerData = submission.answerData && submission.answerData !== '{}';
 
+    let maxScore = null;
+    if (submission.homework?.type === 'STRUCTURED' && submission.homework?.metaData) {
+        try {
+            const meta = typeof submission.homework.metaData === 'string'
+                ? JSON.parse(submission.homework.metaData)
+                : submission.homework.metaData;
+            maxScore = meta.totalScore;
+        } catch (e) {
+            console.error("解析 metaData 获取总分失败", e);
+        }
+    }
+
     return (
         <div className={styles.itemCard}>
             <div className={styles.cardHeader}>
@@ -50,7 +62,7 @@ const SubmissionCard = ({ submission, isStudentView, onReturn, onEdit, onOpenDis
                     {/* 显示分数 */}
                     {submission.score !== null && (
                         <span style={{ marginLeft: '10px', color: '#FF7B54', fontWeight: 'bold' }}>
-                            {submission.score} 分
+                            {submission.score} {maxScore ? `/ ${maxScore}` : ''} 分
                         </span>
                     )}
                 </div>

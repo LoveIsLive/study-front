@@ -155,7 +155,6 @@ export function fileMimeTypeName(file) {
     return mimeTypes[ext] || useType;
 }
 
-export function usernameProcessor(username) {
-    if (!username) return username;
-    return username.indexOf('_') !== -1 ? username.substring(username.indexOf('_') + 1) : username;
-}
+export const generateShortId = () => {
+    return Math.random().toString(36).substring(2, 6);
+};

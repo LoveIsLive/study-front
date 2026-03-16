@@ -47,7 +47,8 @@ const HomeworkPlayer = ({
     isTeacher = false,
     isGradingMode = false,
     gradingData = { details: {} },
-    onGradingChange
+    onGradingChange,
+    submissionStatus
 }) => {
 
     const handleAnswerChange = (qId, val) => {
@@ -58,10 +59,8 @@ const HomeworkPlayer = ({
 
     // 渲染参考答案区 (包含解析、AI标准)
     const renderReference = (q) => {
-        // 学生只有在 (readOnly 且 已批改) 时可见，或者 教师始终可见
-        // 这里简化逻辑：如果是教师或者是只读模式(代表已提交/已批改)，则显示
-        // 实际业务中可能需要判断 submission.status === 'GRADED'
-        if (!isTeacher && !readOnly) return null;
+        const showReference = isTeacher || submissionStatus === '已批改';
+        if (!showReference) return null;
 
         const label = getCorrectAnswerLabel(q);
 

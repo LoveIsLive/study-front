@@ -52,7 +52,7 @@ const useAuthStore = create((set, get) => ({
                 set({
                     user: {
                         // 只存储 Token 中的权威信息
-                        name: decoded.sub || "",
+                        name: decoded.sub.split('_').pop() || "",
                         roles: decoded.roles || [],
                         isTeacher: (decoded.roles || []).includes("ROLE_TEACHER"),
                         isAdmin: (decoded.roles || []).includes("ROLE_ADMIN"),

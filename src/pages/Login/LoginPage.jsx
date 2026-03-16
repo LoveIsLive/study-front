@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faLock, faEye, faEyeSlash, faSchool, faUserShield, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
+// 新增了 faUsers 图标用于班级选择框
+import { faUser, faLock, faEye, faEyeSlash, faSchool, faUsers, faUserShield, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../store/authStore';
 import { authApi } from '../../services/api';
 import { config } from '../../utils/config';
@@ -11,8 +12,14 @@ import styles from './LoginPage.module.css';
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
+    // 学校相关状态
     const [selectedSchoolId, setSelectedSchoolId] = useState('');
     const [schools, setSchools] = useState([]);
+
+    // --- 新增：班级相关状态 ---
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const [classes, setClasses] = useState([]);
 
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +28,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
 
-    // 加载学校列表
+    // 1. 加载学校列表
     useEffect(() => {
         const fetchSchools = async () => {
             try {
@@ -29,7 +36,6 @@ const LoginPage = () => {
                 if (response.data.code === 200) {
                     const schoolList = response.data.data || [];
                     setSchools(schoolList);
-                    // --- 修复：默认选中第一个学校 ---
                     if (schoolList.length > 0) {
                         setSelectedSchoolId(schoolList[0].id);
                     }
@@ -43,6 +49,27 @@ const LoginPage = () => {
         }
     }, [isAdminLogin]);
 
+    // --- 新增：2. 监听学校变化，联动加载对应班级列表 ---
+    useEffect(() => {
+        const fetchClasses = async () => {
+            // 如果没有选择学校，或者是管理员登录，则不拉取班级
+            if (!selectedSchoolId || isAdminLogin) return;
+
+            try {
+                const response = await authApi.get(`/public/${selectedSchoolId}/classes`);
+                if (response.data.code === 200) {
+                    setClasses(response.data.data || []);
+                    // 切换学校时，清空之前选择的班级
+                    setSelectedClassId('');
+                }
+            } catch (error) {
+                console.error("Failed to fetch classes", error);
+            }
+        };
+
+        fetchClasses();
+    }, [selectedSchoolId, isAdminLogin]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -53,10 +80,13 @@ const LoginPage = () => {
 
         setIsLoading(true);
         try {
+            // --- 修改：在 Payload 中动态携带 classId ---
             const payload = {
                 username,
                 password,
-                schoolId: isAdminLogin ? null : selectedSchoolId
+                schoolId: isAdminLogin ? null : selectedSchoolId,
+                // 如果用户没有选择班级（例如老师），则传递 null
+                classId: isAdminLogin ? null : (selectedClassId === '' ? null : selectedClassId)
             };
 
             const response = await authApi.post('/login', payload);
@@ -94,6 +124,7 @@ const LoginPage = () => {
         // 切换模式时重置或重新获取默认值
         if (isAdminLogin && schools.length > 0) {
             setSelectedSchoolId(schools[0].id);
+            setSelectedClassId(''); // 切换回来时重置班级
         }
     };
 
@@ -107,20 +138,40 @@ const LoginPage = () => {
 
                 <form id="login-form" onSubmit={handleSubmit}>
                     {!isAdminLogin && (
-                        <div className={styles.inputGroup}>
-                            <FontAwesomeIcon icon={faSchool} className={styles.leftIcon} />
-                            <select
-                                className={styles.selectInput}
-                                value={selectedSchoolId}
-                                onChange={(e) => setSelectedSchoolId(e.target.value)}
-                                required={!isAdminLogin}
-                            >
-                                <option value="" disabled>请选择您的学校</option>
-                                {schools.map(school => (
-                                    <option key={school.id} value={school.id}>{school.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <>
+                            {/* 学校选择框 */}
+                            <div className={styles.inputGroup}>
+                                <FontAwesomeIcon icon={faSchool} className={styles.leftIcon} />
+                                <select
+                                    className={styles.selectInput}
+                                    value={selectedSchoolId}
+                                    onChange={(e) => setSelectedSchoolId(e.target.value)}
+                                    required={!isAdminLogin}
+                                >
+                                    <option value="" disabled>请选择您的学校</option>
+                                    {schools.map(school => (
+                                        <option key={school.id} value={school.id}>{school.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className={styles.inputGroup}>
+                                <FontAwesomeIcon icon={faUsers} className={styles.leftIcon} />
+                                <select
+                                    className={styles.selectInput}
+                                    value={selectedClassId}
+                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                >
+                                    {/* 将默认空值选项设置为"教师"选项 */}
+                                    <option value="">我是校长 (无班级)</option>
+
+                                    {/* 下方继续渲染学生所在的班级列表 */}
+                                    {classes.map(cls => (
+                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </>
                     )}
 
                     <div className={styles.inputGroup}>
@@ -128,12 +179,13 @@ const LoginPage = () => {
                         <input
                             type="text"
                             id="username"
-                            placeholder={isAdminLogin ? "管理员账号" : "姓名"}
+                            placeholder={isAdminLogin ? "管理员账号" : "姓名/学号"}
                             required
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
+
                     <div className={styles.inputGroup}>
                         <FontAwesomeIcon icon={faLock} className={styles.leftIcon} />
                         <input

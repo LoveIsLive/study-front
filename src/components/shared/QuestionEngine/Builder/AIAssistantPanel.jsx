@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import Swal from 'sweetalert2';
 import { baseApi } from '../../../../services/api';
 import styles from './AIAssistantPanel.module.css';
+import { generateShortId } from '../../../../utils/helpers.js';
 
 // =========================================================================
 // 子组件：HomeworkDiffViewer (差异对比与合并控制器)
@@ -61,7 +62,7 @@ const HomeworkDiffViewer = ({ aiData, snapshot, onConfirm }) => {
                 if (!q.id || !originalQMap.has(q.id)) {
                     diffs.push({
                         type: 'ADDED', target: 'question',
-                        data: q, id: q.id || `new-${crypto.randomUUID()}`
+                        data: q, id: q.id || generateShortId()
                     });
                 } else {
                     // 修改现有题目 (对比快照中的旧数据)
@@ -254,7 +255,7 @@ const AIAssistantPanel = ({
                         }]);
                     }
                 } catch (error) {
-                    setSessionId(crypto.randomUUID());
+                    console.log('获取会话id失败')
                 }
             }
         };
@@ -437,7 +438,7 @@ const AIAssistantPanel = ({
                     // 如果 AI 更新了选项，就生成新的；否则沿用旧的
                     const finalOptions = (aiUpdate.options && aiUpdate.options.length > 0)
                         ? aiUpdate.options.map(opt => ({
-                            id: opt.id || crypto.randomUUID(), // 优先用回传ID，否则生成新ID
+                            id: opt.id || generateShortId(), // 优先用回传ID，否则生成新ID
                             label: opt.label,
                             text: opt.text
                         }))
@@ -473,7 +474,7 @@ const AIAssistantPanel = ({
         adds.forEach(q => {
             // 1. 生成新选项
             const newOptions = (q.options || []).map(opt => ({
-                id: crypto.randomUUID(),
+                id: generateShortId(),
                 label: opt.label,
                 text: opt.text
             }));
@@ -482,7 +483,7 @@ const AIAssistantPanel = ({
             const resolvedAnswer = resolveCorrectAnswer(q.correctAnswer, q.type, newOptions);
 
             const newQ = {
-                id: crypto.randomUUID(),
+                id: generateShortId(),
                 type: q.type,
                 title: q.title,
                 score: q.score || 5,
