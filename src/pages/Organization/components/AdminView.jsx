@@ -41,9 +41,10 @@ const SchoolCard = ({ school, onSelect, onEdit, onDelete, onManageMembers }) => 
 
 const AdminView = () => {
     const { user } = useAuthStore();
+    const isAdmin = useAuthStore((state) => state.isAdmin());
     const [isLoading, setIsLoading] = useState(false);
 
-    const [currentView, setCurrentView] = useState(user.isAdmin ? 'schools' : 'classes');
+    const [currentView, setCurrentView] = useState(isAdmin ? 'schools' : 'classes');
     const [currentSchool, setCurrentSchool] = useState(null);
     const [currentClass, setCurrentClass] = useState(null);
 
@@ -110,12 +111,12 @@ const AdminView = () => {
 
     // 初始加载
     useEffect(() => {
-        if (currentView === 'schools' && user.isAdmin) {
+        if (currentView === 'schools' && isAdmin) {
             fetchSchools(); // 初始加载所有学校
         } else if (currentView === 'classes') {
             fetchClasses(currentSchool?.id); // 初始加载班级
         }
-    }, [currentView, currentSchool, user.isAdmin, fetchSchools, fetchClasses]);
+    }, [currentView, currentSchool, isAdmin, fetchSchools, fetchClasses]);
 
     // --- 搜索处理器 ---
     const handleSchoolSearch = () => {
@@ -172,10 +173,21 @@ const AdminView = () => {
 
     const handleAddPrincipal = async (data) => {
         try {
-            await schoolMemberApi.post(`/${managingSchool.id}/add`, data);
+            const res = await schoolMemberApi.post(`/${managingSchool.id}/add`, data);
+            const feedbacks = res.data.data;
+
             setIsAddPrincipalOpen(false);
             fetchPrincipals(managingSchool.id);
-            Swal.fire({ icon: 'success', title: '添加成功', timer: 1000, showConfirmButton: false });
+
+            if (feedbacks && feedbacks.length > 0) {
+                Swal.fire({
+                    title: '添加成功（用户名已调整）',
+                    html: `<div style="text-align:left">${feedbacks.join('<br>')}</div>`,
+                    icon: 'warning'
+                });
+            } else {
+                Swal.fire({ icon: 'success', title: '添加成功', timer: 1000, showConfirmButton: false });
+            }
         } catch (error) {
             Swal.fire('添加失败', error.response?.data?.message, 'error');
         }
@@ -193,7 +205,7 @@ const AdminView = () => {
 
     const handleSaveClass = async (data) => {
         try {
-            if (user.isAdmin && !editingItem) data.schoolId = currentSchool.id;
+            if (isAdmin && !editingItem) data.schoolId = currentSchool.id;
 
             if (editingItem) {
                 await classesApi.put(`/${editingItem.id}`, data);
@@ -268,7 +280,7 @@ const AdminView = () => {
             <div>
                 <div className={adminStyles.toolbar}>
                     <div className={adminStyles.breadcrumb}>
-                        {user.isAdmin && (
+                        {isAdmin && (
                             <button className="btn btn-primary" onClick={() => { setCurrentView('schools'); setCurrentSchool(null); setClassSearchTerm(''); }}>
                                 <FontAwesomeIcon icon={faArrowLeft} /> 返回
                             </button>

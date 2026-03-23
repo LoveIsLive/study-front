@@ -17,6 +17,10 @@ import Swal from 'sweetalert2';
 
 const WarePage = () => {
     const { token, user } = useAuthStore();
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const isTeacher = useAuthStore((state) => state.isTeacher());
+    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+
     const [nodes, setNodes] = useState([]);
     const [currentPath, setCurrentPath] = useState('/');
     const [isLoading, setIsLoading] = useState(true);
@@ -101,6 +105,8 @@ const WarePage = () => {
             Swal.fire({ icon: 'warning', title: '请输入搜索内容' });
             return;
         }
+        const { activeId, activeType } = useAuthStore.getState();
+
         setSearchResults([]);
         setSearchStatus('正在搜索...');
         setSearchModalOpen(true);
@@ -108,7 +114,12 @@ const WarePage = () => {
         if (stompClientRef.current?.connected) {
             stompClientRef.current.publish({
                 destination: '/app/ware/search',
-                body: JSON.stringify({ path: '/', namePattern: query })
+                body: JSON.stringify({
+                    path: '/',
+                    namePattern: query,
+                    activeClassId: activeType === 'class' ? activeId : null,
+                    activeSchoolId: activeType === 'school' ? activeId : null
+                })
             });
         } else {
             setSearchStatus('WebSocket 未连接，无法搜索。');
@@ -154,7 +165,7 @@ const WarePage = () => {
                 onNew={() => setNewItemModalOpen(true)}
                 onSearch={handleSearch}
                 onPathChange={handlePathInputChange}
-                isTeacher={user.isTeacher || user.isAdmin}
+                isTeacher={isTeacher || isAdmin || isPrincipal}
             />
             <Breadcrumb currentPath={currentPath} navigate={navigate} />
 

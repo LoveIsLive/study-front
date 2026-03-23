@@ -5,78 +5,121 @@ import { userApi } from '../services/api';
 
 const useAuthStore = create((set, get) => ({
     token: localStorage.getItem(config.tokenName),
-    user: null, // 存储来自 Token 的核心信息 (name, roles)
-    detailInfo: null, // 存储来自 /detailInfo 的额外信息 (classMember, etc.)
+    user: null,
+    detailInfo: null,
+
+    // 身份上下文
+    activeType: localStorage.getItem('activeType') || 'class',
+    activeId: localStorage.getItem('activeId'),
 
     isAuthenticated: () => !!get().token,
 
-    // --- 新增：获取并设置用户详细信息 ---
+    // --- 计算属性 (函数化调用) ---
+    isAdmin: () => get().user?.isAdmin || false,
+
+    getActiveIdentity: () => {
+        const { detailInfo, activeType, activeId } = get();
+        if (!detailInfo) return null;
+        if (activeType === 'school') {
+            // 使用 String() 转换，避免 '1' !== 1 的判断失败
+            return detailInfo.schoolMembers?.find(m => String(m.schoolId) === String(activeId));
+        } else {
+            return detailInfo.classMembers?.find(m => String(m.classId) === String(activeId));
+        }
+    },
+
+    isTeacher: () => get().getActiveIdentity()?.role === 'ROLE_TEACHER',
+    isStudent: () => get().getActiveIdentity()?.role === 'ROLE_STUDENT',
+    isPrincipal: () => get().getActiveIdentity()?.role === 'ROLE_PRINCIPAL',
+
+    // --- 操作方法 ---
+
+    // 核心：解析 Token (同步)
+    decodeToken: () => {
+        const token = get().token;
+        if (!token) return;
+        try {
+            const decoded = jwtDecode(token);
+            set({
+                user: {
+                    name: decoded.sub || "",
+                    isAdmin: (decoded.roles || []).includes("ROLE_ADMIN"),
+                }
+            });
+        } catch (e) {
+            get().logout();
+        }
+    },
+
+    // 核心：拉取组织架构 (异步)
     fetchDetailInfo: async () => {
-        if (!get().token) return; // 如果没有 token，不执行
+        if (!get().token) return;
         try {
             const response = await userApi.get('/detailInfo');
             const info = response.data.data;
+            set({ detailInfo: info });
 
-            // 注意：我们只取需要的数据，避免覆盖 token 中的权威信息
-            set({
-                detailInfo: {
-                    classMember: info.classMember,
-                    schoolMember: info.schoolMember
-                    // 可以在这里扩展其他额外信息，如 age, gender 等
+            // 自动上下文校验与初始化
+            const { activeType, activeId } = get();
+            let isValid = false;
+            if (activeType === 'school') {
+                isValid = info.schoolMembers?.some(m => String(m.schoolId) === String(activeId));
+            } else {
+                isValid = info.classMembers?.some(m => String(m.classId) === String(activeId));
+            }
+
+            if (!isValid) {
+                if (info.schoolMembers?.length > 0) {
+                    get().setContext('school', info.schoolMembers[0].schoolId);
+                } else if (info.classMembers?.length > 0) {
+                    get().setContext('class', info.classMembers[0].classId);
                 }
-            });
-
+            }
         } catch (error) {
-            console.error("Failed to fetch user detail info:", error);
-            // 可选：如果获取失败，可以决定是否登出用户
+            if (error.response?.status === 401) get().logout();
         }
+    },
+
+    setContext: (type, id) => {
+        localStorage.setItem('activeType', type);
+        localStorage.setItem('activeId', id);
+        set({ activeType: type, activeId: id });
+    },
+
+    switchContext: (type, id) => {
+        get().setContext(type, id);
+        const homeUrl = config.front_HOME_PAGE_URL || '/';
+        window.location.href = homeUrl;
     },
 
     login: async (token) => {
         localStorage.setItem(config.tokenName, token);
         set({ token });
         get().decodeToken();
-        await get().fetchDetailInfo(); // 登录后立即获取详细信息
+        await get().fetchDetailInfo();
     },
 
     logout: () => {
-        localStorage.removeItem(config.tokenName);
-        set({ token: null, user: null, detailInfo: null });
-    },
-
-    decodeToken: () => {
-        const token = get().token;
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                set({
-                    user: {
-                        // 只存储 Token 中的权威信息
-                        name: decoded.sub.split('_').pop() || "",
-                        roles: decoded.roles || [],
-                        isTeacher: (decoded.roles || []).includes("ROLE_TEACHER"),
-                        isAdmin: (decoded.roles || []).includes("ROLE_ADMIN"),
-                        isPrincipal: (decoded.roles || []).includes("ROLE_PRINCIPAL"),
-                    }
-                });
-            } catch (error) {
-                console.error("Failed to decode JWT:", error);
-                get().logout(); // 如果token无效则登出
-            }
-        }
+        localStorage.clear();
+        set({ token: null, user: null, detailInfo: null, activeId: null });
+        window.location.href = '/auth';
     }
 }));
 
-// 初始化时执行
-const initializeAuth = async () => {
+/**
+ * 【重点】自初始化逻辑
+ * 当外部首次 import 此文件时，立即执行以下代码
+ */
+const initStore = () => {
     const state = useAuthStore.getState();
-    state.decodeToken();
-    // 如果 token 存在，则获取详细信息
     if (state.token) {
-        await state.fetchDetailInfo();
+        // 1. 立即同步解析 Token，这样 user 对象瞬间就有值了
+        state.decodeToken();
+        // 2. 异步获取详细信息，不阻塞主线程
+        state.fetchDetailInfo();
     }
 };
-initializeAuth();
 
+initStore();
 
 export default useAuthStore;

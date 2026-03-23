@@ -8,10 +8,14 @@ import styles from '../HomeworkPage.module.css';
 
 const HomeworkCard = ({ homework, onEdit, onViewSubmissions, onDeleteHomework, onSelectHomework, onOpenDiscussion }) => {
     const { user } = useAuthStore(); // 获取当前用户信息
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const isTeacher = useAuthStore((state) => state.isTeacher());
+    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+
     const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
 
     // 权限判断：是否应该显示操作按钮
-    const canOperate = user && (user.isAdmin || user.isTeacher);
+    const canOperate = user && (isAdmin || isTeacher || isPrincipal);
 
     return (
         <div className={styles.itemCard}>
