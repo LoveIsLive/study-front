@@ -6,11 +6,7 @@ import useAuthStore from '../../../store/authStore';
 const HomeworkList = ({ homeworks, onViewSubmissions, onDeleteHomework,
     onSelectHomework, onEditHomework, onOpenDiscussion }) => {
     const { user } = useAuthStore();
-    const isAdmin = useAuthStore((state) => state.isAdmin());
-    const isTeacher = useAuthStore((state) => state.isTeacher());
-    const isPrincipal = useAuthStore((state) => state.isPrincipal());
-
-    const isManage = user && (isTeacher || isAdmin || isPrincipal);
+    const isManage = user && (user.isTeacher || user.isAdmin);
 
     if (!homeworks || homeworks.length === 0) {
         return <p className={styles.placeholderText}>{isManage ? '您还没有发布任何作业' : '当前没有作业'}</p>;

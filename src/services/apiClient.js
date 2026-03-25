@@ -10,18 +10,10 @@ const createApiClient = (baseURL) => {
 
     apiClient.interceptors.request.use(
         (axiosConfig) => {
-            const state = useAuthStore.getState();
-            if (state.token) {
-                axiosConfig.headers.Authorization = `Bearer ${state.token}`;
+            const token = useAuthStore.getState().token;
+            if (token) {
+                axiosConfig.headers.Authorization = `Bearer ${token}`;
             }
-
-            // 互斥发送：要么发 ClassId，要么发 SchoolId
-            if (state.activeType === 'class' && state.activeId) {
-                axiosConfig.headers['X-Active-Class-Id'] = state.activeId;
-            } else if (state.activeType === 'school' && state.activeId) {
-                axiosConfig.headers['X-Active-School-Id'] = state.activeId;
-            }
-
             return axiosConfig;
         },
         (error) => Promise.reject(error)

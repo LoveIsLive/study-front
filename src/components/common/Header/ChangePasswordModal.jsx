@@ -6,8 +6,6 @@ import Modal from '../Modal/Modal';
 import styles from './ChangePasswordModal.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { config } from '../../../utils/config';
-import useAuthStore from '../../../store/authStore';
 
 const PasswordInput = forwardRef(({ label, id, error, ...props }, ref) => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -67,15 +65,13 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             // 根据后端返回的 R 对象的 code 和 data 来判断
             // 假设 R.success 的 code 是 200, R.error 的 code 是其他值 (e.g., 500)
             if (response.data.code === 200) {
-                // 【修改】：强制登出并跳转
+                // HTTP 状态码是 2xx，且业务 code 是 200，说明完全成功
                 await Swal.fire({
                     icon: 'success',
                     title: '密码修改成功',
-                    text: '安全凭据已变更，请重新登录。',
-                    allowOutsideClick: false
+                    text: '下次登录请使用新密码。',
                 });
-                useAuthStore.getState().logout(); // 直接从 Store 获取 logout
-                window.location.href = config.front_AUTH_PREFIX; // 强制刷新跳转
+                handleClose();
             } else {
                 // HTTP 状态码是 2xx，但业务 code 不是 200，说明是业务逻辑错误
                 // 例如 "旧密码不正确"

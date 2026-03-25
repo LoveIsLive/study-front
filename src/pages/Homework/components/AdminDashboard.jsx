@@ -12,8 +12,6 @@ import { faArrowLeft, faSearch, faSchool, faChalkboard } from '@fortawesome/free
 
 const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
     const { user } = useAuthStore();
-    const isAdmin = useAuthStore((state) => state.isAdmin());
-
     const [selectedSchool, setSelectedSchool] = useState(null);
     const [selectedClass, setSelectedClass] = useState(null);
 
@@ -47,7 +45,7 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
         try {
             const params = { detailed: true };
             if (key) params.key = key;
-            if (isAdmin && selectedSchool) {
+            if (user.isAdmin && selectedSchool) {
                 params.schoolId = selectedSchool.id;
             }
 
@@ -61,7 +59,7 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
         } finally {
             setIsLoading(false);
         }
-    }, [isAdmin, selectedSchool]);
+    }, [user.isAdmin, selectedSchool]);
 
     // --- 3. 获取作业列表 ---
     const fetchHomeworks = useCallback(async (classId) => {
@@ -80,12 +78,12 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
     useEffect(() => {
         if (selectedClass && view.name === 'list') {
             fetchHomeworks(selectedClass.id);
-        } else if (isAdmin && !selectedSchool) {
+        } else if (user.isAdmin && !selectedSchool) {
             fetchSchools(); // 初始无参数
         } else {
             fetchClasses(); // 初始无参数
         }
-    }, [selectedClass, selectedSchool, view.name, isAdmin, fetchSchools, fetchClasses, fetchHomeworks, refreshTrigger]);
+    }, [selectedClass, selectedSchool, view.name, user.isAdmin, fetchSchools, fetchClasses, fetchHomeworks, refreshTrigger]);
 
 
     // --- Handlers ---
@@ -104,7 +102,7 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
             setSelectedClass(null);
             setHomeworks([]);
             setClassSearchTerm('');
-        } else if (isAdmin && selectedSchool) {
+        } else if (user.isAdmin && selectedSchool) {
             setSelectedSchool(null);
             setClasses([]);
             setSchoolSearchTerm('');
@@ -182,7 +180,7 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
     }
 
     // 3. 学校列表视图 (Admin Only, 且未选学校)
-    if (isAdmin && !selectedSchool) {
+    if (user.isAdmin && !selectedSchool) {
         return (
             <div>
                 <div className={styles.dashboardHeader}>
@@ -231,7 +229,7 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
     return (
         <div>
             <div className={adminStyles.homeworkHeader} style={{ justifyContent: 'flex-start', gap: '20px' }}>
-                {isAdmin && (
+                {user.isAdmin && (
                     <button onClick={handleBack} className={`${styles.btn} ${styles.btnPrimary}`}>
                         <FontAwesomeIcon icon={faArrowLeft} /> 返回学校
                     </button>

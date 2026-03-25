@@ -14,10 +14,6 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
         : getFileIcon(node.name);
 
     const { user } = useAuthStore();
-    const isAdmin = useAuthStore((state) => state.isAdmin());
-    const isTeacher = useAuthStore((state) => state.isTeacher());
-    const isStudent = useAuthStore((state) => state.isStudent());
-    const isPrincipal = useAuthStore((state) => state.isPrincipal());
     const [isRenaming, setIsRenaming] = useState(false);
     const [newName, setNewName] = useState(node.name);
 
@@ -141,7 +137,7 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
                     {node.type === 1 && isPreviewable(node.mimeTypeName) && <FontAwesomeIcon icon={faEye} className={styles.actionIcon} title="预览" onClick={() => handleAction('preview')} />}
                     {node.type === 1 && <FontAwesomeIcon icon={faDownload} className={styles.actionIcon} title="下载" onClick={() => handleAction('download')} />}
                     <FontAwesomeIcon icon={faInfoCircle} className={styles.actionIcon} title="属性" onClick={() => handleAction('details')} />
-                    {(isTeacher || isAdmin || isPrincipal) && (
+                    {(user.isTeacher || user.isAdmin) && (
                         <>
                             <FontAwesomeIcon icon={faEdit} className={styles.actionIcon} title="重命名" onClick={() => setIsRenaming(true)} />
                             <FontAwesomeIcon icon={faTrashAlt} className={`${styles.actionIcon} ${styles.deleteIcon}`} title="删除" onClick={handleDelete} />
