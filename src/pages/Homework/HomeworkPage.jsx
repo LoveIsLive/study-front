@@ -15,6 +15,7 @@ const HomeworkPage = () => {
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isTeacher = useAuthStore((state) => state.isTeacher());
     const isPrincipal = useAuthStore((state) => state.isPrincipal());
+    const isStudent = useAuthStore((state) => state.isStudent());
 
     // view 结构: { name: string, data: any, mode: string }
     const [view, setView] = useState({ name: 'list', data: null, mode: null });
@@ -147,8 +148,12 @@ const HomeworkPage = () => {
         if (isTeacher) {
             return <TeacherDashboard view={view} navigateTo={navigateTo} onOpenCreateModal={handleOpenCreate} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
         }
-        // 学生 Dashboard
-        return <StudentDashboard view={view} navigateTo={navigateTo} onOpenDiscussion={handleOpenDiscussion} />;
+        if (isStudent) {
+            // 学生 Dashboard
+            return <StudentDashboard view={view} navigateTo={navigateTo} onOpenDiscussion={handleOpenDiscussion} />;
+        }
+        // 4. 兜底处理：如果有 detailInfo 但不属于任何角色（例如新注册账号）
+        return <div className="no-access">您当前没有加入任何班级或学校。</div>;
     };
 
     return (

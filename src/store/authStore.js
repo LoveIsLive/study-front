@@ -57,10 +57,12 @@ const useAuthStore = create((set, get) => ({
         try {
             const response = await userApi.get('/detailInfo');
             const info = response.data.data;
-            set({ detailInfo: info });
 
-            // 自动上下文校验与初始化
+            // --- 核心修改：先计算正确的上下文，再统一 set ---
             const { activeType, activeId } = get();
+            let finalType = activeType;
+            let finalId = activeId;
+
             let isValid = false;
             if (activeType === 'school') {
                 isValid = info.schoolMembers?.some(m => String(m.schoolId) === String(activeId));
@@ -70,11 +72,23 @@ const useAuthStore = create((set, get) => ({
 
             if (!isValid) {
                 if (info.schoolMembers?.length > 0) {
-                    get().setContext('school', info.schoolMembers[0].schoolId);
+                    finalType = 'school';
+                    finalId = info.schoolMembers[0].schoolId;
                 } else if (info.classMembers?.length > 0) {
-                    get().setContext('class', info.classMembers[0].classId);
+                    finalType = 'class';
+                    finalId = info.classMembers[0].classId;
                 }
             }
+
+            // 统一更新，避免 React 多次重绘导致的中间态
+            localStorage.setItem('activeType', finalType);
+            localStorage.setItem('activeId', finalId);
+            set({
+                detailInfo: info,
+                activeType: finalType,
+                activeId: finalId
+            });
+
         } catch (error) {
             if (error.response?.status === 401) get().logout();
         }
