@@ -11,7 +11,11 @@ import Spinner from '../../components/common/Spinner/Spinner';
 import styles from './HomeworkPage.module.css';
 
 const HomeworkPage = () => {
-    const { user } = useAuthStore();
+    const { user, detailInfo } = useAuthStore();
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const isTeacher = useAuthStore((state) => state.isTeacher());
+    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+
     // view 结构: { name: string, data: any, mode: string }
     const [view, setView] = useState({ name: 'list', data: null, mode: null });
     const [editingHomework, setEditingHomework] = useState(null);
@@ -94,6 +98,10 @@ const HomeworkPage = () => {
     const renderContent = () => {
         if (!user) return <Spinner />;
 
+        if (!isAdmin && !detailInfo) {
+            return <Spinner />;
+        }
+
         // 1. 全局顶级视图 (编辑器)
         if (view.name === 'create') {
             return (
@@ -122,7 +130,7 @@ const HomeworkPage = () => {
         // 3. 全局顶级视图 (提交列表页)
         // 虽然 TeacherDashboard 内部处理了 submissionList，但为了统一路由，也可以提取出来
         // 这里暂时保留在 Dashboard 内部处理，或提取出来如下：
-        if (view.name === 'submissionList' && (user.isTeacher || user.isAdmin)) {
+        if (view.name === 'submissionList' && (isTeacher || isAdmin)) {
             return <SubmissionList
                 homeworkId={view.data}
                 onBack={() => window.location.hash = '#/'}
@@ -130,12 +138,13 @@ const HomeworkPage = () => {
                 onViewDetail={(submissionId) => navigateTo('submissionGrading', submissionId)}
             />;
         }
+        console.log(isTeacher, '是否是教师');
 
         // 4. 仪表盘视图 (列表页)
-        if (user.isAdmin || user.isPrincipal) {
+        if (isAdmin || isPrincipal) {
             return <AdminDashboard view={view} navigateTo={navigateTo} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
         }
-        if (user.isTeacher) {
+        if (isTeacher) {
             return <TeacherDashboard view={view} navigateTo={navigateTo} onOpenCreateModal={handleOpenCreate} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
         }
         // 学生 Dashboard

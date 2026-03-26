@@ -12,13 +12,17 @@ import { faArrowLeft, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const ClassDetailView = ({ classId, className, onBack }) => {
     const { user } = useAuthStore();
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const isTeacher = useAuthStore((state) => state.isTeacher());
+    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+
     const [members, setMembers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // --- 修复点：增加 user.isPrincipal 判断 ---
     // 允许 Admin、校长、教师管理班级成员
-    const canManageMembers = user && (user.isAdmin || user.isTeacher || user.isPrincipal);
+    const canManageMembers = user && (isAdmin || isTeacher || isPrincipal);
 
     const fetchMembers = useCallback(async () => {
         setIsLoading(true);
@@ -38,12 +42,30 @@ const ClassDetailView = ({ classId, className, onBack }) => {
 
     const handleAddMembers = async (memberData) => {
         try {
-            await classMemberApi.post(`/${classId}/add`, memberData);
-            Swal.fire({ icon: 'success', title: '添加成功', timer: 1500, showConfirmButton: false });
+            const res = await classMemberApi.post(`/${classId}/add`, memberData);
+            const feedbacks = res.data.data; // 后端返回的改名反馈列表
+
             setIsModalOpen(false);
             fetchMembers();
+
+            if (feedbacks && feedbacks.length > 0) {
+                // 【修改】：展示美观的改名提示
+                Swal.fire({
+                    title: '添加成功（部分账号已调整）',
+                    icon: 'info',
+                    html: `
+                    <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12; max-height: 200px; overflow-y: auto;">
+                        ${feedbacks.map(msg => `<p style="margin-bottom: 5px; font-size: 14px;">⚠️ ${msg}</p>`).join('')}
+                    </div>
+                    <p style="margin-top: 10px; font-weight: bold;">请记录上述变更并告知相关用户。</p>
+                `,
+                    confirmButtonText: '我知道了'
+                });
+            } else {
+                Swal.fire({ icon: 'success', title: '成功添加所有成员', timer: 1500, showConfirmButton: false });
+            }
         } catch (error) {
-            Swal.fire({ icon: 'error', title: '添加失败', text: error.response?.data?.message || '服务器错误' });
+            Swal.fire({ icon: 'error', title: '添加失败', text: error.response?.data?.message });
         }
     };
 

@@ -39,8 +39,11 @@ const StatusBadge = ({ status }) => {
 
 const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
     const { user } = useAuthStore();
-    const isTeacher = user && (user.isTeacher || user.isAdmin || user.isPrincipal);
-    const isStudent = user && !isTeacher;
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const isStudent = useAuthStore((state) => state.isStudent());
+    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+    // 复用，操作者
+    const isTeacher = useAuthStore((state) => state.isTeacher()) || isAdmin || isPrincipal;
 
     const [homework, setHomework] = useState(null);
     const [submission, setSubmission] = useState(null);
