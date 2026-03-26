@@ -49,6 +49,9 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
     const [submission, setSubmission] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [existingAttachments, setExistingAttachments] = useState([]); // 当前显示的已上传附件
+    const [attachmentIdsToDelete, setAttachmentIdsToDelete] = useState([]); // 准备删除的附件ID列表
+
     // 答题/批改状态
     const [content, setContent] = useState('');
     const [answers, setAnswers] = useState({});
@@ -112,6 +115,8 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
 
             if (subData) {
                 setSubmission(subData);
+                setExistingAttachments(subData.attachments || []); // 新增：初始化已存在附件
+                setAttachmentIdsToDelete([]); // 新增：重置待删除列表
                 if (subData.content) setContent(subData.content);
                 if (hwData.type === 'STRUCTURED' && subData.answerData) {
                     try {
@@ -145,6 +150,13 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
         loadData();
     }, [viewId, mode, isStudent, refreshTrigger]);
 
+    const handleRemoveExistingAttachment = (attachmentId) => {
+        // 从界面上移除
+        setExistingAttachments(prev => prev.filter(att => att.id !== attachmentId));
+        // 记录到待删除列表，传给后端
+        setAttachmentIdsToDelete(prev => [...prev, attachmentId]);
+    };
+
     // --- 学生提交逻辑 ---
     const handleStudentSubmit = async () => {
         if (homework.type === 'STRUCTURED') {
@@ -175,7 +187,8 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
             const dto = {
                 homeworkId: homework.id,
                 content,
-                attachmentUploadIds: largeFileAttachmentIds
+                attachmentUploadIds: largeFileAttachmentIds,
+                attachmentIdsToDelete: attachmentIdsToDelete
             };
             if (homework.type === 'STRUCTURED') {
                 dto.answerData = answers;
@@ -482,15 +495,43 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                             )}
 
                             <div className={styles.attachmentArea}>
-                                {submission?.attachments?.length > 0 && (
+                                {/* 情况 A: 学生正在编辑/修改被退回的作业 */}
+                                {canStudentEdit && existingAttachments.length > 0 && (
+                                    <div className={styles.existingAttachments}>
+                                        <label>管理已上传附件：</label>
+                                        <ul className={styles.editAttachmentList}>
+                                            {existingAttachments.map(att => (
+                                                <li key={att.id} className={styles.editAttachmentItem}>
+                                                    <div className={styles.fileInfo}>
+                                                        {/* 使用 helpers 里的工具获取图标 */}
+                                                        <span>{att.fileName}</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className={styles.deleteBtn}
+                                                        onClick={() => handleRemoveExistingAttachment(att.id)}
+                                                        title="删除此附件"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTimes} />
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* 情况 B: 老师查看或学生查看已提交且不可编辑的状态 */}
+                                {!canStudentEdit && submission?.attachments?.length > 0 && (
                                     <div className={styles.existingAttachments}>
                                         <label>提交的附件：</label>
                                         <AttachmentList attachments={submission.attachments} />
                                     </div>
                                 )}
+
+                                {/* 上传新附件区域 */}
                                 {canStudentEdit && (
                                     <div className={styles.uploadBox}>
-                                        <label><FontAwesomeIcon icon={faPaperclip} /> 上传附件</label>
+                                        <label><FontAwesomeIcon icon={faPaperclip} /> 上传新附件</label>
                                         <FileUpload files={files} onFilesChange={setFiles} />
                                     </div>
                                 )}
