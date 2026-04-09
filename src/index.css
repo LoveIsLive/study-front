@@ -1,165 +1,179 @@
+/* ================= Tailwind CSS ================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ================= 字体定义 ================= */
 @font-face {
-    font-family: 'Font Awesome 5 Free';
-    font-style: normal;
-    font-weight: 900;
-    font-display: block;
-    src: url('/webfonts/fa-solid-900.woff2') format('woff2'),
-        url('/webfonts/fa-solid-900.ttf') format('truetype');
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src:
+    url("/webfonts/fa-solid-900.woff2") format("woff2"),
+    url("/webfonts/fa-solid-900.ttf") format("truetype");
 }
 
 /* ================= 变量定义 ================= */
 :root {
-    --primary-color: #FF7B54;
-    /* 活力珊瑚橙 */
-    --primary-hover-color: #E86A44;
-    --secondary-color: #6c757d;
-    /* 中性灰 */
-    --secondary-hover-color: #5a6268;
-    --success-color: #28a745;
-    /* 成功绿 */
-    --danger-color: #dc3545;
-    /* 危险红 */
-    --warning-color: #ffc107;
-    /* 警告黄 */
-    --info-color: #17a2b8;
-    /* 信息蓝 */
+  --primary-color: #ff7b54;
+  /* 活力珊瑚橙 */
+  --primary-hover-color: #e86a44;
+  --secondary-color: #6c757d;
+  /* 中性灰 */
+  --secondary-hover-color: #5a6268;
+  --success-color: #28a745;
+  /* 成功绿 */
+  --danger-color: #dc3545;
+  /* 危险红 */
+  --warning-color: #ffc107;
+  /* 警告黄 */
+  --info-color: #17a2b8;
+  /* 信息蓝 */
 
-    --text-color-light: #ffffff;
-    --text-color-dark: #333333;
-    --text-color-secondary: #6c757d;
+  --text-color-light: #ffffff;
+  --text-color-dark: #333333;
+  --text-color-secondary: #6c757d;
 
-    --bg-color: #f4f6f8;
-    /* 更柔和的背景灰 */
-    --bg-color-light: #ffffff;
-    --border-color: #e0e0e0;
-    --shadow-color: rgba(0, 0, 0, 0.08);
+  --bg-color: #f4f6f8;
+  /* 更柔和的背景灰 */
+  --bg-color-light: #ffffff;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ================= 基础样式重置 ================= */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-    height: 100%;
-    overflow-y: scroll;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 body {
-    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--bg-color);
-    color: var(--text-color-dark);
+  font-family:
+    "Noto Sans SC",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--text-color-dark);
 }
 
 a {
-    text-decoration: none;
-    color: var(--primary-color);
+  text-decoration: none;
+  color: var(--primary-color);
 }
 
 a:hover {
-    color: var(--primary-hover-color);
+  color: var(--primary-hover-color);
 }
 
 /* ================= 通用按钮样式 ================= */
 .btn {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    /* 更圆润的边角 */
-    background-color: var(--bg-color-light);
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    /* 字体加粗 */
-    font-family: inherit;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: var(--text-color-dark);
-    box-shadow: 0 2px 5px var(--shadow-color);
+  padding: 0.6rem 1.2rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  /* 更圆润的边角 */
+  background-color: var(--bg-color-light);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  /* 字体加粗 */
+  font-family: inherit;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-color-dark);
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--text-color-light);
-    border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--text-color-light);
+  border-color: var(--primary-color);
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-hover-color);
-    border-color: var(--primary-hover-color);
+  background-color: var(--primary-hover-color);
+  border-color: var(--primary-hover-color);
 }
 
 .btn-secondary {
-    background-color: var(--secondary-color);
-    color: var(--text-color-light);
-    border-color: var(--secondary-color);
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
 }
 
 .btn-secondary:hover {
-    background-color: var(--secondary-hover-color);
-    border-color: #545b62;
+  background-color: var(--secondary-hover-color);
+  border-color: #545b62;
 }
 
 .btn-danger {
-    background-color: var(--danger-color);
-    color: var(--text-color-light);
-    border-color: var(--danger-color);
+  background-color: var(--danger-color);
+  color: var(--text-color-light);
+  border-color: var(--danger-color);
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
+  background-color: #c82333;
+  border-color: #bd2130;
 }
 
 /* ================= 通用图标样式 ================= */
 .fa,
 .fas {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
 }
 
 .folder-icon {
-    color: #ffc107;
+  color: #ffc107;
 }
 
 .image-icon {
-    color: #28a745;
+  color: #28a745;
 }
 
 .pdf-icon {
-    color: #dc3545;
+  color: #dc3545;
 }
 
 .text-icon {
-    color: #17a2b8;
+  color: #17a2b8;
 }
 
 .archive-icon {
-    color: #fd7e14;
+  color: #fd7e14;
 }
 
 .audio-icon {
-    color: #6f42c1;
+  color: #6f42c1;
 }
 
 .video-icon {
-    color: #e83e8c;
+  color: #e83e8c;
 }
 
 .code-icon {
-    color: #333;
+  color: #333;
 }
