@@ -1,4 +1,5 @@
 .mainContent {
     /* 为固定的header腾出空间 */
     padding-top: 60px;
+    padding-left: 160px;
 }

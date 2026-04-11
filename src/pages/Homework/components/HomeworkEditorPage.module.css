@@ -4,7 +4,7 @@
 .editorPage {
     position: fixed;
     top: 60px;
-    left: 0;
+    left: 160px;
     right: 0;
     bottom: 0;
     background-color: #F4F6F8;
@@ -104,7 +104,7 @@
 }
 
 .publishBtn {
-    background: linear-gradient(135deg, #FF7B54 0%, #FF5722 100%);
+    background: linear-gradient(135deg, #0356ca 0%, #3b82f6 100%);
     color: white;
     border: none;
     padding: 8px 24px;

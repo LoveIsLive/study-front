@@ -1,23 +1,23 @@
-/* --- 基础布局 --- */
 :root {
   --primary-color: #0356ca;
 }
 
+/* ===================== 顶部固定栏 ===================== */
 .mainHeader {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  height: 64px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  height: 64px;
+  background-color: #ffffff !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
   z-index: 1000;
 }
 
 .headerContainer {
-  max-width: 1400px;
+  max-width: 100%;
   height: 100%;
   margin: 0 auto;
   padding: 0 24px;
@@ -29,51 +29,44 @@
 .headerLeft {
   display: flex;
   align-items: center;
-  height: 100%;
+  gap: 12px;
 }
 
-.headerLogo a {
+.headerLogo span {
   font-size: 20px;
   font-weight: 800;
-  color: var(--primary-color);
-  text-decoration: none;
-  margin-right: 20px;
-  letter-spacing: -0.5px;
   background: linear-gradient(135deg, #0356ca 0%, #3b82f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-decoration: none;
 }
 
-/* --- 身份切换器 --- */
+/* ===================== 身份切换器 ===================== */
 .contextSwitcher {
   position: relative;
-  margin-right: 25px;
-  padding-left: 20px;
-  border-left: 1px solid #edf2f7;
-  height: 36px;
   display: flex;
   align-items: center;
+  height: 36px;
+  margin-left: 45px;
 }
 
 .activeContextBar {
   display: flex;
   align-items: center;
-  gap: 12px;
   padding: 6px 12px;
   background: #f8fafc;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 180px;
+  transition: all 0.25s ease;
+  min-width: 150px;
   border: 1px solid transparent;
-  user-select: none;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-/* ✅ 你要的效果：hover 淡白色边框 */
 .activeContextBar:hover {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #e2e8f0;
-  box-shadow: none;
 }
 
 .contextIcon {
@@ -84,170 +77,77 @@
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 0.9rem;
   flex-shrink: 0;
 }
 
-.iconClass {
-  background: linear-gradient(135deg, #0356ca 0%, #3b82f6 100%);
-}
-
+.iconClass,
 .iconSchool {
   background: linear-gradient(135deg, #0356ca 0%, #3b82f6 100%);
 }
 
 .contextInfo {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  line-height: 1.2;
 }
 
 .contextName {
   font-size: 0.85rem;
   font-weight: 700;
   color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .contextRole {
   font-size: 0.7rem;
   color: #94a3b8;
-  font-weight: 500;
 }
 
 .chevron {
   color: #cbd5e1;
-  font-size: 0.75rem;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s;
+  margin-right: 12px;
 }
-
 .rotate {
   transform: rotate(180deg);
 }
 
 .switcherDropdown {
   position: absolute;
-  top: calc(100% + 12px);
-  left: 20px;
+  top: 100%;
+  left: 0;
+  margin-top: 12px;
   width: 280px;
   background: white;
   border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid #edf2f7;
   z-index: 1001;
-  overflow: hidden;
-  padding: 8px 0;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.switcherGroup {
-  margin-bottom: 12px;
-}
-.switcherGroup:last-child {
-  margin-bottom: 4px;
-}
-
-.groupHeader {
-  padding: 8px 16px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .switcherItem {
-  padding: 10px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 10px 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
-
 .switcherItem:hover {
   background: #f1f5f9;
 }
 .switcherItem.active {
   background: #eff6ff;
+  color: var(--primary-color);
 }
-
-.itemIcon {
-  color: #94a3b8;
-  width: 16px;
-  text-align: center;
+.checkIcon {
+  color: var(--primary-color);
+  margin-left: auto;
 }
 .active .itemIcon {
   color: var(--primary-color);
 }
-
-.itemText {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.itemName {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #334155;
-}
-.itemSub {
-  font-size: 0.7rem;
-  color: #94a3b8;
-}
 .active .itemName {
   color: var(--primary-color);
 }
-.checkIcon {
-  font-size: 0.8rem;
-  color: var(--primary-color);
-  margin-left: auto;
-}
-
-/* --- 导航菜单 ✅ 完全去掉橙色，使用蓝色 --- */
-.headerNav ul {
-  list-style: none;
-  display: flex;
-  gap: 8px;
-}
-
-.headerNav li a {
-  padding: 8px 16px;
-  color: #64748b;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.headerNav li a:hover {
-  background-color: #f1f5f9;
-  color: #1e293b;
-}
-
-.headerNav li a.active {
-  color: var(--primary-color);
-  background-color: #eff6ff;
-}
-
-/* --- 用户面板 --- */
+/* ===================== 用户信息 ===================== */
 .headerRight {
   position: relative;
 }
@@ -255,13 +155,12 @@
 .userProfile {
   display: flex;
   align-items: center;
-  cursor: pointer;
+  gap: 10px;
   padding: 4px 8px;
   border-radius: 30px;
+  cursor: pointer;
   transition: background-color 0.2s;
-  gap: 10px;
 }
-
 .userProfile:hover {
   background-color: #f1f5f9;
 }
@@ -336,6 +235,7 @@
 }
 
 .dropdownMenu li a {
+  cursor: pointer;
   display: flex;
   align-items: center;
   padding: 10px 20px;
@@ -378,4 +278,47 @@
 .dropdownFooter button:hover {
   background: #f5222d;
   color: white;
+}
+
+/* ===================== 左侧固定侧边栏 ===================== */
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 160px;
+  height: calc(100vh - 64px);
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  padding-top: 20px;
+  z-index: 999;
+}
+
+.sidebarMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.sidebarMenu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebarMenu a:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.sidebarMenu a.sidebarActive {
+  background: #eff6ff !important;
+  color: var(--primary-color) !important;
 }
