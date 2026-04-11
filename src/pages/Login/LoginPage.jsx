@@ -4,7 +4,6 @@ import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faEye, faEyeSlash, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../store/authStore';
-import { authApi } from '../../services/api';
 import { config } from '../../utils/config';
 import styles from './LoginPage.module.css';
 
@@ -20,35 +19,40 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLoading) return;
-
         setIsLoading(true);
-        try {
-            const response = await authApi.post('/login', { username, password });
 
-            if (response.data && response.data.code === 200) {
-                await login(response.data.data);
-                Swal.fire({
-                    icon: 'success',
-                    title: '欢迎回来',
-                    text: '正在进入智慧教学系统...',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    position: 'center'
-                });
-                navigate(config.front_HOME_PAGE_URL);
-            } else {
-                throw new Error(response.data.message || '登录失败');
-            }
-        } catch (error) {
+        // 写死的账号密码，不发送后端请求
+        const validUsers = {
+            teacher: '123456',
+            master: '123456',
+            student: '123456',
+            admin: '123456'
+        };
+
+        if (validUsers[username] && password === validUsers[username]) {
+            const fakeToken = 'fake-token-' + username;
+            await login(fakeToken);
+
+            Swal.fire({
+                icon: 'success',
+                title: '欢迎回来',
+                text: `用户 ${username} 登录成功，正在进入智慧教学系统...`,
+                showConfirmButton: false,
+                timer: 1500,
+                position: 'center'
+            });
+
+            navigate(config.front_HOME_PAGE_URL);
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: '认证失败',
-                text: error.response?.data?.message || '用户名或密码不正确',
+                text: '用户名或密码不正确',
                 confirmButtonColor: '#FF7B54'
             });
-        } finally {
-            setIsLoading(false);
         }
+
+        setIsLoading(false);
     };
 
     return (

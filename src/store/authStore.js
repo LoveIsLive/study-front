@@ -34,10 +34,25 @@ const useAuthStore = create((set, get) => ({
 
     // --- 操作方法 ---
 
-    // 核心：解析 Token (同步)
+    // 核心：解析 Token (同步) — 支持写死的 fake token
     decodeToken: () => {
         const token = get().token;
         if (!token) return;
+
+        // 处理写死的 fake token
+        if (token.startsWith('fake-token-')) {
+            const username = token.replace('fake-token-', '');
+            const roleMap = {
+                admin: { name: 'admin', isAdmin: true, role: 'ROLE_ADMIN' },
+                teacher: { name: 'teacher', isAdmin: false, role: 'ROLE_TEACHER' },
+                master: { name: 'master', isAdmin: false, role: 'ROLE_PRINCIPAL' },
+                student: { name: 'student', isAdmin: false, role: 'ROLE_STUDENT' },
+            };
+            const userInfo = roleMap[username] || { name: username, isAdmin: false, role: 'ROLE_STUDENT' };
+            set({ user: userInfo });
+            return;
+        }
+
         try {
             const decoded = jwtDecode(token);
             set({
@@ -51,9 +66,55 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
-    // 核心：拉取组织架构 (异步)
+    // 核心：拉取组织架构 (异步) — 支持写死的 fake token
     fetchDetailInfo: async () => {
         if (!get().token) return;
+
+        // 处理写死的 fake token，不请求后端
+        const token = get().token;
+        if (token.startsWith('fake-token-')) {
+            const username = token.replace('fake-token-', '');
+            // 根据角色模拟组织架构数据
+            const fakeDetailMap = {
+                admin: {
+                    schoolMembers: [{ schoolId: '1', schoolName: '管理学校', role: 'ROLE_ADMIN' }],
+                    classMembers: []
+                },
+                teacher: {
+                    schoolMembers: [],
+                    classMembers: [{ classId: '1', className: '一年级一班', role: 'ROLE_TEACHER' }]
+                },
+                master: {
+                    schoolMembers: [{ schoolId: '1', schoolName: '示范学校', role: 'ROLE_PRINCIPAL' }],
+                    classMembers: []
+                },
+                student: {
+                    schoolMembers: [],
+                    classMembers: [{ classId: '1', className: '一年级一班', role: 'ROLE_STUDENT' }]
+                }
+            };
+            const info = fakeDetailMap[username] || { schoolMembers: [], classMembers: [] };
+
+            let finalType = 'class';
+            let finalId = null;
+            if (info.schoolMembers?.length > 0) {
+                finalType = 'school';
+                finalId = info.schoolMembers[0].schoolId;
+            } else if (info.classMembers?.length > 0) {
+                finalType = 'class';
+                finalId = info.classMembers[0].classId;
+            }
+
+            localStorage.setItem('activeType', finalType);
+            localStorage.setItem('activeId', finalId);
+            set({
+                detailInfo: info,
+                activeType: finalType,
+                activeId: finalId
+            });
+            return;
+        }
+
         try {
             const response = await userApi.get('/detailInfo');
             const info = response.data.data;
