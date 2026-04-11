@@ -16,27 +16,20 @@
 
 /* ================= 变量定义 ================= */
 :root {
-  --primary-color: #ff7b54;
-  /* 活力珊瑚橙 */
-  --primary-hover-color: #e86a44;
+  --primary-color: #0356CA;
+  --primary-hover-color: #0248aa;
   --secondary-color: #6c757d;
-  /* 中性灰 */
   --secondary-hover-color: #5a6268;
   --success-color: #28a745;
-  /* 成功绿 */
   --danger-color: #dc3545;
-  /* 危险红 */
   --warning-color: #ffc107;
-  /* 警告黄 */
   --info-color: #17a2b8;
-  /* 信息蓝 */
 
   --text-color-light: #ffffff;
   --text-color-dark: #333333;
   --text-color-secondary: #6c757d;
 
   --bg-color: #f4f6f8;
-  /* 更柔和的背景灰 */
   --bg-color-light: #ffffff;
   --border-color: #e0e0e0;
   --shadow-color: rgba(0, 0, 0, 0.08);
@@ -85,12 +78,10 @@ a:hover {
   padding: 0.6rem 1.2rem;
   border: 1px solid transparent;
   border-radius: 8px;
-  /* 更圆润的边角 */
   background-color: var(--bg-color-light);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 600;
-  /* 字体加粗 */
   font-family: inherit;
   transition: all 0.2s ease;
   display: inline-flex;

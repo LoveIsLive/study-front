@@ -26,8 +26,7 @@ const Header = () => {
         }))
     );
 
-    // 2. 【核心修复】：执行函数并将结果存为布尔值/对象
-    // 注意：这里去掉了 JSX 里的括号调用，因为在这里已经执行过了
+    // 2. 身份判断
     const activeIdentity = useAuthStore(state => state.getActiveIdentity());
     const isAdmin = useAuthStore(state => state.isAdmin());
     const isTeacher = useAuthStore(state => state.isTeacher());
@@ -42,6 +41,7 @@ const Header = () => {
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
     const [isChangeUsernameModalOpen, setChangeUsernameModalOpen] = useState(false);
 
+    // 点击外部关闭下拉
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownVisible(false);
@@ -53,7 +53,8 @@ const Header = () => {
 
     if (!user) return null;
 
-    const avatarUrl = `https://placehold.co/100x100/FF7B54/FFFFFF?text=${user.name.charAt(0).toUpperCase()}`;
+    // ✅ 修复：头像颜色从橙色 → 蓝色 #0356CA
+    const avatarUrl = `https://placehold.co/100x100/0356CA/FFFFFF?text=${user.name.charAt(0).toUpperCase()}`;
 
     return (
         <>
@@ -64,7 +65,7 @@ const Header = () => {
                             <NavLink to="/">智慧教学</NavLink>
                         </div>
 
-                        {/* 3. 【核心修复】：去掉 isAdmin() 的括号，直接用 isAdmin 布尔值 */}
+                        {/* 身份切换 */}
                         {!isAdmin && (
                             <div className={styles.contextSwitcher} ref={switcherRef}>
                                 <div className={styles.activeContextBar} onClick={() => setSwitcherOpen(!isSwitcherOpen)}>
@@ -78,7 +79,6 @@ const Header = () => {
                                                     {activeType === 'school' ? activeIdentity?.school?.name : activeIdentity?.classes?.name}
                                                 </span>
                                                 <span className={styles.contextRole}>
-                                                    {/* 去掉 isPrincipal() 的括号 */}
                                                     {isPrincipal ? '校长' : (isTeacher ? '教师' : '学生')}
                                                 </span>
                                             </div>
@@ -135,14 +135,30 @@ const Header = () => {
                             </div>
                         )}
 
+                        {/* 导航菜单 */}
                         <nav className={styles.headerNav}>
                             <ul>
-                                <li><NavLink to="/ware/home" className={({ isActive }) => isActive ? styles.active : ''}>课程仓库</NavLink></li>
-                                <li><NavLink to="/homework" className={({ isActive }) => isActive ? styles.active : ''}>作业区</NavLink></li>
+                                <li>
+                                    <NavLink 
+                                        to="/ware/home" 
+                                        className={({ isActive }) => isActive ? styles.active : ''}
+                                    >
+                                        课程仓库
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink 
+                                        to="/homework" 
+                                        className={({ isActive }) => isActive ? styles.active : ''}
+                                    >
+                                        作业区
+                                    </NavLink>
+                                </li>
                             </ul>
                         </nav>
                     </div>
 
+                    {/* 用户下拉 */}
                     <div className={styles.headerRight} ref={dropdownRef}>
                         <div className={styles.userProfile} onClick={() => setDropdownVisible(!isDropdownVisible)}>
                             <img src={avatarUrl} alt="Avatar" />
@@ -155,7 +171,6 @@ const Header = () => {
                                     <div className={styles.userInfo}>
                                         <p className={styles.userNameLarge}>{user.name}</p>
                                         <p className={styles.userRole}>
-                                            {/* 去掉 isAdmin 的括号 */}
                                             {isAdmin ? '管理员' : (isPrincipal ? '校长' : (isTeacher ? '教师' : '学生'))}
                                         </p>
                                     </div>
