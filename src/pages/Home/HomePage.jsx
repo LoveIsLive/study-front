@@ -7,6 +7,7 @@ import { loadSlim } from "@tsparticles/slim";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { indexApi } from '../../services/api';
+import useAuthStore from '../../store/authStore';
 import styles from './HomePage.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,7 +24,9 @@ const HomePage = () => {
     const handleCardClick = (location) => {
         // 只有当 location 存在时才执行导航
         if (location) {
-            navigate('/ware/home/' + location);
+            const { currentCourseId } = useAuthStore.getState();
+            const coursePath = currentCourseId ? `/${currentCourseId}${location.startsWith('/') ? location : '/' + location}` : location;
+            navigate('/ware/home/' + coursePath);
         }
     };
 

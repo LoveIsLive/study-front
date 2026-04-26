@@ -16,7 +16,7 @@ import styles from './WarePage.module.css';
 import Swal from 'sweetalert2';
 
 const WarePage = () => {
-    const { token, user } = useAuthStore();
+    const { token, user, currentCourseId } = useAuthStore();
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isTeacher = useAuthStore((state) => state.isTeacher());
     const isPrincipal = useAuthStore((state) => state.isPrincipal());
@@ -38,7 +38,21 @@ const WarePage = () => {
     const fetchNodes = useCallback(async (path) => {
         setIsLoading(true);
         try {
-            const response = await wareApi.get('/get/dir', { params: { path } });
+            // 构建带课程ID的路径
+            let apiPath = path;
+            if (currentCourseId) {
+                // 确保路径以课程ID开头
+                if (!path.startsWith(`/${currentCourseId}`)) {
+                    apiPath = `/${currentCourseId}${path.startsWith('/') ? path : '/' + path}`;
+                }
+            } else {
+                // 没有选择课程，重定向到根目录或显示提示
+                Swal.fire({ icon: 'warning', title: '请先选择课程', text: '您需要先选择一个课程才能访问课程仓库' });
+                navigate('/');
+                return;
+            }
+            
+            const response = await wareApi.get('/get/dir', { params: { path: apiPath } });
             setNodes(response.data.data.fileObjectDescs || []);
             setCurrentPath(path);
         } catch (error) {
@@ -48,24 +62,42 @@ const WarePage = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [navigate]);
+    }, [navigate, currentCourseId]);
 
     // --- 关键修正部分 ---
     useEffect(() => {
-        const rawPathFromUrl = location.pathname.replace(/^\/ware\/home/, '') || '/';
-
+        // 解析URL路径，支持两种格式：
+        // 1. /ware/home/{courseId}/{path} - 新格式，带课程ID
+        // 2. /ware/home/{path} - 旧格式，不带课程ID
+        const pathWithoutPrefix = location.pathname.replace(/^\/ware\/home/, '') || '/';
+        
         try {
-            const decodedPath = decodeURIComponent(rawPathFromUrl);
-
-            // 3. 使用解码后的路径获取数据。
+            let decodedPath = decodeURIComponent(pathWithoutPrefix);
+            
+            // 检查路径是否以课程ID开头
+            if (currentCourseId) {
+                const courseIdStr = String(currentCourseId);
+                // 如果路径以课程ID开头，移除它（因为fetchNodes会添加）
+                if (decodedPath.startsWith(`/${courseIdStr}/`) || decodedPath === `/${courseIdStr}`) {
+                    decodedPath = decodedPath.replace(`/${courseIdStr}`, '') || '/';
+                }
+                // 如果路径不以课程ID开头，保持原样（fetchNodes会添加课程ID）
+            } else if (decodedPath !== '/') {
+                // 没有当前课程但路径不是根目录，重定向到首页
+                Swal.fire({ icon: 'warning', title: '请先选择课程', text: '您需要先选择一个课程才能访问课程仓库' });
+                navigate('/');
+                return;
+            }
+            
+            // 使用解码后的路径获取数据
             fetchNodes(decodedPath);
         } catch (e) {
-            console.error("Failed to decode URI component:", rawPathFromUrl, e);
+            console.error("Failed to decode URI component:", pathWithoutPrefix, e);
             // 如果解码失败（例如URL格式错误），则导航到根目录
             navigate('/ware/home/');
         }
 
-    }, [location.pathname, fetchNodes, navigate]);
+    }, [location.pathname, fetchNodes, navigate, currentCourseId]);
 
     // WebSocket connection (使用Vite代理方案)
     useEffect(() => {
@@ -138,7 +170,10 @@ const WarePage = () => {
             ? normalizedPath.slice(0, -1)
             : normalizedPath;
 
-        navigate(`/ware/home${cleanPath || '/'}`);
+        // 添加课程ID前缀
+        const fullPath = currentCourseId ? `/${currentCourseId}${cleanPath.startsWith('/') ? cleanPath : '/' + cleanPath}` : cleanPath;
+        
+        navigate(`/ware/home${fullPath || '/'}`);
     };
 
     // 这个函数来自 WareHeader，现在它包含了正确的“cd命令”逻辑
@@ -167,10 +202,10 @@ const WarePage = () => {
                 onPathChange={handlePathInputChange}
                 isTeacher={isTeacher || isAdmin || isPrincipal}
             />
-            <Breadcrumb currentPath={currentPath} navigate={navigate} />
+            <Breadcrumb currentPath={currentPath} navigate={(path) => navigateToFinalPath(path)} />
 
             <main className={styles.fileManagerMain}>
-                {isLoading ? <Spinner /> : <FileTable nodes={nodes} currentPath={currentPath} refresh={() => fetchNodes(currentPath)} />}
+                {isLoading ? <Spinner /> : <FileTable nodes={nodes} currentPath={currentPath} refresh={() => fetchNodes(currentPath)} onNavigate={(path) => navigateToFinalPath(path)} />}
             </main>
 
             <NewItemModal

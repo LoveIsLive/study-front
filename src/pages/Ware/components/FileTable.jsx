@@ -3,13 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import FileRow from './FileRow';
 import styles from '../WarePage.module.css';
 
-const FileTable = ({ nodes, currentPath, refresh }) => {
+const FileTable = ({ nodes, currentPath, refresh, onNavigate }) => {
     const navigate = useNavigate();
 
     const handleRowDoubleClick = (node) => {
         if (node.type === 0) { // 0 for directory
             const newPath = `${currentPath === '/' ? '' : currentPath}/${node.name}`;
-            navigate(`/ware/home${newPath}`);
+            if (onNavigate) {
+                onNavigate(newPath);
+            } else {
+                navigate(`/ware/home${newPath}`);
+            }
         }
     };
 

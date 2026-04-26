@@ -16,6 +16,8 @@ import {
   faHome, // 首页图标
   faBook,
   faTasks,
+  faBookOpen,
+  faList,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuthStore from "../../../store/authStore";
 import { config } from "../../../utils/config";
@@ -24,7 +26,7 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import ChangeUsernameModal from "./ChangeUsernameModal";
 
 const Header = () => {
-  const { user, detailInfo, activeId, activeType, switchContext, logout } =
+  const { user, detailInfo, activeId, activeType, switchContext, logout, currentCourseId, currentCourse, courseList, setCurrentCourse, fetchCourseList } =
     useAuthStore(
       useShallow((state) => ({
         user: state.user,
@@ -33,6 +35,11 @@ const Header = () => {
         activeType: state.activeType,
         switchContext: state.switchContext,
         logout: state.logout,
+        currentCourseId: state.currentCourseId,
+        currentCourse: state.currentCourse,
+        courseList: state.courseList,
+        setCurrentCourse: state.setCurrentCourse,
+        fetchCourseList: state.fetchCourseList,
       })),
     );
 
@@ -187,6 +194,16 @@ const Header = () => {
                 )}
               </div>
             )}
+
+            {/* 当前课程显示 - 只在班级上下文中显示 */}
+            {activeType === 'class' && (
+              <div className={styles.courseDisplay}>
+                <FontAwesomeIcon icon={faBookOpen} className={styles.courseIcon} />
+                <span className={styles.courseName}>
+                  {currentCourse ? currentCourse.name : '当前没有课程'}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className={styles.headerRight} ref={dropdownRef}>
@@ -257,26 +274,45 @@ const Header = () => {
         </div>
       </header>
 
+
+
       {/* ===================== 左侧固定侧边栏 ===================== */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarMenu}>
-          {/* ✅ 新增：首页按钮 */}
-          <NavLink
-            to="/"
-            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-          >
-            <FontAwesomeIcon icon={faHome} />
-            <span>首页</span>
-          </NavLink>
+          {/* 动态首页/课程仓库按钮 */}
+          {/* 如果当前是班级上下文且已选择课程，显示课程仓库按钮 */}
+          {activeType === 'class' && currentCourseId ? (
+            <NavLink
+              to={`/ware/home/${currentCourseId}`}
+              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+            >
+              <FontAwesomeIcon icon={faBook} />
+              <span>课程仓库</span>
+            </NavLink>
+          ) : null}
+          {/* 如果是学校上下文，显示首页按钮 */}
+          {activeType === 'school' && (
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+            >
+              <FontAwesomeIcon icon={faHome} />
+              <span>首页</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/ware/home"
-            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-          >
-            <FontAwesomeIcon icon={faBook} />
-            <span>课程仓库</span>
-          </NavLink>
+          {/* 课程选择按钮（仅班级上下文） */}
+          {activeType === 'class' && (
+            <NavLink
+              to="/courses"
+              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+            >
+              <FontAwesomeIcon icon={faList} />
+              <span>课程选择</span>
+            </NavLink>
+          )}
 
+          {/* 作业区按钮 */}
           <NavLink
             to="/homework"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}

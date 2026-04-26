@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { jwtDecode } from "jwt-decode";
 import { config } from "../utils/config";
-import { userApi } from "../services/api";
+import { userApi, courseApi } from "../services/api";
 
 const useAuthStore = create((set, get) => ({
   token: localStorage.getItem(config.tokenName),
@@ -11,6 +11,11 @@ const useAuthStore = create((set, get) => ({
   // 身份上下文
   activeType: localStorage.getItem("activeType") || "class",
   activeId: localStorage.getItem("activeId"),
+
+  // 课程上下文
+  currentCourseId: localStorage.getItem("currentCourseId"),
+  currentCourse: null,
+  courseList: [],
 
   isAuthenticated: () => !!get().token,
 
@@ -105,12 +110,54 @@ const useAuthStore = create((set, get) => ({
     localStorage.setItem("activeType", type);
     localStorage.setItem("activeId", id);
     set({ activeType: type, activeId: id });
+    // 切换上下文时清空课程选择
+    localStorage.removeItem("currentCourseId");
+    set({ currentCourseId: null, currentCourse: null, courseList: [] });
   },
 
   switchContext: (type, id) => {
     get().setContext(type, id);
     const homeUrl = config.front_HOME_PAGE_URL || "/";
     window.location.href = homeUrl;
+  },
+
+  // 课程相关方法
+  setCurrentCourse: (courseId, course = null) => {
+    localStorage.setItem("currentCourseId", courseId);
+    set({ currentCourseId: courseId, currentCourse: course });
+  },
+
+  clearCurrentCourse: () => {
+    localStorage.removeItem("currentCourseId");
+    set({ currentCourseId: null, currentCourse: null });
+  },
+
+  setCourseList: (courses) => {
+    set({ courseList: courses });
+    // 如果有课程列表但没有当前课程，选择第一个课程
+    const { currentCourseId } = get();
+    if (courses.length > 0 && !currentCourseId) {
+      const firstCourse = courses[0];
+      get().setCurrentCourse(firstCourse.id, firstCourse);
+    }
+  },
+
+  fetchCourseList: async () => {
+    const { activeId, activeType } = get();
+    // 只有在班级上下文才能获取课程列表
+    if (activeType !== 'class' || !activeId) {
+      set({ courseList: [] });
+      return;
+    }
+
+    try {
+      const response = await courseApi.get(`/class/${activeId}`);
+      const courses = response.data.data || [];
+      get().setCourseList(courses);
+    } catch (error) {
+      console.error('Failed to fetch course list:', error);
+      set({ courseList: [] });
+    }
   },
 
   login: async (token) => {
@@ -122,7 +169,15 @@ const useAuthStore = create((set, get) => ({
 
   logout: () => {
     localStorage.clear();
-    set({ token: null, user: null, detailInfo: null, activeId: null });
+    set({ 
+      token: null, 
+      user: null, 
+      detailInfo: null, 
+      activeId: null,
+      currentCourseId: null,
+      currentCourse: null,
+      courseList: []
+    });
     window.location.href = "/auth";
   },
 }));
@@ -137,7 +192,10 @@ const initStore = () => {
     // 1. 立即同步解析 Token，这样 user 对象瞬间就有值了
     state.decodeToken();
     // 2. 异步获取详细信息，不阻塞主线程
-    state.fetchDetailInfo();
+    state.fetchDetailInfo().then(() => {
+      // 3. 获取课程列表
+      state.fetchCourseList();
+    });
   }
 };
 

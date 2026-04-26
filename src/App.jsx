@@ -3,6 +3,7 @@ import LoginPage from './pages/Login/LoginPage';
 import HomePage from './pages/Home/HomePage';
 import HomeworkPage from './pages/Homework/HomeworkPage';
 import WarePage from './pages/Ware/WarePage';
+import CourseListPage from './pages/Course/CourseListPage';
 import ErrorPage from './pages/Error/ErrorPage';
 import MainLayout from './components/common/Layout/MainLayout';
 import PrivateRoute from './components/common/PrivateRoute/PrivateRoute';
@@ -18,6 +19,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/homework" element={<HomeworkPage />} />
+          <Route path="/courses" element={<CourseListPage />} />
           <Route path="/ware/home/*" element={<WarePage />} />
           <Route path="/organization" element={<OrganizationPage />} />
         </Route>

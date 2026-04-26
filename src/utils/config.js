@@ -17,6 +17,7 @@ export const config = {
     back_DISCUSSION_PREFIX: '/discussion',
     back_SCHOOL_PREFIX: '/school',
     back_SCHOOL_MEMBER_PREFIX: '/school-member',
+    back_COURSE_PREFIX: '/course',
 
 
     // 前端常量配置 (用于路由)

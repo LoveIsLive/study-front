@@ -1,0 +1,323 @@
+/* CourseListPage.module.css */
+
+.courseListPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+.header {
+  background: white;
+  border-radius: 12px;
+  padding: 24px 32px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.backButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  transition: background 0.3s;
+}
+
+.backButton:hover {
+  background: #5a6268;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin: 0 0 8px;
+}
+
+.header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.createButton,
+.refreshButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.createButton {
+  background: #3498db;
+  color: white;
+}
+
+.createButton:hover {
+  background: #2980b9;
+}
+
+.refreshButton {
+  background: #2ecc71;
+  color: white;
+}
+
+.refreshButton:hover {
+  background: #27ae60;
+}
+
+.refreshButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.createForm {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.createForm h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.formButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.formButtons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.3s;
+}
+
+.formButtons button[type="submit"] {
+  background: #3498db;
+  color: white;
+}
+
+.formButtons button[type="submit"]:hover {
+  background: #2980b9;
+}
+
+.formButtons button[type="button"] {
+  background: #e74c3c;
+  color: white;
+}
+
+.formButtons button[type="button"]:hover {
+  background: #c0392b;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #7f8c8d;
+}
+
+.loading p {
+  margin-top: 16px;
+  font-size: 18px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #7f8c8d;
+}
+
+.emptyState h3 {
+  margin: 20px 0 10px;
+  color: #2c3e50;
+}
+
+.courseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.courseCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.courseCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.courseCard.selected {
+  border: 3px solid #2ecc71;
+}
+
+.courseCover {
+  height: 180px;
+  overflow: hidden;
+}
+
+.courseCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.courseInfo {
+  padding: 20px;
+  flex: 1;
+}
+
+.courseInfo h3 {
+  margin: 0 0 10px;
+  color: #2c3e50;
+  font-size: 1.4rem;
+}
+
+.description {
+  color: #7f8c8d;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #95a5a6;
+  margin-top: auto;
+}
+
+.courseActions {
+  display: flex;
+  padding: 0 20px 20px;
+  gap: 12px;
+}
+
+.selectButton,
+.deleteButton {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.selectButton {
+  background: #2ecc71;
+  color: white;
+}
+
+.selectButton:hover {
+  background: #27ae60;
+}
+
+.deleteButton {
+  background: #e74c3c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 50px;
+}
+
+.deleteButton:hover {
+  background: #c0392b;
+}
+
+.footer {
+  margin-top: 40px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .courseGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
