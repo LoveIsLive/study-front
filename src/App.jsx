@@ -8,6 +8,8 @@ import ErrorPage from './pages/Error/ErrorPage';
 import MainLayout from './components/common/Layout/MainLayout';
 import PrivateRoute from './components/common/PrivateRoute/PrivateRoute';
 import OrganizationPage from './pages/Organization/OrganizationPage';
+import DiscussionPage from './pages/Discussion/DiscussionPage';
+import AnalysisPage from './pages/Analysis/AnalysisPage';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/courses" element={<CourseListPage />} />
           <Route path="/ware/home/*" element={<WarePage />} />
           <Route path="/organization" element={<OrganizationPage />} />
+          <Route path="/discussion" element={<DiscussionPage />} />
+          <Route path="/analysis" element={<AnalysisPage />} />
         </Route>
       </Route>
 

@@ -5,7 +5,7 @@ const Breadcrumb = ({ currentPath, navigate }) => {
     const parts = currentPath.split('/').filter(p => p);
 
     const handleNavigate = (path) => {
-        navigate(`/ware/home${path}`);
+        navigate(path);
     };
 
     return (

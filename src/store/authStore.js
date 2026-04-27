@@ -134,11 +134,14 @@ const useAuthStore = create((set, get) => ({
 
   setCourseList: (courses) => {
     set({ courseList: courses });
-    // 如果有课程列表但没有当前课程，选择第一个课程
-    const { currentCourseId } = get();
-    if (courses.length > 0 && !currentCourseId) {
-      const firstCourse = courses[0];
-      get().setCurrentCourse(firstCourse.id, firstCourse);
+    // 如果有课程列表，确保有一个选中的课程
+    if (courses.length > 0) {
+      const { currentCourseId } = get();
+      // 如果当前没有选择课程，或者当前选择的课程不在新的课程列表中，选择第一门课程
+      if (!currentCourseId || !courses.some(course => course.id === currentCourseId)) {
+        const firstCourse = courses[0];
+        get().setCurrentCourse(firstCourse.id, firstCourse);
+      }
     }
   },
 

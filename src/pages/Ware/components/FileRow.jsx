@@ -13,7 +13,7 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
         ? { icon: faFolder, className: 'folder-icon' }
         : getFileIcon(node.name);
 
-    const { user } = useAuthStore();
+    const { user, currentCourseId } = useAuthStore();
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isTeacher = useAuthStore((state) => state.isTeacher());
     const isStudent = useAuthStore((state) => state.isStudent());
@@ -92,7 +92,20 @@ const FileRow = ({ node, currentPath, onDoubleClick, refresh }) => {
                 const res = await wareApi.get('/get/downloadId', { params: { path: fullPath } });
                 const token = res.data.data;
                 const baseUrl = wareApi.defaults.baseURL;
-                const url = `${baseUrl}/download?path=${encodeURIComponent(fullPath)}&token=${token}`;
+                // 构建包含课程ID的路径，与拦截器保持一致
+                let apiPath = fullPath;
+                if (currentCourseId) {
+                    const courseIdStr = String(currentCourseId);
+                    if (!apiPath.startsWith(`/${courseIdStr}`)) {
+                        if (apiPath === '/' || apiPath === '') {
+                            apiPath = `/${courseIdStr}`;
+                        } else {
+                            const normalizedPath = apiPath.startsWith('/') ? apiPath : '/' + apiPath;
+                            apiPath = `/${courseIdStr}${normalizedPath}`;
+                        }
+                    }
+                }
+                const url = `${baseUrl}/download?path=${encodeURIComponent(apiPath)}&token=${token}`;
 
                 if (action === 'preview') {
                     window.open(`${url}&mode=inline`, '_blank');

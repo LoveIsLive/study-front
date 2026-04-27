@@ -2,95 +2,282 @@
 
 .courseListPage {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f8f9fa;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+html {
+  overflow-y: scroll;
+}
+.fileManager {
+  width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.fileManagerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.fileManagerHeader .headerLeft,
+.fileManagerHeader .headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchContainer input {
+  padding-left: 40px;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  padding-right: 0.6rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  width: 300px;
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  background-color: #fdfdfd;
+}
+
+.searchContainer input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.inputIcon {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pageSizeSelect {
+  padding: 0.6rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.pageSizeSelect:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 .header {
-  background: white;
-  border-radius: 12px;
-  padding: 24px 32px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  position: relative;
+  background: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  padding: 20px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.backButton {
-  background: #6c757d;
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  color: #343a40;
+  margin: 0;
+  font-weight: 700;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topCreateButton {
+  background: #0356ca;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
-  transition: background 0.3s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
-.backButton:hover {
-  background: #5a6268;
+.topCreateButton:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
-.header h1 {
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin: 0 0 8px;
+.topCreateButton:active {
+  transform: translateY(0);
 }
 
-.header p {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  margin: 0;
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.container {
+.searchArea {
+  background: #ffffff;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.searchBar {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchBarInput {
+  padding: 10px 16px 10px 40px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  background: #f8f9fa;
+}
+
+.searchBarInput:focus {
+  border-color: #4dabf7;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.1);
+  background: white;
+}
+
+.searchBarInput::placeholder {
+  color: #6c757d;
+}
+
+.searchBarIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.mainContent {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.listContainer {
+  flex: 1;
+  min-height: 500px;
+  min-width: 800px;
+  display: flex;
+  flex-direction: column;
 }
 
 .actions {
   display: flex;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
 }
 
-.createButton,
-.refreshButton {
-  padding: 12px 24px;
+.createButton {
+  background: #007bff;
+  color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  transition: all 0.3s;
-}
-
-.createButton {
-  background: #3498db;
-  color: white;
+  gap: 8px;
+  transition: background 0.2s;
 }
 
 .createButton:hover {
-  background: #2980b9;
+  background: #0056b3;
+}
+
+.actionsRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #6c757d;
 }
 
 .refreshButton {
-  background: #2ecc71;
+  background: #6c757d;
   color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
 }
 
 .refreshButton:hover {
-  background: #27ae60;
+  background: #5a6268;
 }
 
 .refreshButton:disabled {
-  background: #95a5a6;
+  background: #adb5bd;
   cursor: not-allowed;
 }
 
@@ -116,6 +303,12 @@
   margin-bottom: 8px;
   font-weight: 600;
   color: #34495e;
+}
+
+.requiredStar {
+  color: #ff0000;
+  margin-left: 2px;
+  font-weight: bold;
 }
 
 .formGroup input,
@@ -172,6 +365,11 @@
   text-align: center;
   padding: 60px;
   color: #7f8c8d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .loading p {
@@ -186,6 +384,11 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   color: #7f8c8d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .emptyState h3 {
@@ -193,34 +396,223 @@
   color: #2c3e50;
 }
 
-.courseGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
 }
 
-.courseCard {
+.courseListItem {
   background: white;
-  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.2s;
+  position: relative;
   overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.courseListItem:hover {
+  background: #f8f9fa;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.courseListItem.selected {
+  background: #f0f8ff;
+  border-color: #cce5ff;
+  border-left: 4px solid #007bff;
+}
+
+.courseListItem.selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #007bff;
+}
+
+.courseListItemContent {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 20px;
+  gap: 16px;
+  min-height: 112px;
+}
+
+.courseListItemInfo {
+  flex: 1;
+  min-width: 0; /* 防止内容溢出 */
+}
+
+.courseListItemInfo h3 {
+  margin: 0 0 6px;
+  color: #343a40;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.courseListItem.selected .courseListItemInfo h3 {
+  color: #0056b3;
+  font-weight: 700;
+}
+
+.courseListItemDescription {
+  color: #6c757d;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.courseListItemMeta {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #868e96;
+}
+
+.courseListItemMeta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 左侧课程封面容器 */
+.courseCoverContainer {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.courseCoverImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.courseCoverPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  background: #e9ecef;
+  font-size: 0.75rem;
+}
+
+.courseCoverPlaceholder svg {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+/* 右侧课程信息容器 */
+.courseInfoContainer {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
-.courseCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+.courseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
 }
 
-.courseCard.selected {
-  border: 3px solid #2ecc71;
+.courseTitle {
+  margin: 0;
+  color: #343a40;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseListItem.selected .courseTitle {
+  color: #0056b3;
+  font-weight: 700;
+}
+
+.courseDescription {
+  color: #6c757d;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  position: relative;
+}
+
+.courseDescription:hover::after {
+  content: attr(data-full-text);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  white-space: normal;
+  width: 300px;
+  max-width: calc(100vw - 200px);
+  word-wrap: break-word;
+}
+
+.courseMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #868e96;
+  margin-top: 8px;
+}
+
+.courseMeta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.courseListItemActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .courseCover {
-  height: 180px;
+  height: 160px;
   overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .courseCover img {
@@ -229,95 +621,346 @@
   object-fit: cover;
 }
 
+.coverPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  height: 100%;
+  width: 100%;
+  background: #e9ecef;
+}
+
+.coverPlaceholder span {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 .courseInfo {
-  padding: 20px;
+  padding: 16px;
   flex: 1;
 }
 
 .courseInfo h3 {
-  margin: 0 0 10px;
-  color: #2c3e50;
-  font-size: 1.4rem;
+  margin: 0 0 8px;
+  color: #343a40;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .description {
-  color: #7f8c8d;
+  color: #6c757d;
   line-height: 1.5;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex: 1;
+  font-size: 14px;
+  min-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .meta {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: #95a5a6;
+  font-size: 13px;
+  color: #868e96;
   margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
 }
 
 .courseActions {
   display: flex;
-  padding: 0 20px 20px;
-  gap: 12px;
-}
-
-.selectButton,
-.deleteButton {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
+  padding: 0 16px 16px;
+  gap: 8px;
 }
 
 .selectButton {
-  background: #2ecc71;
+  flex: 1;
+  background: #28a745;
   color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .selectButton:hover {
-  background: #27ae60;
+  background: #218838;
 }
 
-.deleteButton {
-  background: #e74c3c;
-  color: white;
-  display: flex;
+.listEditButton {
+  background: #e7f3ff;
+  color: #007bff;
+  border: 1px solid #cce5ff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  min-width: 60px;
   justify-content: center;
-  max-width: 50px;
 }
 
-.deleteButton:hover {
-  background: #c0392b;
+.listEditButton:hover {
+  background: #d0e7ff;
+  border-color: #99d3ff;
+  color: #0056b3;
+}
+
+.listDeleteButton {
+  background: #ffeaea;
+  color: #dc3545;
+  border: 1px solid #f8d7da;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.listDeleteButton:hover {
+  background: #fdd6d6;
+  border-color: #f5c2c7;
+  color: #c82333;
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.pagination button {
+  background: white;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.pagination button:disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.pagination .activePage {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination .activePage:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.paginationInfo {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0 16px;
 }
 
 .footer {
-  margin-top: 40px;
-  padding: 20px;
+  margin-top: 24px;
+  padding: 16px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
-  color: #7f8c8d;
-  font-size: 16px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* 模态框样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* 封面图片预览 */
+.coverImagePreview {
+  margin-top: 12px;
+}
+
+.coverImagePreview p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.helpText {
+  font-size: 0.85rem;
+  color: #868e96;
+  margin-top: 8px;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  color: #343a40;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6c757d;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalClose:hover {
+  color: #343a40;
+}
+
+.modalContent {
+  padding: 24px;
+}
+
+.modalFooter {
+  padding: 20px 24px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modalButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalButton.primary {
+  background: #007bff;
+  color: white;
+}
+
+.modalButton.primary:hover {
+  background: #0056b3;
+}
+
+.modalButton.secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.modalButton.secondary:hover {
+  background: #5a6268;
+}
+
+.modalButton:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
   .courseGrid {
     grid-template-columns: 1fr;
   }
-  
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .headerRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .searchInput {
+    width: 150px;
+  }
+
   .actions {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
-  
+
+  .actionsRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .footer {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .modal {
+    max-width: 95%;
   }
 }

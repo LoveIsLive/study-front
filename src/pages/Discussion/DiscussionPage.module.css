@@ -1,0 +1,326 @@
+/* DiscussionPage.module.css */
+
+.container {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+  margin-left: 160px; /* 左侧侧边栏宽度 */
+  padding-top: 84px; /* 顶部header高度 + 内边距 */
+}
+
+.header {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  color: #343a40;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.courseInfo {
+  font-size: 1rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.courseInfo strong {
+  color: #0356ca;
+}
+
+.discussionBoard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.newPost {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.newPost h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.newPostTextarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 16px;
+  transition: border 0.3s;
+}
+
+.newPostTextarea:focus {
+  border-color: #0356ca;
+  outline: none;
+}
+
+.postsList h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+/* 帖子样式 */
+.post {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e9ecef;
+  transition: box-shadow 0.2s;
+}
+
+.post:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.postAuthor {
+  display: flex;
+  flex-direction: column;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #343a40;
+  font-size: 1rem;
+}
+
+.postTime {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.postActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  background: none;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background: #0356ca;
+  color: white;
+  border-color: #0356ca;
+}
+
+.postContent {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #495057;
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+}
+
+/* 回复和编辑表单 */
+.replyForm,
+.editForm {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.replyTextarea,
+.editTextarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 12px;
+}
+
+.replyTextarea:focus,
+.editTextarea:focus {
+  border-color: #0356ca;
+  outline: none;
+}
+
+.formButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.submitButton {
+  background: #0356ca;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitButton:hover {
+  background: #0244a1;
+}
+
+.submitButton:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+}
+
+/* 回复嵌套 */
+.replies {
+  margin-top: 16px;
+  padding-left: 20px;
+  border-left: 2px solid #dee2e6;
+}
+
+/* 加载和空状态 */
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #7f8c8d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading p {
+  margin-top: 16px;
+  font-size: 18px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
+}
+
+.emptyState svg {
+  margin-bottom: 16px;
+  color: #adb5bd;
+}
+
+/* 错误状态 */
+.errorState {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.errorState h2 {
+  color: #dc3545;
+  margin-bottom: 16px;
+}
+
+.errorState p {
+  color: #6c757d;
+  margin-bottom: 24px;
+  font-size: 1.1rem;
+}
+
+.backButton {
+  background: #0356ca;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.backButton:hover {
+  background: #0244a1;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .container {
+    margin-left: 0;
+    padding: 20px;
+    padding-top: 124px; /* 顶部header + 侧边栏折叠 */
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .postHeader {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .postActions {
+    align-self: flex-start;
+  }
+
+  .replies {
+    padding-left: 10px;
+  }
+}

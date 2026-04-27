@@ -18,6 +18,8 @@ import {
   faTasks,
   faBookOpen,
   faList,
+  faComments,
+  faChartLine,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuthStore from "../../../store/authStore";
 import { config } from "../../../utils/config";
@@ -279,8 +281,32 @@ const Header = () => {
       {/* ===================== 左侧固定侧边栏 ===================== */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarMenu}>
-          {/* 动态首页/课程仓库按钮 */}
-          {/* 如果当前是班级上下文且已选择课程，显示课程仓库按钮 */}
+          {/* 首页按钮 - 始终显示 */}
+          <NavLink
+            to="/"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faHome} />
+            <span>首页</span>
+          </NavLink>
+
+          {/* 课程选择按钮 - 班级上下文显示，学校上下文隐藏或禁用 */}
+          {activeType === 'class' ? (
+            <NavLink
+              to="/courses"
+              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+            >
+              <FontAwesomeIcon icon={faList} />
+              <span>课程选择</span>
+            </NavLink>
+          ) : (
+            <div className={styles.sidebarItemDisabled} title="课程选择仅适用于班级上下文">
+              <FontAwesomeIcon icon={faList} />
+              <span>课程选择</span>
+            </div>
+          )}
+
+          {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
           {activeType === 'class' && currentCourseId ? (
             <NavLink
               to={`/ware/home/${currentCourseId}`}
@@ -289,36 +315,38 @@ const Header = () => {
               <FontAwesomeIcon icon={faBook} />
               <span>课程仓库</span>
             </NavLink>
-          ) : null}
-          {/* 如果是学校上下文，显示首页按钮 */}
-          {activeType === 'school' && (
-            <NavLink
-              to="/"
-              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-            >
-              <FontAwesomeIcon icon={faHome} />
-              <span>首页</span>
-            </NavLink>
+          ) : (
+            <div className={styles.sidebarItemDisabled} title={activeType === 'class' ? "请先选择课程" : "课程仓库仅适用于班级上下文"}>
+              <FontAwesomeIcon icon={faBook} />
+              <span>课程仓库</span>
+            </div>
           )}
 
-          {/* 课程选择按钮（仅班级上下文） */}
-          {activeType === 'class' && (
-            <NavLink
-              to="/courses"
-              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-            >
-              <FontAwesomeIcon icon={faList} />
-              <span>课程选择</span>
-            </NavLink>
-          )}
-
-          {/* 作业区按钮 */}
+          {/* 作业区按钮 - 始终显示 */}
           <NavLink
             to="/homework"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faTasks} />
             <span>作业区</span>
+          </NavLink>
+
+          {/* 讨论区按钮 - 始终显示 */}
+          <NavLink
+            to="/discussion"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faComments} />
+            <span>讨论区</span>
+          </NavLink>
+
+          {/* 成绩分析按钮 - 始终显示 */}
+          <NavLink
+            to="/analysis"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faChartLine} />
+            <span>成绩分析</span>
           </NavLink>
         </div>
       </aside>
