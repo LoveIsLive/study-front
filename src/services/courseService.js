@@ -38,11 +38,7 @@ export const createCourse = async (courseData) => {
     }
     // 如果 coverImage 是其他类型（如路径字符串），不添加
     
-    const response = await courseApi.post("/create", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const response = await courseApi.post("/create", formData);
     return response.data;
   } catch (error) {
     console.error("创建课程失败:", error);
@@ -84,11 +80,7 @@ export const updateCourse = async (courseId, courseData) => {
     }
     // 如果 coverImage 是其他类型（如路径字符串），不添加
     
-    const response = await courseApi.put(`/${courseId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const response = await courseApi.put(`/${courseId}`, formData);
     return response.data;
   } catch (error) {
     console.error("更新课程失败:", error);
