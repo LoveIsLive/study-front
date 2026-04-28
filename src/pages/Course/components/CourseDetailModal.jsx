@@ -216,7 +216,7 @@ const CourseDetailModal = ({ course, isOpen, onClose }) => {
         </div>
         <div className={styles.modalContent}>
           {/* 课程描述 */}
-          <div className={styles.detailSection}>
+          <div className={styles.descriptionSection}>
             <h4>课程描述</h4>
             <p>{course?.description || '暂无描述'}</p>
           </div>
