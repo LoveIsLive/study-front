@@ -171,7 +171,7 @@ const DiscussionBoard = ({ courseId }) => {
   const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await discussionApi.get(`/course/${courseId}`);
+      const response = await discussionApi.get('/getall', { params: { ownerId: courseId, ownerType: 'course' } });
       setPosts(response.data.data || []);
     } catch (error) {
       console.error("获取讨论失败:", error);
@@ -334,13 +334,15 @@ const DiscussionPage = () => {
   // 如果不在班级上下文或没有选择课程，显示提示
   if (activeType !== "class") {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorState}>
-          <h2>讨论区仅适用于班级上下文</h2>
-          <p>请切换到班级上下文以使用讨论区功能。</p>
-          <button onClick={() => navigate("/")} className={styles.backButton}>
-            <FontAwesomeIcon icon={faArrowLeft} /> 返回首页
-          </button>
+      <div className={styles.discussionPage}>
+        <div className={styles.fileManager}>
+          <div className={styles.errorState}>
+            <h2>讨论区仅适用于班级上下文</h2>
+            <p>请切换到班级上下文以使用讨论区功能。</p>
+            <button onClick={() => navigate("/")} className={styles.backButton}>
+              <FontAwesomeIcon icon={faArrowLeft} /> 返回首页
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -348,33 +350,43 @@ const DiscussionPage = () => {
 
   if (!currentCourseId) {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorState}>
-          <h2>请先选择课程</h2>
-          <p>使用讨论区前，请先在课程选择页面选择一门课程。</p>
-          <button
-            onClick={() => navigate("/courses")}
-            className={styles.backButton}
-          >
-            <FontAwesomeIcon icon={faArrowLeft} /> 前往课程选择
-          </button>
+      <div className={styles.discussionPage}>
+        <div className={styles.fileManager}>
+          <div className={styles.errorState}>
+            <h2>请先选择课程</h2>
+            <p>使用讨论区前，请先在课程选择页面选择一门课程。</p>
+            <button
+              onClick={() => navigate("/courses")}
+              className={styles.backButton}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} /> 前往课程选择
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          <FontAwesomeIcon icon={faComments} /> 课程讨论区
-        </h1>
-        <div className={styles.courseInfo}>
-          当前课程: <strong>{currentCourse?.name || "未知课程"}</strong>
+    <div className={styles.discussionPage}>
+      <div className={styles.fileManager}>
+        <header className={styles.fileManagerHeader}>
+          <div className={styles.headerLeft}>
+            <h1>
+              <FontAwesomeIcon icon={faComments} /> 课程讨论区
+            </h1>
+          </div>
+          <div className={styles.headerRight}>
+            <div className={styles.courseInfo}>
+              当前课程: <strong>{currentCourse?.name || "未知课程"}</strong>
+            </div>
+          </div>
+        </header>
+        
+        <div className={styles.mainContent}>
+          <DiscussionBoard courseId={currentCourseId} />
         </div>
       </div>
-
-      <DiscussionBoard courseId={currentCourseId} />
     </div>
   );
 };

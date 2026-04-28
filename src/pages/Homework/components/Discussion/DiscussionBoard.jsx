@@ -32,8 +32,7 @@ const DiscussionBoard = ({ ownerId, ownerType }) => {
     const fetchDiscussion = useCallback(async () => {
         setIsLoading(true);
         try {
-            const endpoint = ownerType === 'homework' ? `/homework/${ownerId}` : `/submission/${ownerId}`;
-            const response = await discussionApi.get(endpoint);
+            const response = await discussionApi.get('/getall', { params: { ownerId, ownerType } });
             setPosts(response.data.data || []);
         } catch (error) {
             Swal.fire({ icon: 'error', title: '加载讨论失败' });

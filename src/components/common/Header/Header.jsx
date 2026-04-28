@@ -337,7 +337,7 @@ const Header = () => {
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faComments} />
-            <span>讨论区</span>
+            <span>课程讨论区</span>
           </NavLink>
 
           {/* 成绩分析按钮 - 始终显示 */}
@@ -350,7 +350,6 @@ const Header = () => {
           </NavLink>
         </div>
       </aside>
-
       <ChangePasswordModal
         isOpen={isChangePasswordModalOpen}
         onClose={() => setChangePasswordModalOpen(false)}

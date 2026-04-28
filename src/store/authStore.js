@@ -16,6 +16,7 @@ const useAuthStore = create((set, get) => ({
   currentCourseId: localStorage.getItem("currentCourseId"),
   currentCourse: null,
   courseList: [],
+  courseListFetched: false,
 
   isAuthenticated: () => !!get().token,
 
@@ -112,7 +113,7 @@ const useAuthStore = create((set, get) => ({
     set({ activeType: type, activeId: id });
     // 切换上下文时清空课程选择
     localStorage.removeItem("currentCourseId");
-    set({ currentCourseId: null, currentCourse: null, courseList: [] });
+    set({ currentCourseId: null, currentCourse: null, courseList: [], courseListFetched: false });
   },
 
   switchContext: (type, id) => {
@@ -133,7 +134,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   setCourseList: (courses) => {
-    set({ courseList: courses });
+    set({ courseList: courses, courseListFetched: true });
     // 如果有课程列表，确保有一个选中的课程
     if (courses.length > 0) {
       const { currentCourseId } = get();
@@ -145,11 +146,16 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  fetchCourseList: async () => {
-    const { activeId, activeType } = get();
+  fetchCourseList: async (force = false) => {
+    const { activeId, activeType, courseListFetched } = get();
     // 只有在班级上下文才能获取课程列表
     if (activeType !== 'class' || !activeId) {
       set({ courseList: [] });
+      return;
+    }
+
+    // 如果已经获取过且不是强制刷新，直接返回
+    if (courseListFetched && !force) {
       return;
     }
 
@@ -159,7 +165,7 @@ const useAuthStore = create((set, get) => ({
       get().setCourseList(courses);
     } catch (error) {
       console.error('Failed to fetch course list:', error);
-      set({ courseList: [] });
+      set({ courseList: [], courseListFetched: false });
     }
   },
 
@@ -179,7 +185,8 @@ const useAuthStore = create((set, get) => ({
       activeId: null,
       currentCourseId: null,
       currentCourse: null,
-      courseList: []
+      courseList: [],
+      courseListFetched: false
     });
     window.location.href = "/auth";
   },

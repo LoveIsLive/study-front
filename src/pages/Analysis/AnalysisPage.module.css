@@ -1,28 +1,45 @@
-/* AnalysisPage.module.css */
+/* AnalysisPage.module.css - 仿照Course页面样式 */
 
-.container {
+html {
+  overflow-y: scroll;
+}
+
+/* 页面外层容器，仿照 .courseListPage */
+.analysisPage {
   min-height: 100vh;
   background: #f8f9fa;
   padding: 20px;
-  margin-left: 160px; /* 左侧侧边栏宽度 */
-  padding-top: 84px; /* 顶部header高度 + 内边距 */
+  display: flex;
+  flex-direction: column;
 }
 
-/* 头部样式 */
-.header {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* 主内容容器，仿照 .fileManager */
+.fileManager {
+  width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* 头部区域，仿照 .fileManagerHeader */
+.fileManagerHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.fileManagerHeader .headerLeft,
+.fileManagerHeader .headerRight {
+  display: flex;
+  align-items: center;
   gap: 16px;
 }
 
-.header h1 {
+.headerLeft h1 {
   margin: 0;
   color: #343a40;
   font-size: 1.8rem;
@@ -32,6 +49,7 @@
   gap: 12px;
 }
 
+/* 课程信息样式 */
 .courseInfo {
   font-size: 1rem;
   color: #6c757d;
@@ -55,6 +73,16 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
+}
+
+/* 主要内容区域，仿照 .mainContent */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 通用区块样式 */
@@ -610,43 +638,52 @@
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .container {
-    margin-left: 0;
+  .analysisPage {
     padding: 20px;
-    padding-top: 124px; /* 顶部header + 侧边栏折叠 */
   }
-
-  .header {
+  
+  .fileManager {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .fileManagerHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-
+  
+  .headerLeft, .headerRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
   .courseInfo {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-
+  
   .kpiGrid {
     grid-template-columns: 1fr;
   }
-
+  
   .trendHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-
+  
   .trendScores {
     flex-wrap: wrap;
   }
-
+  
   .distributionChart {
     flex-direction: column;
     align-items: center;
   }
-
+  
   .homeworkKPIs {
     grid-template-columns: 1fr;
   }

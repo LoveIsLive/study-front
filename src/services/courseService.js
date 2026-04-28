@@ -12,7 +12,37 @@ import { courseApi } from "./api";
  */
 export const createCourse = async (courseData) => {
   try {
-    const response = await courseApi.post("/create", courseData);
+    const formData = new FormData();
+    
+    // 构建 DTO 对象（排除 coverImage 字段）
+    const { coverImage, ...dtoFields } = courseData;
+    const dto = JSON.stringify(dtoFields);
+    formData.append('dto', dto);
+    
+    // 如果 coverImage 是 File 对象，则添加
+    if (coverImage && coverImage instanceof File) {
+      formData.append('coverImage', coverImage);
+    } else if (coverImage && typeof coverImage === 'string' && coverImage.startsWith('data:')) {
+      // 如果是 base64 字符串，转换为 File 对象
+      const base64Data = coverImage.split(',')[1];
+      const mimeType = coverImage.match(/^data:(.*?);/)[1];
+      const binaryStr = atob(base64Data);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: mimeType });
+      const fileName = `cover_${Date.now()}.${mimeType.split('/')[1] || 'jpg'}`;
+      const file = new File([blob], fileName, { type: mimeType });
+      formData.append('coverImage', file);
+    }
+    // 如果 coverImage 是其他类型（如路径字符串），不添加
+    
+    const response = await courseApi.post("/create", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data;
   } catch (error) {
     console.error("创建课程失败:", error);
@@ -28,7 +58,37 @@ export const createCourse = async (courseData) => {
  */
 export const updateCourse = async (courseId, courseData) => {
   try {
-    const response = await courseApi.put(`/${courseId}`, courseData);
+    const formData = new FormData();
+    
+    // 构建 DTO 对象（排除 coverImage 字段）
+    const { coverImage, ...dtoFields } = courseData;
+    const dto = JSON.stringify(dtoFields);
+    formData.append('dto', dto);
+    
+    // 如果 coverImage 是 File 对象，则添加
+    if (coverImage && coverImage instanceof File) {
+      formData.append('coverImage', coverImage);
+    } else if (coverImage && typeof coverImage === 'string' && coverImage.startsWith('data:')) {
+      // 如果是 base64 字符串，转换为 File 对象
+      const base64Data = coverImage.split(',')[1];
+      const mimeType = coverImage.match(/^data:(.*?);/)[1];
+      const binaryStr = atob(base64Data);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: mimeType });
+      const fileName = `cover_${Date.now()}.${mimeType.split('/')[1] || 'jpg'}`;
+      const file = new File([blob], fileName, { type: mimeType });
+      formData.append('coverImage', file);
+    }
+    // 如果 coverImage 是其他类型（如路径字符串），不添加
+    
+    const response = await courseApi.put(`/${courseId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data;
   } catch (error) {
     console.error("更新课程失败:", error);

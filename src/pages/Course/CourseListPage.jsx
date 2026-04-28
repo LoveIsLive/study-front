@@ -12,6 +12,10 @@ import {
   faTimes,
   faChevronLeft,
   faChevronRight,
+  faCheck,
+  faFolder,
+  faFile,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import useAuthStore from "../../store/authStore";
@@ -21,7 +25,87 @@ import {
   updateCourse,
   getCoursesByClassId,
 } from "../../services/courseService";
+import { wareApi, discussionApi, courseApi } from "../../services/api";
 import styles from "./CourseListPage.module.css";
+import CourseDetailModal from "./components/CourseDetailModal";
+
+/**
+ * 压缩图片到指定最大大小（单位：字节）
+ * @param {File} file - 图片文件
+ * @param {number} maxSize - 最大大小（字节），默认1MB
+ * @returns {Promise<string>} base64字符串
+ */
+const compressImage = (file, maxSize = 1024 * 1024) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // 如果图片尺寸过大，先缩小尺寸
+        const maxDimension = 2048; // 最大边长
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        
+        // 根据文件类型选择输出格式
+        const mimeType = file.type || 'image/jpeg';
+        const isPng = mimeType === 'image/png';
+        const outputType = isPng ? 'image/png' : 'image/jpeg';
+        
+        const compress = (targetWidth, targetHeight, quality) => {
+          return new Promise((resolveBlob) => {
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+            canvas.toBlob(
+              (blob) => resolveBlob(blob),
+              outputType,
+              isPng ? undefined : quality
+            );
+          });
+        };
+        
+        const tryCompress = async (currentWidth = width, currentHeight = height, quality = 0.9) => {
+          const blob = await compress(currentWidth, currentHeight, quality);
+          if (blob.size <= maxSize || quality <= 0.1 || currentWidth <= 100 || currentHeight <= 100) {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+            return;
+          }
+          
+          // 如果文件仍然太大，尝试降低质量（对于JPEG）或缩小尺寸
+          if (!isPng && quality > 0.1) {
+            // JPEG：降低质量
+            await tryCompress(currentWidth, currentHeight, quality - 0.1);
+          } else {
+            // PNG或JPEG质量已最低：缩小尺寸
+            const newWidth = Math.floor(currentWidth * 0.8);
+            const newHeight = Math.floor(currentHeight * 0.8);
+            await tryCompress(newWidth, newHeight, quality);
+          }
+        };
+        
+        tryCompress();
+      };
+      img.onerror = reject;
+      img.src = event.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 // 编辑课程模态框组件
 const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
@@ -59,21 +143,9 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
     }
   }, [course]);
 
-  const handleCoverImageChange = (e) => {
+  const handleCoverImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // 检查文件大小（2MB）
-    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-    if (file.size > maxSize) {
-      Swal.fire({
-        icon: "warning",
-        title: "文件过大",
-        text: "封面图片大小不能超过2MB。",
-      });
-      e.target.value = ""; // 清空文件输入
-      return;
-    }
 
     // 检查文件类型是否为图片
     if (!file.type.startsWith("image/")) {
@@ -86,14 +158,30 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
       return;
     }
 
+    // 检查文件大小（1MB） - 大于1MB禁止上传
+    const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+    if (file.size > maxSize) {
+      Swal.fire({
+        icon: "warning",
+        title: "文件过大",
+        text: "图片大小不能超过1MB，请选择其他图片。",
+      });
+      e.target.value = "";
+      return;
+    }
+
+    // 文件小于等于1MB，允许上传
+    // 保存 File 对象用于上传，生成 base64 用于预览
+    setCoverImageFile(file);
+    setFormData({ ...formData, coverImage: file });
+    
+    // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64String = event.target.result;
       setCoverImagePreview(base64String);
-      setFormData({ ...formData, coverImage: base64String });
     };
     reader.readAsDataURL(file);
-    setCoverImageFile(file);
   };
 
   const handleSubmit = async (e) => {
@@ -154,13 +242,13 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
               />
             </div>
             <div className={styles.formGroup}>
-              <label>封面图片（可选，最大2MB）</label>
+              <label>封面图片（可选，最大1MB）</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleCoverImageChange}
               />
-              {coverImagePreview && (
+              {/* {coverImagePreview && (
                 <div className={styles.coverImagePreview}>
                   <p>预览：</p>
                   <img
@@ -176,7 +264,7 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
               )}
               {!coverImagePreview && (
                 <p className={styles.helpText}>未选择图片</p>
-              )}
+              )} */}
             </div>
           </div>
           <div className={styles.modalFooter}>
@@ -223,21 +311,9 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
     };
   }, [isOpen]);
 
-  const handleCoverImageChange = (e) => {
+  const handleCoverImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // 检查文件大小（2MB）
-    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-    if (file.size > maxSize) {
-      Swal.fire({
-        icon: "warning",
-        title: "文件过大",
-        text: "封面图片大小不能超过2MB。",
-      });
-      e.target.value = ""; // 清空文件输入
-      return;
-    }
 
     // 检查文件类型是否为图片
     if (!file.type.startsWith("image/")) {
@@ -250,11 +326,27 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
       return;
     }
 
+    // 检查文件大小（1MB） - 大于1MB禁止上传
+    const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+    if (file.size > maxSize) {
+      Swal.fire({
+        icon: "warning",
+        title: "文件过大",
+        text: "图片大小不能超过1MB，请选择其他图片。",
+      });
+      e.target.value = "";
+      return;
+    }
+
+    // 文件小于等于1MB，允许上传
+    // 保存 File 对象用于上传
+    setFormData({ ...formData, coverImage: file });
+    
+    // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64String = event.target.result;
       setCoverImagePreview(base64String);
-      setFormData({ ...formData, coverImage: base64String });
     };
     reader.readAsDataURL(file);
   };
@@ -319,7 +411,7 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
               />
             </div>
             <div className={styles.formGroup}>
-              <label>封面图片（可选，最大2MB）</label>
+              <label>封面图片（可选，最大1MB）</label>
               <input
                 type="file"
                 accept="image/*"
@@ -366,6 +458,8 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
   );
 };
 
+
+
 const CourseListPage = () => {
   const navigate = useNavigate();
   const {
@@ -378,6 +472,8 @@ const CourseListPage = () => {
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
+
+
   // 搜索和分页状态
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
@@ -386,6 +482,7 @@ const CourseListPage = () => {
   // 模态框状态
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
+  const [detailCourse, setDetailCourse] = useState(null);
 
   // 确保当前上下文是班级
   useEffect(() => {
@@ -406,10 +503,10 @@ const CourseListPage = () => {
     }
   }, [activeId, activeType]);
 
-  const loadCourses = async () => {
+  const loadCourses = async (force = false) => {
     setLoading(true);
     try {
-      await fetchCourseList();
+      await fetchCourseList(force);
       setCurrentPage(1); // 加载后重置到第一页
     } catch (error) {
       console.error("加载课程列表失败:", error);
@@ -421,6 +518,95 @@ const CourseListPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 课程封面图片组件（通过axios获取图片）
+  const CourseCoverImage = ({ coverImage, alt, className }) => {
+    const [imgSrc, setImgSrc] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+      if (!coverImage) {
+        setImgSrc('');
+        return;
+      }
+
+      // 如果已经是 data URL，直接使用
+      if (coverImage.startsWith('data:')) {
+        setImgSrc(coverImage);
+        return;
+      }
+
+      // 如果是路径，通过 axios 获取图片
+      let active = true;
+      const currentBlobUrl = { current: null };
+
+      const fetchImage = async () => {
+        setLoading(true);
+        try {
+          // 使用 courseApi 获取图片，注意添加 responseType: 'blob'
+          const response = await courseApi.get('/getCoverImage', {
+            params: { path: coverImage },
+            responseType: 'blob'
+          });
+          if (!active) return;
+          const blob = response.data;
+          const url = URL.createObjectURL(blob);
+          currentBlobUrl.current = url;
+          setImgSrc(url);
+        } catch (error) {
+          console.error('获取封面图片失败:', error);
+          if (active) {
+            setImgSrc(''); // 显示默认占位符
+          }
+        } finally {
+          if (active) {
+            setLoading(false);
+          }
+        }
+      };
+
+      fetchImage();
+
+      // 清理函数：组件卸载或依赖项变化时释放 blob URL
+      return () => {
+        active = false;
+        if (currentBlobUrl.current) {
+          URL.revokeObjectURL(currentBlobUrl.current);
+          currentBlobUrl.current = null;
+        }
+      };
+    }, [coverImage]);
+
+    if (!coverImage) {
+      return (
+        <div className={styles.courseCoverPlaceholder}>
+          <FontAwesomeIcon icon={faBookOpen} />
+          <span>暂无封面</span>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className={styles.courseCoverPlaceholder}>
+          <FontAwesomeIcon icon={faSpinner} spin />
+          <span>加载中...</span>
+        </div>
+      );
+    }
+
+    if (imgSrc) {
+      return <img src={imgSrc} alt={alt} className={className} />;
+    }
+
+    // 默认占位符
+    return (
+      <div className={styles.courseCoverPlaceholder}>
+        <FontAwesomeIcon icon={faBookOpen} />
+        <span>加载失败</span>
+      </div>
+    );
   };
 
   // 过滤课程列表（基于搜索词）
@@ -450,7 +636,7 @@ const CourseListPage = () => {
     try {
       await createCourse(courseData);
       Swal.fire({ icon: "success", title: "创建成功", text: "课程已创建。" });
-      await loadCourses();
+      await loadCourses(true);
       return true;
     } catch (error) {
       console.error("创建课程失败:", error);
@@ -472,7 +658,7 @@ const CourseListPage = () => {
         title: "更新成功",
         text: "课程信息已更新。",
       });
-      await loadCourses();
+      await loadCourses(true);
       return true;
     } catch (error) {
       console.error("更新课程失败:", error);
@@ -499,7 +685,7 @@ const CourseListPage = () => {
       try {
         await deleteCourse(courseId);
         Swal.fire({ icon: "success", title: "删除成功", text: "课程已删除。" });
-        await loadCourses();
+        await loadCourses(true);
         // 如果删除的是当前选中的课程，清空选择
         if (currentCourseId === courseId) {
           useAuthStore.getState().clearCurrentCourse();
@@ -523,6 +709,10 @@ const CourseListPage = () => {
     //   text: `已切换到课程 "${course.name}"`,
     // });
     // navigate(`/ware/home/${course.id}`); // 导航到该课程的仓库
+  };
+
+  const handleShowCourseDetail = (course) => {
+    setDetailCourse(course);
   };
 
   const handlePageChange = (newPage) => {
@@ -599,23 +789,16 @@ const CourseListPage = () => {
                   <div
                     key={course.id}
                     className={`${styles.courseListItem} ${currentCourseId === course.id ? styles.selected : ""}`}
-                    onClick={() => handleSelectCourse(course)}
+                    onClick={() => handleShowCourseDetail(course)}
                   >
                     <div className={styles.courseListItemContent}>
                       {/* 左侧：课程参考图 */}
                       <div className={styles.courseCoverContainer}>
-                        {course.coverImage ? (
-                          <img
-                            src={course.coverImage}
-                            alt={course.name}
-                            className={styles.courseCoverImage}
-                          />
-                        ) : (
-                          <div className={styles.courseCoverPlaceholder}>
-                            <FontAwesomeIcon icon={faBookOpen} />
-                            <span>暂无封面</span>
-                          </div>
-                        )}
+                        <CourseCoverImage
+                          coverImage={course.coverImage}
+                          alt={course.name}
+                          className={styles.courseCoverImage}
+                        />
                       </div>
 
                       {/* 右侧：课程信息区域 */}
@@ -624,6 +807,16 @@ const CourseListPage = () => {
                         <div className={styles.courseHeader}>
                           <h3 className={styles.courseTitle}>{course.name}</h3>
                           <div className={styles.courseListItemActions}>
+                            <button
+                              className={styles.listSelectButton}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectCourse(course);
+                              }}
+                              title="选择课程"
+                            >
+                              <FontAwesomeIcon icon={faCheck} /> 选择
+                            </button>
                             <button
                               className={styles.listEditButton}
                               onClick={(e) => {
@@ -652,7 +845,7 @@ const CourseListPage = () => {
                           className={styles.courseDescription}
                           data-full-text={course.description || "暂无描述"}
                         >
-                          {course.description || "暂无描述"}
+                          {course.description ? (course.description.length > 30 ? course.description.substring(0, 30) + '...' : course.description) : "暂无描述"}
                         </p>
 
                         {/* 第三行：教师、创建时间、修改时间 */}
@@ -730,6 +923,13 @@ const CourseListPage = () => {
           isOpen={!!editingCourse}
           onClose={() => setEditingCourse(null)}
           onSave={handleUpdateCourse}
+        />
+
+        {/* 课程详情模态框 */}
+        <CourseDetailModal
+          course={detailCourse}
+          isOpen={!!detailCourse}
+          onClose={() => setDetailCourse(null)}
         />
       </div>
     </div>

@@ -297,13 +297,15 @@ const AnalysisPage = () => {
   // 如果不在班级上下文或没有选择课程，显示提示
   if (activeType !== "class") {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorState}>
-          <h2>成绩分析仅适用于班级上下文</h2>
-          <p>请切换到班级上下文以使用成绩分析功能。</p>
-          <button onClick={() => navigate("/")} className={styles.backButton}>
-            <FontAwesomeIcon icon={faArrowLeft} /> 返回首页
-          </button>
+      <div className={styles.analysisPage}>
+        <div className={styles.fileManager}>
+          <div className={styles.errorState}>
+            <h2>成绩分析仅适用于班级上下文</h2>
+            <p>请切换到班级上下文以使用成绩分析功能。</p>
+            <button onClick={() => navigate("/")} className={styles.backButton}>
+              <FontAwesomeIcon icon={faArrowLeft} /> 返回首页
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -311,16 +313,18 @@ const AnalysisPage = () => {
 
   if (!currentCourseId) {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorState}>
-          <h2>请先选择课程</h2>
-          <p>使用成绩分析前，请先在课程选择页面选择一门课程。</p>
-          <button
-            onClick={() => navigate("/courses")}
-            className={styles.backButton}
-          >
-            <FontAwesomeIcon icon={faArrowLeft} /> 前往课程选择
-          </button>
+      <div className={styles.analysisPage}>
+        <div className={styles.fileManager}>
+          <div className={styles.errorState}>
+            <h2>请先选择课程</h2>
+            <p>使用成绩分析前，请先在课程选择页面选择一门课程。</p>
+            <button
+              onClick={() => navigate("/courses")}
+              className={styles.backButton}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} /> 前往课程选择
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -328,10 +332,12 @@ const AnalysisPage = () => {
 
   if (isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <FontAwesomeIcon icon={faSpinner} spin size="2x" />
-          <p>加载成绩分析中...</p>
+      <div className={styles.analysisPage}>
+        <div className={styles.fileManager}>
+          <div className={styles.loading}>
+            <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+            <p>加载成绩分析中...</p>
+          </div>
         </div>
       </div>
     );
@@ -349,154 +355,162 @@ const AnalysisPage = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          <FontAwesomeIcon icon={faChartLine} /> 成绩分析
-        </h1>
-        <div className={styles.courseInfo}>
-          当前课程: <strong>{currentCourse?.name || "未知课程"}</strong>
-          {courseData && (
-            <span className={styles.roleBadge}>
-              {isTeacher ? "教师视图" : "学生视图"}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* 课程宏观分析 */}
-      {courseData && (
-        <div className={styles.section}>
-          <h2>课程宏观分析</h2>
-          
-          {/* KPI指标 */}
-          <div className={styles.kpiGrid}>
-            <KPICard
-              title="提交率"
-              value={courseData.submissionRate}
-              icon={faUsers}
-              color="blue"
-              subtitle={isTeacher ? "全班平均提交率" : "个人提交率"}
-            />
-            <KPICard
-              title="平均得分"
-              value={courseData.averageScore}
-              icon={faTrophy}
-              color="green"
-              subtitle={isTeacher ? "班级平均分" : "个人平均分"}
-              trend={isStudent && courseData.diffWithClassAverage !== null 
-                ? getTrendIcon(courseData.diffWithClassAverage)
-                : null}
-            />
-            {isStudent && courseData.diffWithClassAverage !== null && (
-              <KPICard
-                title="与班级均分差"
-                value={courseData.diffWithClassAverage > 0 
-                  ? `+${courseData.diffWithClassAverage}` 
-                  : courseData.diffWithClassAverage}
-                icon={faUser}
-                color={courseData.diffWithClassAverage > 0 ? "green" : 
-                       courseData.diffWithClassAverage < 0 ? "red" : "gray"}
-                subtitle={courseData.diffWithClassAverage > 0 ? "高于班级均分" : 
-                         courseData.diffWithClassAverage < 0 ? "低于班级均分" : "持平"}
-              />
-            )}
+    <div className={styles.analysisPage}>
+      <div className={styles.fileManager}>
+        <header className={styles.fileManagerHeader}>
+          <div className={styles.headerLeft}>
+            <h1>
+              <FontAwesomeIcon icon={faChartLine} /> 成绩分析
+            </h1>
           </div>
-
-          {/* 预警学生（教师视图） */}
-          {isTeacher && courseData.warningStudents && (
-            <WarningStudents students={courseData.warningStudents} />
-          )}
-
-          {/* 历次作业趋势 */}
-          {courseData.trends && courseData.trends.length > 0 && (
-            <div className={styles.trendsSection}>
-              <h3>历次作业趋势</h3>
-              <div className={styles.trendsList}>
-                {courseData.trends.map((trend) => (
-                  <TrendItem
-                    key={trend.homeworkId}
-                    {...trend}
-                    role={role}
-                    onClick={() => setSelectedHomeworkId(trend.homeworkId)}
-                  />
-                ))}
-              </div>
+          <div className={styles.headerRight}>
+            <div className={styles.courseInfo}>
+              当前课程: <strong>{currentCourse?.name || "未知课程"}</strong>
+              {courseData && (
+                <span className={styles.roleBadge}>
+                  {isTeacher ? "教师视图" : "学生视图"}
+                </span>
+              )}
             </div>
-          )}
-
-          {/* 能力雷达图（学生视图） */}
-          {isStudent && courseData.radarData && (
-            <div className={styles.radarSection}>
-              <h3>能力雷达图</h3>
-              <RadarChart data={courseData.radarData} />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 作业微观分析 */}
-      {selectedHomeworkId && (
-        <div className={styles.section}>
-          <h2>作业微观分析</h2>
-          
-          {isHomeworkLoading ? (
-            <div className={styles.loading}>
-              <FontAwesomeIcon icon={faSpinner} spin /> 加载作业分析中...
-            </div>
-          ) : homeworkData ? (
-            <>
-              {/* 作业基本信息 */}
-              <div className={styles.homeworkKPIs}>
+          </div>
+        </header>
+        
+        <div className={styles.mainContent}>
+          {/* 课程宏观分析 */}
+          {courseData && (
+            <div className={styles.section}>
+              <h2>课程宏观分析</h2>
+              
+              {/* KPI指标 */}
+              <div className={styles.kpiGrid}>
                 <KPICard
-                  title="班级平均分"
-                  value={homeworkData.classAverage}
+                  title="提交率"
+                  value={courseData.submissionRate}
                   icon={faUsers}
                   color="blue"
+                  subtitle={isTeacher ? "全班平均提交率" : "个人提交率"}
                 />
                 <KPICard
-                  title="班级最高分"
-                  value={homeworkData.classHighest}
+                  title="平均得分"
+                  value={courseData.averageScore}
                   icon={faTrophy}
                   color="green"
+                  subtitle={isTeacher ? "班级平均分" : "个人平均分"}
+                  trend={isStudent && courseData.diffWithClassAverage !== null 
+                    ? getTrendIcon(courseData.diffWithClassAverage)
+                    : null}
                 />
-                {isStudent && homeworkData.myScore !== null && (
+                {isStudent && courseData.diffWithClassAverage !== null && (
                   <KPICard
-                    title="我的得分"
-                    value={homeworkData.myScore}
+                    title="与班级均分差"
+                    value={courseData.diffWithClassAverage > 0 
+                      ? `+${courseData.diffWithClassAverage}` 
+                      : courseData.diffWithClassAverage}
                     icon={faUser}
-                    color="purple"
+                    color={courseData.diffWithClassAverage > 0 ? "green" : 
+                           courseData.diffWithClassAverage < 0 ? "red" : "gray"}
+                    subtitle={courseData.diffWithClassAverage > 0 ? "高于班级均分" : 
+                             courseData.diffWithClassAverage < 0 ? "低于班级均分" : "持平"}
                   />
                 )}
               </div>
 
-              {/* 成绩分布（教师视图） */}
-              {isTeacher && homeworkData.scoreDistribution && (
-                <ScoreDistribution distribution={homeworkData.scoreDistribution} />
+              {/* 预警学生（教师视图） */}
+              {isTeacher && courseData.warningStudents && (
+                <WarningStudents students={courseData.warningStudents} />
               )}
 
-              {/* 错题集 */}
-              {homeworkData.wrongQuestions && (
-                <WrongQuestions 
-                  questions={homeworkData.wrongQuestions} 
-                  role={role} 
-                />
+              {/* 历次作业趋势 */}
+              {courseData.trends && courseData.trends.length > 0 && (
+                <div className={styles.trendsSection}>
+                  <h3>历次作业趋势</h3>
+                  <div className={styles.trendsList}>
+                    {courseData.trends.map((trend) => (
+                      <TrendItem
+                        key={trend.homeworkId}
+                        {...trend}
+                        role={role}
+                        onClick={() => setSelectedHomeworkId(trend.homeworkId)}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
-            </>
-          ) : (
-            <div className={styles.emptyState}>
-              <p>选择作业以查看详细分析</p>
+
+              {/* 能力雷达图（学生视图） */}
+              {isStudent && courseData.radarData && (
+                <div className={styles.radarSection}>
+                  <h3>能力雷达图</h3>
+                  <RadarChart data={courseData.radarData} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 作业微观分析 */}
+          {selectedHomeworkId && (
+            <div className={styles.section}>
+              <h2>作业微观分析</h2>
+              
+              {isHomeworkLoading ? (
+                <div className={styles.loading}>
+                  <FontAwesomeIcon icon={faSpinner} spin /> 加载作业分析中...
+                </div>
+              ) : homeworkData ? (
+                <>
+                  {/* 作业基本信息 */}
+                  <div className={styles.homeworkKPIs}>
+                    <KPICard
+                      title="班级平均分"
+                      value={homeworkData.classAverage}
+                      icon={faUsers}
+                      color="blue"
+                    />
+                    <KPICard
+                      title="班级最高分"
+                      value={homeworkData.classHighest}
+                      icon={faTrophy}
+                      color="green"
+                    />
+                    {isStudent && homeworkData.myScore !== null && (
+                      <KPICard
+                        title="我的得分"
+                        value={homeworkData.myScore}
+                        icon={faUser}
+                        color="purple"
+                      />
+                    )}
+                  </div>
+
+                  {/* 成绩分布（教师视图） */}
+                  {isTeacher && homeworkData.scoreDistribution && (
+                    <ScoreDistribution distribution={homeworkData.scoreDistribution} />
+                  )}
+
+                  {/* 错题集 */}
+                  {homeworkData.wrongQuestions && (
+                    <WrongQuestions 
+                      questions={homeworkData.wrongQuestions} 
+                      role={role} 
+                    />
+                  )}
+                </>
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>选择作业以查看详细分析</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 作业选择提示 */}
+          {!selectedHomeworkId && courseData?.trends?.length > 0 && (
+            <div className={styles.selectionHint}>
+              <p>点击上方趋势图中的作业标题，查看该作业的详细分析</p>
             </div>
           )}
         </div>
-      )}
-
-      {/* 作业选择提示 */}
-      {!selectedHomeworkId && courseData?.trends?.length > 0 && (
-        <div className={styles.selectionHint}>
-          <p>点击上方趋势图中的作业标题，查看该作业的详细分析</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
