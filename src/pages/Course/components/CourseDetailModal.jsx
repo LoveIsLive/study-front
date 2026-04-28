@@ -177,27 +177,22 @@ const CourseDetailModal = ({ course, isOpen, onClose }) => {
   // 递归渲染树形结构
   const renderTree = (items, depth = 0) => {
     return items.map((item) => (
-      <div key={item.id} style={{ marginLeft: depth * 20 }}>
+      <div key={item.id} className={styles.treeNodeWrapper}>
         <div className={styles.treeItem}>
           {item.type === 0 ? (
-            <>
-              <FontAwesomeIcon icon={faFolder} />
-              <span>{item.name}</span>
-              <button
-                className={styles.treeToggle}
-                onClick={() => toggleFolder(item)}
-              >
-                <FontAwesomeIcon icon={expandedFolders.has(item.id) ? faChevronDown : faChevronRight} />
-              </button>
-            </>
+            <FontAwesomeIcon icon={faFolder} style={{ color: "#f6ad55" }} /> // 文件夹用橙色
           ) : (
-            <>
-              <FontAwesomeIcon icon={faFile} />
-              <span>{item.name}</span>
-            </>
+            <FontAwesomeIcon icon={faFile} style={{ color: "#63b3ed" }} /> // 文件用蓝色
+          )}
+          <span>{item.name}</span>
+          {item.type === 0 && (
+            <button className={styles.treeToggle} onClick={() => toggleFolder(item)}>
+              <FontAwesomeIcon icon={expandedFolders.has(item.id) ? faChevronDown : faChevronRight} />
+            </button>
           )}
         </div>
-        {item.type === 0 && expandedFolders.has(item.id) && item.children && item.children.length > 0 && (
+        {/* 递归渲染子项 */}
+        {item.type === 0 && expandedFolders.has(item.id) && item.children && (
           <div className={styles.treeChildren}>
             {renderTree(item.children, depth + 1)}
           </div>

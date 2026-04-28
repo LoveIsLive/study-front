@@ -9,18 +9,34 @@
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 html {
   overflow-y: scroll;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 .fileManager {
   width: 1200px;
@@ -32,9 +48,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 .fileManagerHeader {
   display: flex;
@@ -45,9 +69,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .fileManagerHeader .headerLeft,
@@ -58,9 +90,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .headerCenter {
@@ -70,9 +110,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchContainer {
@@ -82,9 +130,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchContainer input {
@@ -103,9 +159,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchContainer input:focus {
@@ -115,9 +179,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .inputIcon {
@@ -131,9 +203,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pageSizeSelect {
@@ -146,9 +226,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pageSizeSelect:focus {
@@ -158,9 +246,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .header {
@@ -177,9 +273,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .headerLeft {
@@ -189,9 +293,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .header h1 {
@@ -205,9 +317,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .headerRight {
@@ -217,9 +337,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .topCreateButton {
@@ -241,9 +369,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .topCreateButton:hover {
@@ -253,9 +389,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .topCreateButton:active {
@@ -263,9 +407,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .headerRight {
@@ -275,9 +427,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchArea {
@@ -290,9 +450,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchBar {
@@ -302,9 +470,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchBarInput {
@@ -320,9 +496,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchBarInput:focus {
@@ -333,9 +517,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchBarInput::placeholder {
@@ -343,9 +535,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .searchBarIcon {
@@ -358,9 +558,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .mainContent {
@@ -373,9 +581,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listContainer {
@@ -387,9 +603,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .actions {
@@ -400,9 +624,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .createButton {
@@ -421,9 +653,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .createButton:hover {
@@ -431,9 +671,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .actionsRight {
@@ -445,9 +693,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .refreshButton {
@@ -465,9 +721,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .refreshButton:hover {
@@ -475,9 +739,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .refreshButton:disabled {
@@ -486,9 +758,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .createForm {
@@ -500,9 +780,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .createForm h3 {
@@ -511,9 +799,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formGroup {
@@ -521,9 +817,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formGroup label {
@@ -534,9 +838,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .requiredStar {
@@ -546,9 +858,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formGroup input,
@@ -562,9 +882,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formGroup input:focus,
@@ -574,9 +902,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons {
@@ -586,9 +922,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons button {
@@ -602,9 +946,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons button[type="submit"] {
@@ -613,9 +965,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons button[type="submit"]:hover {
@@ -623,9 +983,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons button[type="button"] {
@@ -634,9 +1002,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .formButtons button[type="button"]:hover {
@@ -644,9 +1020,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .loading {
@@ -661,9 +1045,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .loading p {
@@ -672,9 +1064,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .emptyState {
@@ -692,9 +1092,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .emptyState h3 {
@@ -703,9 +1111,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseList {
@@ -716,9 +1132,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem {
@@ -731,9 +1155,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem:hover {
@@ -744,9 +1176,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem.selected {
@@ -756,9 +1196,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem.selected::before {
@@ -772,9 +1220,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemContent {
@@ -786,9 +1242,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemInfo {
@@ -797,9 +1261,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemInfo h3 {
@@ -811,9 +1283,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem.selected .courseListItemInfo h3 {
@@ -822,9 +1302,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemDescription {
@@ -840,9 +1328,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemMeta {
@@ -854,9 +1350,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemMeta span {
@@ -866,9 +1370,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 左侧课程封面容器 */
@@ -885,9 +1397,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseCoverImage {
@@ -897,9 +1417,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseCoverPlaceholder {
@@ -915,9 +1443,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseCoverPlaceholder svg {
@@ -926,9 +1462,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 右侧课程信息容器 */
@@ -940,9 +1484,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseHeader {
@@ -953,9 +1505,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseTitle {
@@ -972,9 +1532,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItem.selected .courseTitle {
@@ -983,9 +1551,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseDescription {
@@ -1002,9 +1578,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseDescription:hover::after {
@@ -1025,9 +1609,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseMeta {
@@ -1039,9 +1631,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseMeta span {
@@ -1051,9 +1651,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseListItemActions {
@@ -1063,9 +1671,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseCover {
@@ -1078,9 +1694,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseCover img {
@@ -1090,9 +1714,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .coverPlaceholder {
@@ -1107,9 +1739,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .coverPlaceholder span {
@@ -1118,9 +1758,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseInfo {
@@ -1129,9 +1777,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseInfo h3 {
@@ -1142,9 +1798,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .description {
@@ -1162,9 +1826,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .meta {
@@ -1178,9 +1850,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .courseActions {
@@ -1190,9 +1870,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .selectButton {
@@ -1209,9 +1897,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .selectButton:hover {
@@ -1219,9 +1915,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listSelectButton {
@@ -1242,9 +1946,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listSelectButton:hover {
@@ -1254,9 +1966,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listEditButton {
@@ -1277,9 +1997,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listEditButton:hover {
@@ -1289,9 +2017,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listDeleteButton {
@@ -1312,9 +2048,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .listDeleteButton:hover {
@@ -1324,9 +2068,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination {
@@ -1339,9 +2091,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination button {
@@ -1358,9 +2118,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination button:hover:not(:disabled) {
@@ -1369,9 +2137,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination button:disabled {
@@ -1380,9 +2156,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination .activePage {
@@ -1392,9 +2176,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .pagination .activePage:hover {
@@ -1403,9 +2195,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .paginationInfo {
@@ -1415,9 +2215,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .footer {
@@ -1433,9 +2241,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 模态框样式 */
@@ -1445,7 +2261,8 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px); /* 毛玻璃效果，更高级 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1454,9 +2271,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 封面图片预览 */
@@ -1465,9 +2290,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .coverImagePreview p {
@@ -1477,9 +2310,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .helpText {
@@ -1489,15 +2330,25 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modal {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: none;
+  background: #f8fafc; /* 浅灰色底衬托白色卡片 */
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
@@ -1505,36 +2356,62 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalHeader {
-  padding: 20px 24px;
-  border-bottom: 1px solid #e9ecef;
+  background: #fff;
+  padding: 24px;
+  border-bottom: 1px solid #edf2f7;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalHeader h3 {
   margin: 0;
-  color: #343a40;
+  color: #1a202c;
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalClose {
@@ -1553,9 +2430,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalClose:hover {
@@ -1563,9 +2448,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalContent {
@@ -1573,9 +2466,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalFooter {
@@ -1587,9 +2488,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton {
@@ -1603,9 +2512,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton.primary {
@@ -1614,9 +2531,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton.primary:hover {
@@ -1624,9 +2549,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton.secondary {
@@ -1635,9 +2568,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton.secondary:hover {
@@ -1645,9 +2586,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .modalButton:disabled {
@@ -1656,46 +2605,75 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 课程详情模态框样式 */
 .detailSection {
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e9ecef;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
 }
 
-.detailSection:last-child {
-  border-bottom: none;
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .detailSection h4 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  color: #2c3e50;
+  color: #2d3748;
+  border-left: 4px solid #3182ce; /* 智慧课堂常用的蓝色装饰线 */
+  padding-left: 12px;
+  margin-bottom: 15px;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .detailSection p {
@@ -1711,75 +2689,136 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .treeContainer {
+  padding: 10px;
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 16px;
   max-height: 300px;
   overflow-y: auto;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .treeItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border-radius: 8px;
   transition: background 0.2s;
+  cursor: pointer;
+  margin-bottom: 2px;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .treeItem:hover {
-  background: #e9ecef;
+  background: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.treeItem svg {
+  margin-right: 10px;
+  width: 16px;
+  color: #4a5568;
+}
+
+.treeItem span {
+  font-size: 0.95rem;
+  flex: 1;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .treeToggle {
-  background: none;
+  background: transparent;
   border: none;
-  color: #6c757d;
+  color: #a0aec0;
+  padding: 4px;
   cursor: pointer;
-  padding: 2px 6px;
   margin-left: auto;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .treeChildren {
-  margin-left: 20px;
-  border-left: 1px dashed #dee2e6;
-  padding-left: 12px;
+  border-left: 1px dashed #cbd5e0;
+  margin-left: 10px;
+  padding-left: 10px;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .discussionContainer {
@@ -1788,23 +2827,40 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .discussionPost {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
   padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  position: relative;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .postHeader {
@@ -1815,43 +2871,90 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .postAuthor {
-  font-weight: 600;
-  color: #343a40;
+  font-weight: 700;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+}
+
+.postAuthor::before {
+  content: "";
+  width: 32px;
+  height: 32px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: inline-block;
+  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .postTime {
-  color: #6c757d;
+  font-size: 0.85rem;
+  color: #a0aec0;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .postContent {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
+  color: #4a5568;
+  line-height: 1.6;
+  padding-left: 42px; /* 与头像对齐 */
   white-space: pre-wrap;
+  font-size: 1rem;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 /* 标签切换样式 */
@@ -1860,61 +2963,105 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .tabHeader {
   display: flex;
-  border-bottom: 1px solid #dee2e6;
+  gap: 30px;
+  border-bottom: 2px solid #edf2f7;
   margin-bottom: 20px;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .tabButton {
-  padding: 12px 24px;
+  padding: 12px 4px;
+  font-weight: 600;
+  color: #718096;
+  position: relative;
+  transition: all 0.3s;
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #6c757d;
   cursor: pointer;
-  transition: all 0.2s;
+  font-size: 1rem;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
 }
 
-.tabButton:hover {
-  color: #495057;
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+
+
+.replies {
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.activeTab {
+  color: #3182ce;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #3182ce;
+  border-radius: 3px 3px 0 0;
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
 }
 
-.tabButton.activeTab {
-  color: #007bff;
-  border-bottom-color: #007bff;
-  font-weight: 600;
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
-.replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 .tabContent {
@@ -1922,9 +3069,17 @@ html {
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
 @media (max-width: 768px) {
@@ -1933,9 +3088,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .header {
@@ -1945,9 +3108,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .headerRight {
@@ -1956,9 +3127,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .searchInput {
@@ -1966,9 +3145,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .actions {
@@ -1978,9 +3165,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .actionsRight {
@@ -1989,9 +3184,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .footer {
@@ -2000,9 +3203,17 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 
   .modal {
@@ -2010,14 +3221,30 @@ html {
   }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
 }
 
 .replies {
-  margin-left: 20px;
-  border-left: 2px solid #e9ecef;
-  padding-left: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #f7fafc;
+  padding-top: 12px;
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
+}
+
+.treeNodeWrapper {
+  /* 树节点包装器 */
 }
