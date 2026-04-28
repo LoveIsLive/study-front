@@ -187,11 +187,13 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
             const dto = {
                 homeworkId: homework.id,
                 content,
-                attachmentUploadIds: largeFileAttachmentIds,
-                attachmentIdsToDelete: attachmentIdsToDelete
+                attachmentUploadIds: largeFileAttachmentIds
             };
             if (homework.type === 'STRUCTURED') {
                 dto.answerData = answers;
+            }
+            if (submission && (submission.status === '被退回' || submission.status === '作业有更新')) {
+                dto.attachmentIdsToDelete = attachmentIdsToDelete;
             }
 
             const formData = new FormData();
