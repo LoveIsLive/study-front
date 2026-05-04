@@ -6,6 +6,7 @@ import { faArrowLeft, faPaperPlane, faMagic, faCloudUploadAlt, faTimes, faSpinne
 import { useUploader } from '../../../hooks/useUploader';
 import { homeworkApi, attachApi } from '../../../services/api';
 import { getFileIcon } from '../../../utils/helpers';
+import useAuthStore from '../../../store/authStore';
 import FileUpload from '../../../components/shared/FileUpload/FileUpload';
 import QuestionBuilder from '../../../components/shared/QuestionEngine/Builder/QuestionBuilder';
 // 引入新的侧边栏组件
@@ -20,6 +21,7 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
     const [content, setContent] = useState(''); // 普通模式: 内容; 结构化模式: 导语/说明
     const [homeworkType, setHomeworkType] = useState('SIMPLE');
     const [questions, setQuestions] = useState([]);
+    const [courseId, setCourseId] = useState(null);
 
     // --- AI 面板状态 ---
     const [isAIPanelOpen, setIsAIPanelOpen] = useState(false);
@@ -40,6 +42,7 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
             setTitle(editingHomework.title || '');
             setContent(editingHomework.content || '');
             setExistingAttachments(editingHomework.attachments || []);
+            setCourseId(editingHomework.courseId || null);
 
             if (editingHomework.type === 'STRUCTURED') {
                 setHomeworkType('STRUCTURED');
@@ -55,6 +58,10 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
                     }
                 }
             }
+        } else {
+            // 新建模式：从 store 获取当前课程ID
+            const { currentCourseId } = useAuthStore.getState();
+            setCourseId(currentCourseId || null);
         }
     }, [isEditMode, editingHomework]);
 
@@ -97,6 +104,10 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
     };
 
     const handleSubmit = async () => {
+        if (!courseId) {
+            Swal.fire({ toast: true, icon: 'warning', title: '请选择课程', position: 'top' });
+            return;
+        }
         if (!title.trim()) {
             Swal.fire({ toast: true, icon: 'warning', title: '请输入作业标题', position: 'top' });
             return;
@@ -112,10 +123,13 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
             const dto = {
                 title,
                 content,
+                courseId,
                 type: homeworkType,
-                attachmentUploadIds: largeFileAttachmentIds,
-                attachmentIdsToDelete: attachmentIdsToDelete
+                attachmentUploadIds: largeFileAttachmentIds
             };
+            if (isEditMode) {
+                dto.attachmentIdsToDelete = attachmentIdsToDelete;
+            }
 
             if (homeworkType === 'STRUCTURED') {
                 dto.metaData = {
