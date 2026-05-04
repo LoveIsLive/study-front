@@ -1,0 +1,683 @@
+/* src/pages/Mind/MindPage.module.css */
+.container {
+    display: flex;
+    height: calc(100vh - 64px);
+    width: 100vw;
+    background: #f4f6f8;
+    overflow: hidden;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* --- 侧边栏：修复了被挤压的问题 --- */
+.sidebar {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    border: none;
+}
+
+.sidebarHeader {
+    padding: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.newChatBtn {
+    width: 100%;
+    padding: 12px;
+    background: #f0fdfa;
+    color: #0d9488;
+    border: 1px dashed #14b8a6;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.newChatBtn:hover {
+    background: #ccfbf1;
+    transform: translateY(-1px);
+}
+
+.sessionList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sessionItem {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 0.95rem;
+    transition: 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-left: 3px solid transparent;
+    background: #f8fafc;
+}
+
+.sessionItem:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.sessionItem.active {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-left-color: #0284c7;
+    font-weight: 600;
+}
+
+/* --- AI 聊天面板 --- */
+.aiPanel {
+    width: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.aiHeader {
+    height: 60px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fff;
+}
+
+.toggleSidebarBtn {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.toggleSidebarBtn:hover {
+    color: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+.aiTitle {
+    font-size: 1.15rem;
+    font-weight: 700;
+    background: linear-gradient(120deg, #81ecec 0%, #00cec9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.messageList {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #fafbfc;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.userMessage {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.userMessage .messageContent {
+    background: linear-gradient(120deg, #fdcb6e 0%, #fab1a0 100%);
+    color: white;
+    border-radius: 18px 18px 2px 18px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 10px rgba(253, 203, 110, 0.3);
+    line-height: 1.5;
+}
+
+.aiMessage {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+.aiMessage .messageContent {
+    background: #fff;
+    color: #2d3436;
+    border-radius: 18px 18px 18px 2px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    line-height: 1.5;
+}
+
+.importBtn {
+    margin-top: 12px;
+    background: #00cec9;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 206, 201, 0.2);
+}
+
+.importBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 206, 201, 0.3);
+}
+
+.inputArea {
+    padding: 15px 20px;
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    background: #f5f6fa;
+    border-radius: 20px;
+    padding: 6px 12px;
+}
+
+.inputWrapper input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 8px;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+
+.sendBtn {
+    background: linear-gradient(120deg, #81ecec 0%, #00cec9 100%);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sendBtn:disabled {
+    background: #dfe6e9;
+    cursor: not-allowed;
+}
+
+/* --- 右侧工作区 (修复了重叠Bug) --- */
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    /* 🔥 极其关键：防止 Flexbox 被子元素 SVG 撑破屏幕 */
+    position: relative;
+}
+
+/* 确保画布区域占满空间 */
+.blocklyArea {
+    flex: 6;
+    position: relative;
+    border-bottom: 1px solid #dfe6e9;
+    min-height: 300px;
+    width: 100%;
+}
+
+/* 绝对定位强制 Blockly 画布撑满父元素，解决右侧工具重叠 */
+.blocklyWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- 下方终端区：全新双栏 Tab 布局 --- */
+.codeArea {
+    flex: 4;
+    display: flex;
+    background: #1e1e1e;
+    border-top: 1px solid #333;
+    min-height: 0;
+    /* 🔥 关键：防止高度被内容撑大 */
+    min-width: 0;
+    /* 🌟 新增：防止父级被撑破 */
+}
+
+/* 左侧代码区 */
+.editorSection {
+    flex: 6;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #333;
+    background: #282c34;
+    min-height: 0;
+    min-width: 0;
+    /* 🌟 新增：极其关键！允许容器收缩从而触发横向滚动条 */
+}
+
+/* VS Code 风格的标签页头部 */
+.tabsHeader {
+    display: flex;
+    background: #21252b;
+    padding: 8px 10px 0;
+    border-bottom: 1px solid #181a1f;
+}
+
+.tab {
+    padding: 8px 16px;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-radius: 6px 6px 0 0;
+    margin-right: 4px;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab.active {
+    background: #282c34;
+    color: #61afef;
+    font-weight: 600;
+    border-top: 2px solid #61afef;
+}
+
+.tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    color: #9ca3af;
+}
+
+.codeContent {
+    flex: 1;
+    padding: 15px 20px;
+    overflow-y: auto;
+    /* 这里负责上下滚动 */
+    overflow-x: auto;
+    /* 横向代码太长也允许滚动，不破坏布局 */
+    margin: 0;
+    font-family: "Fira Code", "Consolas", monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #abb2bf;
+}
+
+/* 选中代码高亮颜色 */
+.highlightText {
+    color: #c678dd;
+}
+
+/* 右侧控制台区 */
+.terminalSection {
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    min-height: 0;
+    min-width: 0;
+    /* 🌟 新增：极其关键！允许容器收缩 */
+}
+
+.terminalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #333;
+}
+
+.terminalTitle {
+    color: #4af626;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+}
+
+.terminalContent {
+    flex: 1;
+    padding: 15px 20px;
+    overflow-y: auto;
+    /* 终端上下滚动 */
+    overflow-x: auto;
+    margin: 0;
+    font-family: "Fira Code", "Consolas", monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #4af626;
+}
+
+/* 运行按钮优化 */
+.runBtn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.runBtn:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.runBtn:disabled {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.sessionItem {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 0.95rem;
+    transition: 0.2s;
+    border-left: 3px solid transparent;
+    background: #f8fafc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sessionTitle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.deleteSessionBtn {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    padding: 4px;
+    opacity: 0;
+    /* 默认隐藏 */
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 4px;
+}
+
+.sessionItem:hover .deleteSessionBtn {
+    opacity: 1;
+    /* 悬浮时显示 */
+}
+
+.deleteSessionBtn:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+/* 输入框区域优化 */
+.inputArea {
+    padding: 15px 20px;
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 准备发送的文件预览区域 */
+.inputPreviewArea {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-bottom: 5px;
+}
+
+/* 聊天历史中的文件预览区域 */
+.msgFilePreviewArea {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    background: #f5f6fa;
+    border-radius: 20px;
+    padding: 6px 12px;
+    gap: 8px;
+}
+
+/* 附件按钮 */
+.attachBtn {
+    background: transparent;
+    border: none;
+    color: #a4b0be;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 4px 8px;
+}
+
+.attachBtn:hover {
+    color: #00cec9;
+}
+
+/* 文件卡片样式 (移植自 AIChatWindow) */
+.fileChip {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #f1f2f6;
+    border-radius: 10px;
+    padding: 6px 10px 6px 6px;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    position: relative;
+    max-width: 180px;
+}
+
+.fileChip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.userMessage .fileChip {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+}
+
+.imageWrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f1f2f6;
+}
+
+.fileThumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fileIconPlaceholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: #e7f5ff;
+    color: #0984e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.fileInfo {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fileName {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2d3436;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fileSize {
+    font-size: 0.65rem;
+    color: #b2bec3;
+    margin-top: 2px;
+}
+
+.removeFileBtn {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: #fab1a0;
+    color: white;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.fileChip:hover .removeFileBtn {
+    opacity: 1;
+}
+
+.removeFileBtn:hover {
+    background: #ff7675;
+}
+
+/* Lightbox 图片预览 */
+.imageLightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s;
+    cursor: zoom-out;
+}
+
+.lightboxImg {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: zoomIn 0.3s;
+}
+
+.closeLightbox {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.closeLightbox:hover {
+    color: #ff7675;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.9);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}

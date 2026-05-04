@@ -10,6 +10,7 @@ import PrivateRoute from './components/common/PrivateRoute/PrivateRoute';
 import OrganizationPage from './pages/Organization/OrganizationPage';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
 import AnalysisPage from './pages/Analysis/AnalysisPage';
+import MindPage from './pages/Mind/MindPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/organization" element={<OrganizationPage />} />
           <Route path="/discussion" element={<DiscussionPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/mind" element={<MindPage />} />
         </Route>
       </Route>
 

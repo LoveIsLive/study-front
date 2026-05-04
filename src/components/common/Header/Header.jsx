@@ -121,7 +121,7 @@ const Header = () => {
                     </>
                   ) : (
                     <div className={styles.loadingContext}>
-                      <FontAwesomeIcon icon={faSpinner} spin fixedWidth/>{" "}
+                      <FontAwesomeIcon icon={faSpinner} spin fixedWidth />{" "}
                       <span>加载中...</span>
                     </div>
                   )}
@@ -204,7 +204,7 @@ const Header = () => {
             {/* 当前课程显示 - 只在班级上下文中显示 */}
             {activeType === 'class' && (
               <div className={styles.courseDisplay}>
-                <FontAwesomeIcon icon={faBookOpen} className={styles.courseIcon} fixedWidth/>
+                <FontAwesomeIcon icon={faBookOpen} className={styles.courseIcon} fixedWidth />
                 <span className={styles.courseName}>
                   {currentCourse ? currentCourse.name : '当前没有课程'}
                 </span>
@@ -243,7 +243,7 @@ const Header = () => {
                       to="/organization"
                       onClick={() => setDropdownVisible(false)}
                     >
-                      <FontAwesomeIcon icon={faUsers} fixedWidth/> 组织管理
+                      <FontAwesomeIcon icon={faUsers} fixedWidth /> 组织管理
                     </Link>
                   </li>
                   <li>
@@ -254,7 +254,7 @@ const Header = () => {
                         setDropdownVisible(false);
                       }}
                     >
-                      <FontAwesomeIcon icon={faKey} fixedWidth/> 修改密码
+                      <FontAwesomeIcon icon={faKey} fixedWidth /> 修改密码
                     </a>
                   </li>
                   <li>
@@ -265,13 +265,13 @@ const Header = () => {
                         setDropdownVisible(false);
                       }}
                     >
-                      <FontAwesomeIcon icon={faUser} fixedWidth/> 修改用户名
+                      <FontAwesomeIcon icon={faUser} fixedWidth /> 修改用户名
                     </a>
                   </li>
                 </ul>
                 <div className={styles.dropdownFooter}>
                   <button onClick={logout}>
-                    <FontAwesomeIcon icon={faSignOutAlt} fixedWidth/> 退出登录
+                    <FontAwesomeIcon icon={faSignOutAlt} fixedWidth /> 退出登录
                   </button>
                 </div>
               </div>
@@ -290,7 +290,7 @@ const Header = () => {
             to="/"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
-            <FontAwesomeIcon icon={faHome} fixedWidth/>
+            <FontAwesomeIcon icon={faHome} fixedWidth />
             <span>首页</span>
           </NavLink>
 
@@ -300,12 +300,12 @@ const Header = () => {
               to="/courses"
               className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
             >
-              <FontAwesomeIcon icon={faList} fixedWidth/>
+              <FontAwesomeIcon icon={faList} fixedWidth />
               <span>课程选择</span>
             </NavLink>
           ) : (
             <div className={styles.sidebarItemDisabled} title="课程选择仅适用于班级上下文">
-              <FontAwesomeIcon icon={faList} fixedWidth/>
+              <FontAwesomeIcon icon={faList} fixedWidth />
               <span>课程选择</span>
             </div>
           )}
@@ -316,12 +316,12 @@ const Header = () => {
               to={`/ware/home/${currentCourseId}`}
               className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
             >
-              <FontAwesomeIcon icon={faBook} fixedWidth/>
+              <FontAwesomeIcon icon={faBook} fixedWidth />
               <span>课程仓库</span>
             </NavLink>
           ) : (
             <div className={styles.sidebarItemDisabled} title={activeType === 'class' ? "请先选择课程" : "课程仓库仅适用于班级上下文"}>
-              <FontAwesomeIcon icon={faBook} fixedWidth/>
+              <FontAwesomeIcon icon={faBook} fixedWidth />
               <span>课程仓库</span>
             </div>
           )}
@@ -331,7 +331,7 @@ const Header = () => {
             to="/homework"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
-            <FontAwesomeIcon icon={faTasks} fixedWidth/>
+            <FontAwesomeIcon icon={faTasks} fixedWidth />
             <span>作业区</span>
           </NavLink>
 
@@ -340,7 +340,7 @@ const Header = () => {
             to="/discussion"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
-            <FontAwesomeIcon icon={faComments} fixedWidth/>
+            <FontAwesomeIcon icon={faComments} fixedWidth />
             <span>课程讨论区</span>
           </NavLink>
 
@@ -349,8 +349,15 @@ const Header = () => {
             to="/analysis"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
-            <FontAwesomeIcon icon={faChartLine} fixedWidth/>
+            <FontAwesomeIcon icon={faChartLine} fixedWidth />
             <span>成绩分析</span>
+          </NavLink>
+          <NavLink
+            to="/mind"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faChartLine} fixedWidth />
+            <span>Mind+工具</span>
           </NavLink>
         </div>
       </aside>

@@ -87,11 +87,33 @@ const RemoteFileCard = ({ fileItem }) => {
 };
 
 const LocalFileCard = ({ file, onRemove, onPreview }) => {
-    const isImage = file.type.startsWith('image/');
-    const imgUrl = isImage ? URL.createObjectURL(file) : null;
+    // 增加容错判断，有些文件对象的 type 可能是空的
+    const isImage = file.type?.startsWith('image/') || false;
+    const [fileUrl, setFileUrl] = useState('');
+
+    // 使用 useEffect 创建和释放 Blob URL，防止内存泄漏
+    useEffect(() => {
+        const url = URL.createObjectURL(file);
+        setFileUrl(url);
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }, [file]);
+
+    const handleCardClick = () => {
+        if (!fileUrl) return;
+
+        if (isImage) {
+            // 是图片，触发相册 Lightbox 预览
+            onPreview(fileUrl);
+        } else {
+            // 是 PDF、TXT、代码文件等，直接在浏览器新标签页打开原生预览
+            window.open(fileUrl, '_blank');
+        }
+    };
 
     return (
-        <div className={styles.fileChip} onClick={() => isImage && onPreview(imgUrl)}>
+        <div className={styles.fileChip} onClick={handleCardClick} title="点击预览">
             {onRemove && (
                 <button className={styles.removeFileBtn} onClick={(e) => { e.stopPropagation(); onRemove(); }}>
                     &times;
@@ -99,7 +121,7 @@ const LocalFileCard = ({ file, onRemove, onPreview }) => {
             )}
             {isImage ? (
                 <div className={styles.imageWrapper}>
-                    <img src={imgUrl} alt="thumb" className={styles.fileThumbnail} />
+                    <img src={fileUrl} alt="thumb" className={styles.fileThumbnail} />
                 </div>
             ) : (
                 <div className={styles.fileIconPlaceholder}>
