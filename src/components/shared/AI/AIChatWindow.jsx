@@ -235,7 +235,7 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
         const newFiles = Array.from(e.target.files).filter(file => {
             if (file.size > 10 * 1024 * 1024) {
                 Swal.fire({
-                    toast: true, icon: 'warning', title: `${file.name} 超过 10MB`, customClass: {
+                    toast: true, icon: 'warning', title: `${file.name} 超过 100MB`, customClass: {
                         container: styles.swalHighZIndex
                     }
                 });

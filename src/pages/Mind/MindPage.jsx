@@ -314,19 +314,9 @@ const MindPage = () => {
         let totalSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
 
         const newFiles = Array.from(e.target.files).filter(file => {
-            // 类型校验
-            const isAllowed = allowedTypes.some(type => file.type.startsWith(type))
-                || file.name.endsWith('.txt')
-                || file.name.endsWith('.md')
-                || file.name.endsWith('.py');
-            if (!isAllowed) {
-                Swal.fire({ toast: true, icon: 'warning', title: `不支持的文件格式: ${file.name}`, position: 'top' });
-                return false;
-            }
-
-            // 后端限制总大小 7MB
-            if (totalSize + file.size > 7 * 1024 * 1024) {
-                Swal.fire({ toast: true, icon: 'warning', title: `总文件大小不能超过 7MB`, position: 'top' });
+            // 后端限制总大小 100MB
+            if (totalSize + file.size > 100 * 1024 * 1024) {
+                Swal.fire({ toast: true, icon: 'warning', title: `总文件大小不能超过 100MB`, position: 'top' });
                 return false;
             }
             totalSize += file.size;
@@ -509,11 +499,12 @@ const MindPage = () => {
                                     <>
                                         {renderFiles(msg)}
                                         {msg.content && <ReactMarkdown>{msg.content}</ReactMarkdown>}
-                                        {msg.blocklyXml && msg.role === 'assistant' && (
-                                            <button className={styles.importBtn} onClick={() => applyXmlToWorkspace(msg.blocklyXml)}>
-                                                <FontAwesomeIcon icon={faDownload} /> 一键导入积木
-                                            </button>
-                                        )}
+                                        {msg.blocklyXml && msg.role === 'assistant' &&
+                                            msg.blocklyXml !== '<xml xmlns="https://developers.google.com/blockly/xml"></xml>' && (
+                                                <button className={styles.importBtn} onClick={() => applyXmlToWorkspace(msg.blocklyXml)}>
+                                                    <FontAwesomeIcon icon={faDownload} /> 一键导入积木
+                                                </button>
+                                            )}
                                     </>
                                 )}
                             </div>
