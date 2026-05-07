@@ -8,7 +8,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import WarePage from "../Ware/WarePage";
+import CourseWareFlatView from "../Ware/CourseWareFlatView";
 import HomeworkPage from "../Homework/HomeworkPage";
 import DiscussionPage from "../Discussion/DiscussionPage";
 import styles from "./CourseDetailPage.module.css";
@@ -74,7 +74,7 @@ const CourseDetailPage = () => {
       <div className={styles.contentSection}>
         {/* 3. 使用嵌套路由渲染子组件 */}
         <Routes>
-          <Route path="ware/*" element={<WarePage courseId={courseId} />} />
+          <Route path="ware/*" element={<CourseWareFlatView courseId={courseId} />} />
           <Route
             path="homework/*"
             element={<HomeworkPage courseId={courseId} />}

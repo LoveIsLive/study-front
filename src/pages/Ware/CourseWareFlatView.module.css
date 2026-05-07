@@ -1,0 +1,71 @@
+.container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.nodeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nodeItem {
+  margin: 4px 0;
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.nodeContent:hover {
+  background-color: #f0f7ff; /* 悬浮时淡淡的蓝色 */
+}
+
+/* 圆形蓝色图标容器 */
+.iconCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #1890ff; /* 项目主题蓝 */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+}
+
+.nodeName {
+  flex-grow: 1;
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+.arrow {
+  color: #888;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.childrenContainer {
+  margin-left: 34px; /* 子节点缩进 */
+  border-left: 2px dashed #e6f7ff; /* 树状结构的层级线 */
+  padding-left: 16px;
+  margin-top: 4px;
+}
+
+.loading {
+  font-size: 14px;
+  color: #1890ff;
+  padding: 8px 0;
+}
