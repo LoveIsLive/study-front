@@ -1,0 +1,96 @@
+/* src/pages/Course/components/CourseHomeworkView.module.css */
+
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* 移除原有的 1200px 限制和外边距，完全自适应父级内容区 */
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* 统一风格的头部设计 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #fffbdf; /* 柔和的暖色调，区分于讨论区的蓝色 */
+  color: #faad14; /* 匹配黄/橙色调 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.headerLeft h2 {
+  margin: 0 0 4px 0;
+  color: #262626;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.homeworkContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 覆盖 Dashboard 内部可能存在的顶层冗余边距 */
+.homeworkContent > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+.noAccess {
+  text-align: center;
+  padding: 40px;
+  color: #8c8c8c;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .headerLeft {
+    gap: 12px;
+  }
+  .iconWrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  .headerLeft h2 {
+    font-size: 18px;
+  }
+}

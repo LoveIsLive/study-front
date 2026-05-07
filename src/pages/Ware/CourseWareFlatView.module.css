@@ -1,6 +1,6 @@
+/* src/pages/Ware/CourseWareFlatView.module.css */
 .container {
-  padding: 20px;
-  background: #fff;
+  background: #ffffff;
   border-radius: 8px;
   min-height: 400px;
 }
@@ -13,34 +13,42 @@
 
 .nodeItem {
   margin: 4px 0;
+  border-radius: 8px;
 }
 
 .nodeContent {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  padding: 12px 16px;
   cursor: pointer;
   border-radius: 8px;
-  transition: background-color 0.2s ease;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
 }
 
 .nodeContent:hover {
-  background-color: #f0f7ff; /* 悬浮时淡淡的蓝色 */
+  background-color: #f8fbff;
+  border-color: #e6f3ff;
 }
 
-/* 圆形蓝色图标容器 */
+/* 更现代化的方形圆角图标 */
 .iconCircle {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background-color: #1890ff; /* 项目主题蓝 */
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
+  margin-right: 16px;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(24, 144, 255, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.nodeContent:hover .iconCircle {
+  transform: scale(1.05);
 }
 
 .nodeName {
@@ -50,22 +58,74 @@
   font-weight: 500;
 }
 
+/* 右侧箭头过渡旋转动画 */
 .arrow {
-  color: #888;
+  color: #bfbfbf;
   display: flex;
   align-items: center;
   margin-left: 8px;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+
+.arrowExpanded {
+  transform: rotate(90deg);
+  color: #1890ff;
+}
+
+/* ===== 核心动画包裹层 (Grid布局技巧) ===== */
+.childrenWrapper {
+  display: grid;
+  grid-template-rows: 0fr; /* 默认收起 */
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.childrenWrapper.expanded {
+  grid-template-rows: 1fr; /* 展开 */
+}
+
+/* 必须有一层 overflow: hidden 才能配合 grid 隐藏内容 */
+.childrenInner {
+  overflow: hidden;
 }
 
 .childrenContainer {
-  margin-left: 34px; /* 子节点缩进 */
-  border-left: 2px dashed #e6f7ff; /* 树状结构的层级线 */
+  margin-left: 34px;
+  border-left: 2px solid #f0f0f0;
   padding-left: 16px;
   margin-top: 4px;
+  margin-bottom: 8px;
 }
 
+/* 加载动画样式 */
 .loading {
   font-size: 14px;
   color: #1890ff;
-  padding: 8px 0;
+  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loadingMain {
+  font-size: 16px;
+  color: #1890ff;
+  padding: 24px;
+}
+
+.loading::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid #1890ff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

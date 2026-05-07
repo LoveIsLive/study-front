@@ -9,10 +9,11 @@ import {
   Navigate,
 } from "react-router-dom";
 import CourseWareFlatView from "../Ware/CourseWareFlatView";
-import HomeworkPage from "../Homework/HomeworkPage";
-import DiscussionPage from "../Discussion/DiscussionPage";
+import CourseHomeworkView from "./components/CourseHomeworkView";
+import CourseDiscussionView from "./components/CourseDiscussionView";
 import styles from "./CourseDetailPage.module.css";
 import useAuthStore from "../../store/authStore";
+import { getCourse } from "../../services/courseService"; // 引入获取课程API
 
 const CourseDetailPage = () => {
   const { courseId } = useParams();
@@ -21,16 +22,30 @@ const CourseDetailPage = () => {
   const setCurrentCourse = useAuthStore((state) => state.setCurrentCourse);
   const [courseInfo, setCourseInfo] = useState(null);
 
-  // 1. 同步全局 store (新标签页打开时，Zustand 的 store 可能是空的，需要重新注入)
+  // 1. 获取课程真实数据并同步全局 store
   useEffect(() => {
+    const fetchCourseData = async () => {
+      try {
+        const res = await getCourse(courseId);
+        // 根据 1.md 的接口文档，res格式通常为 { code: 200, message: "...", data: {...} }
+        if (res.code === 200) {
+          setCourseInfo({
+            title: res.data.name,
+            description: res.data.description || "当前课程没有描述",
+          });
+        }
+      } catch (error) {
+        console.error("获取课程详细信息失败:", error);
+        setCourseInfo({
+          title: "未知课程",
+          description: "当前课程没有描述",
+        });
+      }
+    };
+
     if (courseId) {
       setCurrentCourse(Number(courseId), { id: Number(courseId) });
-      // 此处替换为真实的 API 请求
-      setCourseInfo({
-        title: "课程详情展示",
-        description:
-          "这里是原模态框里的详细内容。保持原样展示在这里，可以介绍课程大纲、目标等。",
-      });
+      fetchCourseData();
     }
   }, [courseId, setCurrentCourse]);
 
@@ -46,8 +61,19 @@ const CourseDetailPage = () => {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.headerSection}>
-        <h1 className={styles.title}>{courseInfo.title}</h1>
-        <p className={styles.description}>{courseInfo.description}</p>
+        {/* 1. 课程名称：保持居中且带动感方块 */}
+        <div className={styles.titleWrapper}>
+          <h1 className={styles.title}>{courseInfo.title}</h1>
+        </div>
+
+        {/* 2. 淡灰色分隔线 */}
+        <div className={styles.divider}></div>
+
+        {/* 3. 课程描述区域：改为左对齐 */}
+        <div className={styles.descriptionSection}>
+          <h2 className={styles.descriptionHeader}>课程描述</h2>
+          <p className={styles.descriptionText}>{courseInfo.description}</p>
+        </div>
       </div>
 
       <div className={styles.tabsSection}>
@@ -74,14 +100,17 @@ const CourseDetailPage = () => {
       <div className={styles.contentSection}>
         {/* 3. 使用嵌套路由渲染子组件 */}
         <Routes>
-          <Route path="ware/*" element={<CourseWareFlatView courseId={courseId} />} />
+          <Route
+            path="ware/*"
+            element={<CourseWareFlatView courseId={courseId} />}
+          />
           <Route
             path="homework/*"
-            element={<HomeworkPage courseId={courseId} />}
+            element={<CourseHomeworkView courseId={courseId} />}
           />
           <Route
             path="discussion/*"
-            element={<DiscussionPage courseId={courseId} />}
+            element={<CourseDiscussionView courseId={courseId} />}
           />
           {/* 默认重定向到仓库 */}
           <Route path="*" element={<Navigate to="ware" replace />} />

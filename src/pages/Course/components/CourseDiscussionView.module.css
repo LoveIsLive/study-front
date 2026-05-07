@@ -1,0 +1,96 @@
+/* src/pages/Course/components/CourseDiscussionView.module.css */
+
+.viewContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* 添加柔和的淡入动画，使Tab切换体验更平滑 */
+  animation: fadeIn 0.4s ease-out;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #e6f7ff;
+  color: #1890ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.headerLeft h2 {
+  margin: 0 0 4px 0;
+  color: #262626;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+/* 包裹讨论版的容器，设置非常淡的背景色以突出内容区域 */
+.boardWrapper {
+  flex: 1;
+  background: #fafbfc;
+  border-radius: 10px;
+  padding: 24px;
+  border: 1px solid #f0f0f0;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #8c8c8c;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .boardWrapper {
+    padding: 16px;
+  }
+  .headerLeft {
+    gap: 12px;
+  }
+  .iconWrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  .headerLeft h2 {
+    font-size: 18px;
+  }
+}
