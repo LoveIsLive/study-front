@@ -1,16 +1,17 @@
-import { Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/Login/LoginPage';
-import HomePage from './pages/Home/HomePage';
-import HomeworkPage from './pages/Homework/HomeworkPage';
-import WarePage from './pages/Ware/WarePage';
-import CourseListPage from './pages/Course/CourseListPage';
-import ErrorPage from './pages/Error/ErrorPage';
-import MainLayout from './components/common/Layout/MainLayout';
-import PrivateRoute from './components/common/PrivateRoute/PrivateRoute';
-import OrganizationPage from './pages/Organization/OrganizationPage';
-import DiscussionPage from './pages/Discussion/DiscussionPage';
-import AnalysisPage from './pages/Analysis/AnalysisPage';
-import MindPage from './pages/Mind/MindPage';
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/Login/LoginPage";
+import HomePage from "./pages/Home/HomePage";
+import HomeworkPage from "./pages/Homework/HomeworkPage";
+import WarePage from "./pages/Ware/WarePage";
+import CourseListPage from "./pages/Course/CourseListPage";
+import ErrorPage from "./pages/Error/ErrorPage";
+import MainLayout from "./components/common/Layout/MainLayout";
+import PrivateRoute from "./components/common/PrivateRoute/PrivateRoute";
+import OrganizationPage from "./pages/Organization/OrganizationPage";
+import DiscussionPage from "./pages/Discussion/DiscussionPage";
+import AnalysisPage from "./pages/Analysis/AnalysisPage";
+import MindPage from "./pages/Mind/MindPage";
+import CourseDetailPage from "./pages/Course/CourseDetailPage";
 
 function App() {
   return (
@@ -23,11 +24,13 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/homework" element={<HomeworkPage />} />
           <Route path="/courses" element={<CourseListPage />} />
+          <Route path="/course/:courseId/*" element={<CourseDetailPage />} />
           <Route path="/ware/home/*" element={<WarePage />} />
           <Route path="/organization" element={<OrganizationPage />} />
           <Route path="/discussion" element={<DiscussionPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/mind" element={<MindPage />} />
+          {/* <Route path="/course/:courseId" element={<CourseDetailPage />} /> */}
         </Route>
       </Route>
 

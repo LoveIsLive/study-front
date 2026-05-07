@@ -27,7 +27,6 @@ import {
 } from "../../services/courseService";
 import { wareApi, discussionApi, courseApi } from "../../services/api";
 import styles from "./CourseListPage.module.css";
-import CourseDetailModal from "./components/CourseDetailModal";
 
 /**
  * 压缩图片到指定最大大小（单位：字节）
@@ -41,10 +40,10 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         let width = img.width;
         let height = img.height;
-        
+
         // 如果图片尺寸过大，先缩小尺寸
         const maxDimension = 2048; // 最大边长
         if (width > maxDimension || height > maxDimension) {
@@ -56,35 +55,44 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
             height = maxDimension;
           }
         }
-        
+
         // 根据文件类型选择输出格式
-        const mimeType = file.type || 'image/jpeg';
-        const isPng = mimeType === 'image/png';
-        const outputType = isPng ? 'image/png' : 'image/jpeg';
-        
+        const mimeType = file.type || "image/jpeg";
+        const isPng = mimeType === "image/png";
+        const outputType = isPng ? "image/png" : "image/jpeg";
+
         const compress = (targetWidth, targetHeight, quality) => {
           return new Promise((resolveBlob) => {
             canvas.width = targetWidth;
             canvas.height = targetHeight;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
             canvas.toBlob(
               (blob) => resolveBlob(blob),
               outputType,
-              isPng ? undefined : quality
+              isPng ? undefined : quality,
             );
           });
         };
-        
-        const tryCompress = async (currentWidth = width, currentHeight = height, quality = 0.9) => {
+
+        const tryCompress = async (
+          currentWidth = width,
+          currentHeight = height,
+          quality = 0.9,
+        ) => {
           const blob = await compress(currentWidth, currentHeight, quality);
-          if (blob.size <= maxSize || quality <= 0.1 || currentWidth <= 100 || currentHeight <= 100) {
+          if (
+            blob.size <= maxSize ||
+            quality <= 0.1 ||
+            currentWidth <= 100 ||
+            currentHeight <= 100
+          ) {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result);
             reader.readAsDataURL(blob);
             return;
           }
-          
+
           // 如果文件仍然太大，尝试降低质量（对于JPEG）或缩小尺寸
           if (!isPng && quality > 0.1) {
             // JPEG：降低质量
@@ -96,7 +104,7 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
             await tryCompress(newWidth, newHeight, quality);
           }
         };
-        
+
         tryCompress();
       };
       img.onerror = reject;
@@ -174,7 +182,7 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
     // 保存 File 对象用于上传，生成 base64 用于预览
     setCoverImageFile(file);
     setFormData({ ...formData, coverImage: file });
-    
+
     // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -341,7 +349,7 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
     // 文件小于等于1MB，允许上传
     // 保存 File 对象用于上传
     setFormData({ ...formData, coverImage: file });
-    
+
     // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -458,8 +466,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
   );
 };
 
-
-
 const CourseListPage = () => {
   const navigate = useNavigate();
   const {
@@ -472,8 +478,6 @@ const CourseListPage = () => {
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
-
-
   // 搜索和分页状态
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
@@ -482,7 +486,6 @@ const CourseListPage = () => {
   // 模态框状态
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
-  const [detailCourse, setDetailCourse] = useState(null);
 
   // 确保当前上下文是班级
   useEffect(() => {
@@ -522,17 +525,17 @@ const CourseListPage = () => {
 
   // 课程封面图片组件（通过axios获取图片）
   const CourseCoverImage = ({ coverImage, alt, className }) => {
-    const [imgSrc, setImgSrc] = useState('');
+    const [imgSrc, setImgSrc] = useState("");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
       if (!coverImage) {
-        setImgSrc('');
+        setImgSrc("");
         return;
       }
 
       // 如果已经是 data URL，直接使用
-      if (coverImage.startsWith('data:')) {
+      if (coverImage.startsWith("data:")) {
         setImgSrc(coverImage);
         return;
       }
@@ -545,9 +548,9 @@ const CourseListPage = () => {
         setLoading(true);
         try {
           // 使用 courseApi 获取图片，注意添加 responseType: 'blob'
-          const response = await courseApi.get('/getCoverImage', {
+          const response = await courseApi.get("/getCoverImage", {
             params: { path: coverImage },
-            responseType: 'blob'
+            responseType: "blob",
           });
           if (!active) return;
           const blob = response.data;
@@ -555,9 +558,9 @@ const CourseListPage = () => {
           currentBlobUrl.current = url;
           setImgSrc(url);
         } catch (error) {
-          console.error('获取封面图片失败:', error);
+          console.error("获取封面图片失败:", error);
           if (active) {
-            setImgSrc(''); // 显示默认占位符
+            setImgSrc(""); // 显示默认占位符
           }
         } finally {
           if (active) {
@@ -701,18 +704,22 @@ const CourseListPage = () => {
     }
   };
 
+  // 1. "选择"按钮：仅更新全局持久化状态
   const handleSelectCourse = (course) => {
     setCurrentCourse(course.id, course);
-    // Swal.fire({
-    //   icon: "success",
-    //   title: "已选择课程",
-    //   text: `已切换到课程 "${course.name}"`,
-    // });
-    // navigate(`/ware/home/${course.id}`); // 导航到该课程的仓库
+    // 可以加个简单的提示
+    Swal.fire({
+      icon: "success",
+      title: `已选中课程：${course.name}`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
   };
 
-  const handleShowCourseDetail = (course) => {
-    setDetailCourse(course);
+  // 2. "卡片"点击：打开新标签页浏览详情，不改变全局"选中"的课程
+  // 2. "卡片"点击：打开新标签页浏览详情，不改变全局"选中"的课程
+  const handleCourseCardClick = (courseId) => {
+    window.open(`/course/${courseId}`, "_blank");
   };
 
   const handlePageChange = (newPage) => {
@@ -789,7 +796,7 @@ const CourseListPage = () => {
                   <div
                     key={course.id}
                     className={`${styles.courseListItem} ${currentCourseId === course.id ? styles.selected : ""}`}
-                    onClick={() => handleShowCourseDetail(course)}
+                    onClick={() => handleCourseCardClick(course.id)}
                   >
                     <div className={styles.courseListItemContent}>
                       {/* 左侧：课程参考图 */}
@@ -845,7 +852,11 @@ const CourseListPage = () => {
                           className={styles.courseDescription}
                           data-full-text={course.description || "暂无描述"}
                         >
-                          {course.description ? (course.description.length > 30 ? course.description.substring(0, 30) + '...' : course.description) : "暂无描述"}
+                          {course.description
+                            ? course.description.length > 30
+                              ? course.description.substring(0, 30) + "..."
+                              : course.description
+                            : "暂无描述"}
                         </p>
 
                         {/* 第三行：教师、创建时间、修改时间 */}
@@ -923,13 +934,6 @@ const CourseListPage = () => {
           isOpen={!!editingCourse}
           onClose={() => setEditingCourse(null)}
           onSave={handleUpdateCourse}
-        />
-
-        {/* 课程详情模态框 */}
-        <CourseDetailModal
-          course={detailCourse}
-          isOpen={!!detailCourse}
-          onClose={() => setDetailCourse(null)}
         />
       </div>
     </div>

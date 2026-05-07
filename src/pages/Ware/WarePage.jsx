@@ -1,264 +1,306 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import useAuthStore from '../../store/authStore';
-import { wareApi } from '../../services/api';
-import { config } from '../../utils/config';
-import { buildNewPath } from '../../utils/helpers';
-import Breadcrumb from './components/Breadcrumb';
-import FileTable from './components/FileTable';
-import WareHeader from './components/WareHeader';
-import NewItemModal from './components/NewItemModal';
-import SearchResultsModal from './components/SearchResultsModal';
-import Spinner from '../../components/common/Spinner/Spinner';
-import styles from './WarePage.module.css';
-import Swal from 'sweetalert2';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import useAuthStore from "../../store/authStore";
+import { wareApi } from "../../services/api";
+import { buildNewPath } from "../../utils/helpers";
+import Breadcrumb from "./components/Breadcrumb";
+import FileTable from "./components/FileTable";
+import WareHeader from "./components/WareHeader";
+import NewItemModal from "./components/NewItemModal";
+import SearchResultsModal from "./components/SearchResultsModal";
+import Spinner from "../../components/common/Spinner/Spinner";
+import styles from "./WarePage.module.css";
+import Swal from "sweetalert2";
 
-const WarePage = () => {
-    const { token, user, currentCourseId } = useAuthStore();
-    const isAdmin = useAuthStore((state) => state.isAdmin());
-    const isTeacher = useAuthStore((state) => state.isTeacher());
-    const isPrincipal = useAuthStore((state) => state.isPrincipal());
+const WarePage = ({ courseId: propCourseId }) => {
+  const { token } = useAuthStore();
+  const storeCourseId = useAuthStore((state) => state.activeCourseId);
+  const isAdmin = useAuthStore((state) => state.isAdmin());
+  const isTeacher = useAuthStore((state) => state.isTeacher());
+  const isPrincipal = useAuthStore((state) => state.isPrincipal());
 
-    const [nodes, setNodes] = useState([]);
-    const [currentPath, setCurrentPath] = useState('/');
-    const [isLoading, setIsLoading] = useState(true);
+  const [nodes, setNodes] = useState([]);
+  const [currentPath, setCurrentPath] = useState("/");
+  const [isLoading, setIsLoading] = useState(true);
 
-    const [isNewItemModalOpen, setNewItemModalOpen] = useState(false);
-    const [isSearchModalOpen, setSearchModalOpen] = useState(false);
+  const [isNewItemModalOpen, setNewItemModalOpen] = useState(false);
+  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchStatus, setSearchStatus] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchStatus, setSearchStatus] = useState("");
 
-    const location = useLocation();
-    const navigate = useNavigate();
-    const stompClientRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const stompClientRef = useRef(null);
 
-    const fetchNodes = useCallback(async (path) => {
-        setIsLoading(true);
-        try {
-            if (!currentCourseId) {
-                // 没有选择课程，重定向到根目录或显示提示
-                Swal.fire({ icon: 'warning', title: '请先选择课程', text: '您需要先选择一个课程才能访问课程仓库' });
-                navigate('/');
-                return;
-            }
-            
-            // 路径参数使用相对路径（如 '/' 或 '/folder1'），apiClient 拦截器会自动添加课程ID前缀
-            const response = await wareApi.get('/get/dir', { params: { path } });
-            setNodes(response.data.data.fileObjectDescs || []);
-            setCurrentPath(path);
-        } catch (error) {
-            console.error('Failed to fetch nodes:', error);
-            Swal.fire({ icon: 'error', title: '加载失败', text: error.response?.data?.message || '可能路径不存在或无权限' });
-            navigate(`/ware/home/${currentCourseId || ''}`);
-        } finally {
-            setIsLoading(false);
+  // =========================================================================
+  // 1. 核心隔离引擎：解析当前 URL，提取 模式(mode)、课程ID(cid) 和 相对路径(relPath)
+  // =========================================================================
+  const routeInfo = useMemo(() => {
+    // 过滤掉空字符串，将路径切割成数组。例如：
+    // /ware/home/17/hello -> ['ware', 'home', '17', 'hello']
+    // /course/17/ware/hello -> ['course', '17', 'ware', 'hello']
+    const pathParts = decodeURIComponent(location.pathname)
+      .split("/")
+      .filter(Boolean);
+
+    let mode = "global"; // 默认为全局仓库模式
+    let cid = propCourseId || storeCourseId; // 兜底的 courseId
+    let relPath = "/"; // 发送给后端的相对查询路径
+
+    if (pathParts[0] === "course") {
+      // --- 模式A：在课程详情的新标签页中 ---
+      mode = "courseDetail";
+      cid = pathParts[1] || cid;
+
+      const wareIndex = pathParts.indexOf("ware");
+      if (wareIndex !== -1 && wareIndex < pathParts.length - 1) {
+        // 提取 'ware' 之后的所有路径作为内部相对路径
+        relPath = "/" + pathParts.slice(wareIndex + 1).join("/");
+      }
+    } else if (pathParts[0] === "ware" && pathParts[1] === "home") {
+      // --- 模式B：在全局左侧固定栏中 ---
+      mode = "global";
+      if (pathParts.length > 2) {
+        cid = pathParts[2];
+        if (pathParts.length > 3) {
+          // 提取 '17' 之后的所有路径作为内部相对路径
+          relPath = "/" + pathParts.slice(3).join("/");
         }
-    }, [navigate, currentCourseId]);
+      }
+    }
 
-    // --- 关键修正部分 ---
-    useEffect(() => {
-        // 解析URL路径，格式：/ware/home/{courseId}/{path?}
-        // 移除所有可能的 /ware/home 前缀，防止重复拼接
-        const pathWithoutPrefix = location.pathname.replace(/\/ware\/home/g, '') || '/';
-        console.log('[useEffect] location.pathname:', location.pathname, 'pathWithoutPrefix:', pathWithoutPrefix, 'currentCourseId:', currentCourseId);
-        
-        try {
-            let decodedPath = decodeURIComponent(pathWithoutPrefix);
-            console.log('[useEffect] decodedPath:', decodedPath);
-            
-            // 验证课程ID
-            if (!currentCourseId) {
-                // 没有选择课程，重定向到首页
-                Swal.fire({ icon: 'warning', title: '请先选择课程', text: '您需要先选择一个课程才能访问课程仓库' });
-                navigate('/');
-                return;
-            }
-            
-            const courseIdStr = String(currentCourseId);
-            // 如果路径以课程ID开头，移除课程ID部分，只保留子路径
-            if (decodedPath.startsWith(`/${courseIdStr}/`) || decodedPath === `/${courseIdStr}`) {
-                decodedPath = decodedPath.replace(`/${courseIdStr}`, '') || '/';
-                console.log('[useEffect] after removing courseId, decodedPath:', decodedPath);
-            } else if (decodedPath !== '/') {
-                // 路径不以当前课程ID开头，但也不是根目录，可能URL中的课程ID不匹配
-                // 重定向到正确的课程仓库根目录
-                console.log('[useEffect] path does not start with current courseId, redirecting to root');
-                navigate(`/ware/home/${currentCourseId}`);
-                return;
-            }
-            
-            // 使用解码后的路径获取数据（路径中不包含课程ID）
-            console.log('[useEffect] calling fetchNodes with:', decodedPath);
-            fetchNodes(decodedPath);
-        } catch (e) {
-            console.error("Failed to decode URI component:", pathWithoutPrefix, e);
-            // 如果解码失败（例如URL格式错误），则导航到课程仓库根目录
-            navigate(`/ware/home/${currentCourseId || ''}`);
+    return { mode, activeCourseId: cid, relPath };
+  }, [location.pathname, propCourseId, storeCourseId]);
+
+  const { mode, activeCourseId, relPath: currentRelativePath } = routeInfo;
+
+  // =========================================================================
+  // 2. 跳转隔离器：根据当前所处的 mode 组装绝对 URL，互不跨越
+  // =========================================================================
+  const navigateToFinalPath = useCallback(
+    (targetRelativePath) => {
+      // 规范化路径，去掉多余的斜杠
+      let normalizedPath = targetRelativePath.replace(/\/+/g, "/");
+      if (!normalizedPath.startsWith("/")) {
+        normalizedPath = "/" + normalizedPath;
+      }
+      if (normalizedPath.length > 1 && normalizedPath.endsWith("/")) {
+        normalizedPath = normalizedPath.slice(0, -1);
+      }
+
+      let targetUrl = "";
+      if (mode === "courseDetail") {
+        // 如果当前是新标签页详情，跳转依然锁定在 /course/... 下
+        targetUrl = `/course/${activeCourseId}/ware${normalizedPath === "/" ? "" : normalizedPath}`;
+      } else {
+        // 如果当前是左侧边栏，跳转依然锁定在 /ware/home/... 下
+        targetUrl = `/ware/home/${activeCourseId}${normalizedPath === "/" ? "" : normalizedPath}`;
+      }
+
+      navigate(targetUrl);
+    },
+    [mode, activeCourseId, navigate],
+  );
+
+  // =========================================================================
+  // 3. API 请求器：发送请求时，永远只发送干净的相对路径（符合您的第二点结构要求）
+  // =========================================================================
+  const fetchNodes = useCallback(
+    async (apiPath) => {
+      setIsLoading(true);
+      try {
+        if (!activeCourseId) {
+          Swal.fire({
+            icon: "warning",
+            title: "请先选择课程",
+            text: "您需要先选择一个课程才能访问课程仓库",
+          });
+          navigate("/");
+          return;
         }
 
-    }, [location.pathname, fetchNodes, navigate, currentCourseId]);
-
-    // WebSocket connection (使用Vite代理方案)
-    useEffect(() => {
-        const client = new Client({
-            webSocketFactory: () => new SockJS('/ws/search'),
-            connectHeaders: { Authorization: `Bearer ${token}` },
-            reconnectDelay: 5000,
-            onConnect: () => {
-                console.log('Connected to WebSocket');
-                client.subscribe('/user/queue/search-results', (message) => {
-                    const payload = message.body;
-                    if (payload === "SEARCH_COMPLETE") {
-                        setSearchStatus('搜索完成。'); return;
-                    }
-                    if (payload.startsWith("SEARCH_ERROR:")) {
-                        setSearchStatus(`搜索出错: ${payload}`); return;
-                    }
-                    const foundNode = JSON.parse(payload);
-                    setSearchResults(prev => [...prev, foundNode]);
-                });
-            },
-            onStompError: (frame) => console.error('STOMP Error:', frame),
+        // apiPath 永远是类似 "/" 或 "/hello" 或 "/hello/test" 的相对路径
+        const response = await wareApi.get("/get/dir", {
+          params: { path: apiPath },
         });
+        setNodes(response.data.data.fileObjectDescs || []);
+        setCurrentPath(apiPath);
+      } catch (error) {
+        console.error("Failed to fetch nodes:", error);
+        Swal.fire({
+          icon: "error",
+          title: "加载失败",
+          text: error.response?.data?.message || "可能路径不存在或无权限",
+        });
+        // 报错时，退回当前模式下的根目录，不越界
+        if (mode === "courseDetail") {
+          navigate(`/course/${activeCourseId}/ware`);
+        } else {
+          navigate(`/ware/home/${activeCourseId}`);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeCourseId, navigate, mode],
+  );
 
-        client.activate();
-        stompClientRef.current = client;
+  // 监听 URL 变化并触发数据获取
+  useEffect(() => {
+    const decodedPath = decodeURIComponent(location.pathname);
 
-        return () => {
-            if (stompClientRef.current) {
-                stompClientRef.current.deactivate();
-            }
-        };
-    }, [token]);
+    if (!activeCourseId) {
+      Swal.fire({
+        icon: "warning",
+        title: "请先选择课程",
+        text: "您需要先选择一个课程才能访问课程仓库",
+      });
+      navigate("/");
+      return;
+    }
 
-    const handleSearch = (query) => {
-        if (query.length < 1) {
-            Swal.fire({ icon: 'warning', title: '请输入搜索内容' });
+    // 在全局模式下，如果用户只点击了 /ware/home（未带ID），帮他带上当前的课程ID重定向
+    if (decodedPath === "/ware/home" || decodedPath === "/ware/home/") {
+      navigate(`/ware/home/${activeCourseId}`);
+      return;
+    }
+
+    // 根据从 URL 拆解出来的干净内部路径发起查询
+    fetchNodes(currentRelativePath);
+  }, [
+    location.pathname,
+    activeCourseId,
+    currentRelativePath,
+    fetchNodes,
+    navigate,
+  ]);
+
+  // =========================================================================
+  // 4. WebSocket及杂项
+  // =========================================================================
+  useEffect(() => {
+    const client = new Client({
+      webSocketFactory: () => new SockJS("/ws/search"),
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 5000,
+      onConnect: () => {
+        client.subscribe("/user/queue/search-results", (message) => {
+          const payload = message.body;
+          if (payload === "SEARCH_COMPLETE") {
+            setSearchStatus("搜索完成。");
             return;
-        }
-        const { activeId, activeType } = useAuthStore.getState();
+          }
+          if (payload.startsWith("SEARCH_ERROR:")) {
+            setSearchStatus(`搜索出错: ${payload}`);
+            return;
+          }
+          const foundNode = JSON.parse(payload);
+          setSearchResults((prev) => [...prev, foundNode]);
+        });
+      },
+      onStompError: (frame) => console.error("STOMP Error:", frame),
+    });
 
-        setSearchResults([]);
-        setSearchStatus('正在搜索...');
-        setSearchModalOpen(true);
+    client.activate();
+    stompClientRef.current = client;
 
-        if (stompClientRef.current?.connected) {
-            // 构建包含课程ID的搜索路径
-            let searchPath = '/';
-            if (currentCourseId) {
-                searchPath = `/${currentCourseId}`;
-            }
-            stompClientRef.current.publish({
-                destination: '/app/ware/search',
-                body: JSON.stringify({
-                    path: searchPath,
-                    namePattern: query,
-                    activeClassId: activeType === 'class' ? activeId : null,
-                    activeSchoolId: activeType === 'school' ? activeId : null
-                })
-            });
-        } else {
-            setSearchStatus('WebSocket 未连接，无法搜索。');
-            console.error('STOMP client is not connected.');
-        }
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
+      }
     };
+  }, [token]);
 
-    // 这个函数现在只负责导航，不再处理路径拼接逻辑
-    const navigateToFinalPath = (finalPath) => {
-        console.log('[navigateToFinalPath] finalPath:', finalPath, 'currentCourseId:', currentCourseId);
-        
-        // 1. 移除任何可能的 /ware/home 前缀（防止重复拼接）
-        let processedPath = finalPath;
-        if (processedPath.includes('/ware/home')) {
-            processedPath = processedPath.replace(/\/ware\/home/g, '');
-            console.log('[navigateToFinalPath] removed /ware/home prefix, processedPath:', processedPath);
-        }
-        
-        // 2. 简单的路径规范化，防止出现 "//"
-        const normalizedPath = processedPath.replace(/\/+/g, '/');
+  const handleSearch = (query) => {
+    if (query.length < 1) {
+      Swal.fire({ icon: "warning", title: "请输入搜索内容" });
+      return;
+    }
+    const { activeId, activeType } = useAuthStore.getState();
 
-        // 3. 如果结果只是一个单独的'/'，确保我们导航到根目录
-        // 并且移除末尾的斜杠，除非是根目录
-        const cleanPath = normalizedPath.length > 1 && normalizedPath.endsWith('/')
-            ? normalizedPath.slice(0, -1)
-            : normalizedPath;
-        console.log('[navigateToFinalPath] cleanPath:', cleanPath);
+    setSearchResults([]);
+    setSearchStatus("正在搜索...");
+    setSearchModalOpen(true);
 
-        // 4. 构建包含课程ID的完整URL路径
-        let fullPath;
-        if (currentCourseId) {
-            const courseIdStr = String(currentCourseId);
-            // 检查路径是否已经以课程ID开头
-            if (cleanPath.startsWith(`/${courseIdStr}/`) || cleanPath === `/${courseIdStr}`) {
-                // 路径已经包含课程ID，直接使用
-                fullPath = cleanPath;
-                console.log('[navigateToFinalPath] path already contains courseId, using:', fullPath);
-            } else if (cleanPath === '/') {
-                fullPath = `/${courseIdStr}`;
-                console.log('[navigateToFinalPath] root path, using:', fullPath);
-            } else {
-                fullPath = `/${courseIdStr}${cleanPath.startsWith('/') ? cleanPath : '/' + cleanPath}`;
-                console.log('[navigateToFinalPath] added courseId prefix, using:', fullPath);
-            }
-        } else {
-            fullPath = cleanPath;
-            console.log('[navigateToFinalPath] no currentCourseId, using:', fullPath);
-        }
-        
-        const targetUrl = `/ware/home${fullPath || '/'}`;
-        console.log('[navigateToFinalPath] navigating to:', targetUrl);
-        navigate(targetUrl);
-    };
+    if (stompClientRef.current?.connected) {
+      let searchPath = "/";
+      if (activeCourseId) {
+        searchPath = `/${activeCourseId}`;
+      }
+      stompClientRef.current.publish({
+        destination: "/app/ware/search",
+        body: JSON.stringify({
+          path: searchPath,
+          namePattern: query,
+          activeClassId: activeType === "class" ? activeId : null,
+          activeSchoolId: activeType === "school" ? activeId : null,
+        }),
+      });
+    } else {
+      setSearchStatus("WebSocket 未连接，无法搜索。");
+      console.error("STOMP client is not connected.");
+    }
+  };
 
-    // 这个函数来自 WareHeader，现在它包含了正确的“cd命令”逻辑
-    const handlePathInputChange = (userInput) => {
-        let targetPath;
+  const handlePathInputChange = (userInput) => {
+    let targetPath;
+    if (userInput.startsWith("/")) {
+      targetPath = userInput;
+    } else {
+      targetPath = buildNewPath(currentRelativePath, userInput);
+    }
+    navigateToFinalPath(targetPath);
+  };
 
-        // --- 核心逻辑：完全复现原生JS代码 ---
-        // 1. 判断输入是绝对路径还是相对路径
-        if (userInput.startsWith('/')) {
-            // 如果是绝对路径，直接使用
-            targetPath = userInput;
-        } else {
-            // 如果是相对路径，使用 buildNewPath 进行拼接
-            targetPath = buildNewPath(currentPath, userInput);
-        }
+  return (
+    <div className={styles.fileManager}>
+      <WareHeader
+        onNew={() => setNewItemModalOpen(true)}
+        onSearch={handleSearch}
+        onPathChange={handlePathInputChange}
+        isTeacher={isTeacher || isAdmin || isPrincipal}
+      />
+      <Breadcrumb
+        currentPath={currentPath}
+        navigate={(path) => navigateToFinalPath(path)}
+      />
 
-        // 2. 调用导航函数
-        navigateToFinalPath(targetPath);
-    };
+      <main className={styles.fileManagerMain}>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <FileTable
+            nodes={nodes}
+            currentPath={currentPath}
+            refresh={() => fetchNodes(currentPath)}
+            onNavigate={(path) => navigateToFinalPath(path)}
+          />
+        )}
+      </main>
 
-    return (
-        <div className={styles.fileManager}>
-            <WareHeader
-                onNew={() => setNewItemModalOpen(true)}
-                onSearch={handleSearch}
-                onPathChange={handlePathInputChange}
-                isTeacher={isTeacher || isAdmin || isPrincipal}
-            />
-            <Breadcrumb currentPath={currentPath} navigate={(path) => navigateToFinalPath(path)} />
-
-            <main className={styles.fileManagerMain}>
-                {isLoading ? <Spinner /> : <FileTable nodes={nodes} currentPath={currentPath} refresh={() => fetchNodes(currentPath)} onNavigate={(path) => navigateToFinalPath(path)} />}
-            </main>
-
-            <NewItemModal
-                isOpen={isNewItemModalOpen}
-                onClose={() => setNewItemModalOpen(false)}
-                currentPath={currentPath}
-                onSuccess={() => fetchNodes(currentPath)}
-            />
-            <SearchResultsModal
-                isOpen={isSearchModalOpen}
-                onClose={() => setSearchModalOpen(false)}
-                results={searchResults}
-                status={searchStatus}
-            />
-        </div>
-    );
+      <NewItemModal
+        isOpen={isNewItemModalOpen}
+        onClose={() => setNewItemModalOpen(false)}
+        currentPath={currentPath}
+        onSuccess={() => fetchNodes(currentPath)}
+      />
+      <SearchResultsModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        results={searchResults}
+        status={searchStatus}
+      />
+    </div>
+  );
 };
 
 export default WarePage;

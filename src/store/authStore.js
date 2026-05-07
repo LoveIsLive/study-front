@@ -1,9 +1,12 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 import { config } from "../utils/config";
 import { userApi, courseApi } from "../services/api";
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create(
+  persist(
+    (set, get) => ({
   token: localStorage.getItem(config.tokenName),
   user: null,
   detailInfo: null,
@@ -13,7 +16,7 @@ const useAuthStore = create((set, get) => ({
   activeId: localStorage.getItem("activeId"),
 
   // 课程上下文
-  currentCourseId: localStorage.getItem("currentCourseId"),
+  currentCourseId: null,
   currentCourse: null,
   courseList: [],
   courseListFetched: false,
@@ -112,8 +115,12 @@ const useAuthStore = create((set, get) => ({
     localStorage.setItem("activeId", id);
     set({ activeType: type, activeId: id });
     // 切换上下文时清空课程选择
-    localStorage.removeItem("currentCourseId");
-    set({ currentCourseId: null, currentCourse: null, courseList: [], courseListFetched: false });
+    set({
+      currentCourseId: null,
+      currentCourse: null,
+      courseList: [],
+      courseListFetched: false,
+    });
   },
 
   switchContext: (type, id) => {
@@ -124,12 +131,10 @@ const useAuthStore = create((set, get) => ({
 
   // 课程相关方法
   setCurrentCourse: (courseId, course = null) => {
-    localStorage.setItem("currentCourseId", courseId);
     set({ currentCourseId: courseId, currentCourse: course });
   },
 
   clearCurrentCourse: () => {
-    localStorage.removeItem("currentCourseId");
     set({ currentCourseId: null, currentCourse: null });
   },
 
@@ -139,7 +144,10 @@ const useAuthStore = create((set, get) => ({
     if (courses.length > 0) {
       const { currentCourseId } = get();
       // 如果当前没有选择课程，或者当前选择的课程不在新的课程列表中，选择第一门课程
-      if (!currentCourseId || !courses.some(course => course.id === currentCourseId)) {
+      if (
+        !currentCourseId ||
+        !courses.some((course) => course.id === currentCourseId)
+      ) {
         const firstCourse = courses[0];
         get().setCurrentCourse(firstCourse.id, firstCourse);
       }
@@ -149,7 +157,7 @@ const useAuthStore = create((set, get) => ({
   fetchCourseList: async (force = false) => {
     const { activeId, activeType, courseListFetched } = get();
     // 只有在班级上下文才能获取课程列表
-    if (activeType !== 'class' || !activeId) {
+    if (activeType !== "class" || !activeId) {
       set({ courseList: [] });
       return;
     }
@@ -164,7 +172,7 @@ const useAuthStore = create((set, get) => ({
       const courses = response.data.data || [];
       get().setCourseList(courses);
     } catch (error) {
-      console.error('Failed to fetch course list:', error);
+      console.error("Failed to fetch course list:", error);
       set({ courseList: [], courseListFetched: false });
     }
   },
@@ -178,19 +186,27 @@ const useAuthStore = create((set, get) => ({
 
   logout: () => {
     localStorage.clear();
-    set({ 
-      token: null, 
-      user: null, 
-      detailInfo: null, 
+    set({
+      token: null,
+      user: null,
+      detailInfo: null,
       activeId: null,
       currentCourseId: null,
       currentCourse: null,
       courseList: [],
-      courseListFetched: false
+      courseListFetched: false,
     });
     window.location.href = "/auth";
   },
-}));
+}),
+  {
+    name: "auth-storage",
+    partialize: (state) => ({
+      currentCourseId: state.currentCourseId,
+      currentCourse: state.currentCourse,
+    }),
+  }
+));
 
 /**
  * 【重点】自初始化逻辑

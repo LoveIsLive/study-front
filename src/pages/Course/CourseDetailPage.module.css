@@ -1,0 +1,64 @@
+.detailContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.headerSection {
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.description {
+  color: #666;
+  line-height: 1.6;
+}
+
+.tabsSection {
+  display: flex;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 24px;
+}
+
+.tabButton {
+  padding: 12px 24px;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.tabButton:hover {
+  color: #1890ff; /* 你的主题色 */
+}
+
+.tabButton.active {
+  color: #1890ff;
+  font-weight: bold;
+}
+
+.tabButton.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #1890ff;
+}
+
+.contentSection {
+  background: #fff;
+  min-height: 500px;
+}

@@ -202,14 +202,14 @@ const Header = () => {
             )}
 
             {/* 当前课程显示 - 只在班级上下文中显示 */}
-            {activeType === 'class' && (
+            {/* {activeType === 'class' && (
               <div className={styles.courseDisplay}>
                 <FontAwesomeIcon icon={faBookOpen} className={styles.courseIcon} fixedWidth />
                 <span className={styles.courseName}>
                   {currentCourse ? currentCourse.name : '当前没有课程'}
                 </span>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className={styles.headerRight} ref={dropdownRef}>
@@ -313,7 +313,7 @@ const Header = () => {
           {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
           {activeType === 'class' && currentCourseId ? (
             <NavLink
-              to={`/ware/home/${currentCourseId}`}
+              to={`/course/${currentCourseId}/ware`}
               className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
             >
               <FontAwesomeIcon icon={faBook} fixedWidth />
