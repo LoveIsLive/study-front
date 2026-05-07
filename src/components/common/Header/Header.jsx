@@ -313,7 +313,7 @@ const Header = () => {
           {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
           {activeType === 'class' && currentCourseId ? (
             <NavLink
-              to={`/course/${currentCourseId}/ware`}
+              to={`/ware/home/${currentCourseId}`}
               className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
             >
               <FontAwesomeIcon icon={faBook} fixedWidth />
