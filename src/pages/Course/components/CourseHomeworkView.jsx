@@ -5,10 +5,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen } from "@fortawesome/free-solid-svg-icons";
 
 // 引入原 HomeworkPage 使用的所有内部组件 (注意相对路径的层级)
-import TeacherDashboard from "../../Homework/components/TeacherDashboard";
+import CourseTeacherDashboard from "./CourseTeacherDashboard";
 import StudentDashboard from "../../Homework/components/StudentDashboard";
 import AdminDashboard from "../../Homework/components/AdminDashboard";
-import HomeworkEditorPage from "../../Homework/components/HomeworkEditorPage";
+// import HomeworkEditorPage from "../../Homework/components/HomeworkEditorPage";
+import CourseHomeworkEditor from "./CourseHomeworkEditor";
 import DiscussionDrawer from "../../Homework/components/DiscussionDrawer";
 import SubmissionDetailView from "../../Homework/components/SubmissionDetailView";
 import SubmissionList from "../../Homework/components/SubmissionList";
@@ -103,7 +104,7 @@ const CourseHomeworkView = ({ courseId }) => {
 
     if (view.name === "create") {
       return (
-        <HomeworkEditorPage
+        <CourseHomeworkEditor
           onBack={() => (window.location.hash = "#/")}
           editingHomework={editingHomework}
           onSuccess={handleEditorSuccess}
@@ -146,11 +147,11 @@ const CourseHomeworkView = ({ courseId }) => {
         />
       );
     }
+    // 修改这里：使用全新的专属组件
     if (isTeacher) {
       return (
-        <TeacherDashboard
-          context="course"
-          contextId={courseId}
+        <CourseTeacherDashboard
+          courseId={courseId}
           view={view}
           navigateTo={navigateTo}
           onOpenCreateModal={handleOpenCreate}

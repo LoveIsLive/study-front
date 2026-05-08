@@ -1,0 +1,98 @@
+/* src/pages/Course/components/CourseTeacherDashboard.module.css */
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filterIcon {
+  color: #bfbfbf;
+  font-size: 14px;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  outline: none;
+  font-size: 14px;
+  color: #595959;
+  transition: all 0.3s;
+  background-color: #fff;
+}
+
+.dateInput:focus,
+.dateInput:hover {
+  border-color: #faad14;
+  box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.15);
+}
+
+.publishBtn {
+  background: #faad14; /* 匹配 CourseHomeworkView 的橙黄色调 */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background 0.3s,
+    transform 0.1s;
+  box-shadow: 0 4px 10px rgba(250, 173, 20, 0.2);
+}
+
+.publishBtn:hover {
+  background: #e59a13;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(250, 173, 20, 0.3);
+}
+
+.publishBtn:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .publishBtn {
+    justify-content: center;
+  }
+}

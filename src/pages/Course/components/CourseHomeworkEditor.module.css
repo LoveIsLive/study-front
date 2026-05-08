@@ -1,0 +1,311 @@
+/* src/pages/Course/components/CourseHomeworkEditor.module.css */
+
+/* --- 1. 核心修复：移除 fixed 绝对定位，改为内嵌式铺满容器 --- */
+.editorPage {
+  position: relative;
+  width: 100%;
+  /* 强制作业编辑器在父容器中占满所有可用高度 */
+  height: calc(100vh - 180px); /* 给头部和边框留出一点呼吸空间，可自行微调 */
+  min-height: 600px;
+  background-color: #f4f6f8;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* --- 2. 顶部操作栏 --- */
+.topBar {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e6eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px; /* 适当缩小边距防挤压 */
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.barLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+.barRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  flex: 1;
+}
+
+.backBtn {
+  border: 1px solid #f2f3f5;
+  background: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #4e5969;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.backBtn:hover {
+  border-color: #c9cdd4;
+  background: #f7f8fa;
+  color: #1d2129;
+}
+.saveStatus {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.modeSwitcher {
+  background: #f2f3f5;
+  padding: 3px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.modeBtn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #8c8c8c;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* 匹配 CourseHomeworkView 的黄色主题 */
+.modeBtn.active {
+  background: #ffffff;
+  color: #faad14;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.dividerVertical {
+  width: 1px;
+  height: 20px;
+  background: #e5e6eb;
+}
+
+/* 发布按钮主题色变更为温暖的橙黄 */
+.publishBtn {
+  background: #faad14;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2);
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
+}
+.publishBtn:hover {
+  transform: translateY(-1px);
+  background: #e59a13;
+  box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
+}
+
+/* --- 3. 工作区容器 --- */
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden; /* 外部不滚，内部滚 */
+  position: relative;
+}
+
+/* --- 4. 修复：左侧滚动区 --- */
+.editorArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 16px 100px; /* 减小留白，防止视口太窄时挤压严重 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scroll-behavior: smooth;
+}
+
+/* --- 5. 修复：编辑器白纸 --- */
+.paper {
+  position: relative;
+  width: 100%;
+  max-width: 800px; /* 控制最大宽度，避免太宽 */
+  min-width: 320px; /* 降低最小宽度要求，防挤压溢出 */
+  background: #ffffff;
+  height: auto;
+  flex-shrink: 0;
+  min-height: 600px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9e9e9;
+  border-radius: 8px;
+  padding: 40px 40px 60px; /* 缩小了左右 padding，兼容内嵌模式 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition:
+    padding 0.3s ease,
+    max-width 0.3s ease;
+}
+
+/* AI面板打开时进一步自适应 */
+.workspace.hasPanel .paper {
+  padding: 30px 24px 50px;
+  max-width: 700px;
+}
+
+/* --- 内部表单组件 --- */
+.titleInput {
+  font-size: 28px;
+  font-weight: 700;
+  border: none;
+  outline: none;
+  width: 100%;
+  color: #262626;
+  padding: 8px 0;
+  background: transparent;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  border-bottom: 2px solid transparent;
+}
+.titleInput:focus {
+  border-bottom-color: #faad14;
+}
+.titleInput::placeholder {
+  color: #c9cdd4;
+}
+
+.metaLine {
+  height: 1px;
+  background: #f2f3f5;
+  margin: 8px 0 24px;
+}
+.builderWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.simpleEditor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.contentInput {
+  width: 100%;
+  flex: 1;
+  min-height: 400px;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #262626;
+  resize: none;
+  outline: none;
+  background: transparent;
+}
+
+.noteSection {
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: #fffbe6; /* 统一黄色系提示框 */
+  border-radius: 8px;
+  border: 1px solid #ffe58f;
+}
+.noteSection:focus-within {
+  background: #fff;
+  border-color: #faad14;
+}
+.noteSection label {
+  display: block;
+  font-size: 12px;
+  color: #d48806;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.noteInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  color: #595959;
+}
+
+.attachmentSection {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px dashed #e5e6eb;
+}
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #595959;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.existingFiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.fileChip {
+  background: #fff;
+  border: 1px solid #e5e6eb;
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #262626;
+}
+.fileName {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachmentSection :global(.dragDropArea) {
+  border: 1px dashed #ffe58f !important;
+  background: #fffbe6 !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
