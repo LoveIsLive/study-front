@@ -7,42 +7,55 @@ const createApiClient = (baseURL) => {
   const apiClient = axios.create({
     baseURL: `${config.back_base_url}${baseURL}`,
     // 防止 Axios 对 FormData 进行不必要的处理
-    transformRequest: [(data, headers) => {
-      // 对于 FormData，让浏览器处理 Content-Type
-      if (data instanceof FormData) {
-        console.log('[apiClient] transformRequest: FormData detected');
-        // 彻底删除 Content-Type 头部，让浏览器自动设置
-        if (headers) {
-          // 处理 AxiosHeaders 对象
-          if (typeof headers.delete === 'function') {
-            headers.delete('Content-Type');
-            headers.delete('content-type');
-          }
-          // 处理普通对象
-          const contentTypeKeys = Object.keys(headers).filter(
-            key => key.toLowerCase() === 'content-type'
+    transformRequest: [
+      (data, headers) => {
+        // 1. 处理 FormData：彻底排除，不进行任何字符串化
+        if (data instanceof FormData) {
+          console.log(
+            "[apiClient] transformRequest: FormData detected, skipping stringify",
           );
-          contentTypeKeys.forEach(key => {
-            delete headers[key];
-          });
+
+          // 删除所有可能的 Content-Type 头部，让浏览器自动处理 boundary
+          if (headers) {
+            const deleteHeader = (h) => {
+              if (typeof h.delete === "function") {
+                h.delete("Content-Type");
+                h.delete("content-type");
+              } else {
+                Object.keys(h).forEach((key) => {
+                  if (key.toLowerCase() === "content-type") delete h[key];
+                });
+              }
+            };
+            deleteHeader(headers);
+          }
+          return data; // 直接返回原生的 FormData 对象
         }
-      }
-      if (data && typeof data === 'object') {
-          // 确保请求头声明为 JSON 格式
-          if (headers && typeof headers.set === 'function') {
-              headers.set('Content-Type', 'application/json');
-          } else if (headers) {
-              headers['Content-Type'] = 'application/json';
+
+        // 2. 处理普通 JSON 对象：增加排除条件 !(data instanceof FormData)
+        if (data && typeof data === "object" && !(data instanceof FormData)) {
+          if (headers) {
+            if (typeof headers.set === "function") {
+              headers.set("Content-Type", "application/json");
+            } else {
+              headers["Content-Type"] = "application/json";
+            }
           }
           return JSON.stringify(data);
-      }
-      return data;
-    }],
+        }
+
+        return data;
+      },
+    ],
   });
 
   apiClient.interceptors.request.use(
     (axiosConfig) => {
-      console.log('[apiClient] Request interceptor:', axiosConfig.method, axiosConfig.url);
+      console.log(
+        "[apiClient] Request interceptor:",
+        axiosConfig.method,
+        axiosConfig.url,
+      );
       const state = useAuthStore.getState();
       if (state.token) {
         axiosConfig.headers.Authorization = `Bearer ${state.token}`;
@@ -198,29 +211,9 @@ const createApiClient = (baseURL) => {
 
       // return axiosConfig;
       if (axiosConfig.data instanceof FormData) {
-        console.log("[apiClient] Detected FormData, setting Content-Type without charset");
-
-        if (axiosConfig.headers) {
-          // 先删除任何现有的 Content-Type 头部
-          if (typeof axiosConfig.headers.delete === "function") {
-            axiosConfig.headers.delete("Content-Type");
-            axiosConfig.headers.delete("content-type");
-          }
-          
-          // 删除普通对象中的 Content-Type
-          const keysToDelete = Object.keys(axiosConfig.headers).filter(
-            (key) => key.toLowerCase() === "content-type",
-          );
-          keysToDelete.forEach((key) => {
-            delete axiosConfig.headers[key];
-          });
-          
-          // 设置 Content-Type 为 false，让浏览器自动设置，避免 charset 问题
-          axiosConfig.headers["Content-Type"] = false;
-          console.log("[apiClient] Set Content-Type to false, letting browser set it");
-        }
+        // 这里设置为 false 是 Axios 的一种技巧，告知它不要手动设置任何 Content-Type
+        axiosConfig.headers["Content-Type"] = false;
       }
-
       return axiosConfig;
     },
     (error) => Promise.reject(error),

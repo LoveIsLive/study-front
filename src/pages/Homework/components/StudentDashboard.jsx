@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { homeworkApi, submissionApi } from '../../../services/api';
 import useAuthStore from '../../../store/authStore'; // 【新增引入】
 import HomeworkList from './HomeworkList';
@@ -9,38 +9,59 @@ import Spinner from '../../../components/common/Spinner/Spinner';
 import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
 
-const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
+const StudentDashboard = ({ context = 'class', contextId = null, view, navigateTo, onOpenDiscussion }) => {
     // 【新增】判断用户是否为访客
     const isGuest = useAuthStore((state) => state.isGuest());
 
     const [activeTab, setActiveTab] = useState('all-homework');
-    const [homeworks, setHomeworks] = useState([]);
-    const [submissions, setSubmissions] = useState([]);
+    // 原始数据
+    const [rawHomeworks, setRawHomeworks] = useState([]);
+    const [rawSubmissions, setRawSubmissions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSubmission, setEditingSubmission] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [filters, setFilters] = useState({
+        status: '', // 对应 HomeworkSubmissionStatusEnum
+        courseId: context === 'course' ? contextId : '',
+        scoreRange: ''
+    });
+    const { courseList } = useAuthStore();
 
+    // 加载作业列表（一次性）
     const fetchAllHomeworks = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await homeworkApi.get('/student/all');
-            setHomeworks(response.data.data || []);
+            let response;
+            if (context === 'course' && contextId) {
+                response = await homeworkApi.get(`/course/${contextId}`);
+            } else if (context === 'class' && contextId) {
+                response = await homeworkApi.get(`/class/${contextId}`);
+            } else {
+                // 回退到全局查询（例如学生所有作业）
+                response = await homeworkApi.get('/student/all');
+            }
+            setRawHomeworks(response.data.data || []);
         } catch (error) {
             Swal.fire({ icon: 'error', title: '加载作业列表失败' });
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [context, contextId]);
 
-    const fetchMySubmissions = useCallback(async () => {
+    // 加载提交记录（一次性）
+    const loadSubmissions = useCallback(async () => {
         // 【修改】拦截：如果角色是访客，不请求 submission 接口以防报错
         if (isGuest) return;
 
         setIsLoading(true);
         try {
-            const response = await submissionApi.get('/student/all');
-            setSubmissions(response.data.data || []);
+            const res = await submissionApi.get('/student/all');
+            if (res.data.code === 200) {
+                setRawSubmissions(res.data.data || []);
+            } else {
+                Swal.fire({ icon: "error", title: "加载我的提交失败" });
+            }
         } catch (error) {
             Swal.fire({ icon: "error", title: "加载我的提交失败" });
         } finally {
@@ -54,10 +75,30 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                 fetchAllHomeworks();
             } else if (!isGuest) {
                 // 【修改】仅非访客时允许触发拉取
-                fetchMySubmissions();
+                loadSubmissions();
             }
         }
-    }, [view, activeTab, fetchAllHomeworks, fetchMySubmissions, isGuest]);
+    }, [view, activeTab, fetchAllHomeworks, loadSubmissions, isGuest, refreshTrigger]);
+
+    // 前端即时筛选 - 作业列表
+    const filteredHomeworks = useMemo(() => {
+        return rawHomeworks.filter(item => {
+            // 课程筛选（如果需要在作业列表也筛选课程）
+            const matchCourse = !filters.courseId || String(item.courseId) === String(filters.courseId);
+            return matchCourse;
+        });
+    }, [rawHomeworks, filters.courseId]);
+
+    // 前端即时筛选 - 提交记录
+    const filteredSubmissions = useMemo(() => {
+        return rawSubmissions.filter(sub => {
+            const matchStatus = !filters.status || sub.status === filters.status;
+            const matchCourse = !filters.courseId || String(sub.courseId) === String(filters.courseId);
+            // 分数范围筛选（简单文本匹配）
+            const matchScore = !filters.scoreRange || String(sub.score || '').includes(filters.scoreRange);
+            return matchStatus && matchCourse && matchScore;
+        });
+    }, [rawSubmissions, filters]);
 
     const handleOpenEditModal = (submission) => {
         setEditingSubmission(submission);
@@ -76,7 +117,7 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
             setRefreshTrigger(t => t + 1); // 递增触发器
         } else {
             // 如果是在列表页（例如将来可能在列表页直接修改），则刷新列表
-            fetchMySubmissions();
+            loadSubmissions();
         }
     };
 
@@ -105,7 +146,7 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                     >
                         所有作业
                     </button>
-                    {/* 【修改】对于访客，隐藏“我的提交”选项卡 */}
+                    {/* 【修改】对于访客，隐藏"我的提交"选项卡 */}
                     {!isGuest && (
                         <button
                             className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
@@ -117,7 +158,7 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                 </div>
                 {activeTab === 'all-homework' && (
                     <HomeworkList
-                        homeworks={homeworks}
+                        homeworks={filteredHomeworks}
                         // 关键：学生点击作业，进入 homeworkDetail 模式，ID 为 homework.id
                         onSelectHomework={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
                         onOpenDiscussion={onOpenDiscussion}
@@ -125,14 +166,47 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                 )}
                 {/* 访客由于无法切换到这个tab，所以这个块对于他们不渲染 */}
                 {activeTab === 'my-submissions' && !isGuest && (
-                    <SubmissionList
-                        submissions={submissions}
-                        isStudentView={true}
-                        onEditSubmission={handleOpenEditModal}
-                        onOpenDiscussion={onOpenDiscussion}
-                        // 关键：学生查看我的提交详情，本质也是看作业详情页，ID 为 homeworkId
-                        onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
-                    />
+                    <>
+                        <div className="student-filters" style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <select 
+                                value={filters.status} 
+                                onChange={e => setFilters({...filters, status: e.target.value})}
+                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                            >
+                                <option value="">作业状态</option>
+                                <option value="SUBMITTED">已提交</option>
+                                <option value="GRADED">已批改</option>
+                            </select>
+                            {/* 其他筛选条件，如课程、发布者等 */}
+                            {context !== 'course' && (
+                                <select 
+                                    value={filters.courseId} 
+                                    onChange={e => setFilters({...filters, courseId: e.target.value})}
+                                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                >
+                                    <option value="">全部课程</option>
+                                    {courseList?.map(course => (
+                                        <option key={course.id} value={course.id}>{course.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                            <input 
+                                type="text" 
+                                placeholder="分数范围" 
+                                value={filters.scoreRange} 
+                                onChange={e => setFilters({...filters, scoreRange: e.target.value})}
+                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                            />
+                        </div>
+                        <SubmissionList
+                            submissions={filteredSubmissions}
+                            isStudentView={true}
+                            onEditSubmission={handleOpenEditModal}
+                            onOpenDiscussion={onOpenDiscussion}
+                            // 关键：学生查看我的提交详情，本质也是看作业详情页，ID 为 homeworkId
+                            onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
+                        />
+                    </>
                 )}
             </>
         );

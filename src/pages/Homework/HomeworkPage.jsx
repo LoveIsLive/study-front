@@ -11,7 +11,7 @@ import Spinner from '../../components/common/Spinner/Spinner';
 import styles from './HomeworkPage.module.css';
 
 const HomeworkPage = () => {
-    const { user, detailInfo } = useAuthStore();
+    const { user, detailInfo, activeId, activeType } = useAuthStore();
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isTeacher = useAuthStore((state) => state.isTeacher());
     const isPrincipal = useAuthStore((state) => state.isPrincipal());
@@ -146,11 +146,11 @@ const HomeworkPage = () => {
             return <AdminDashboard view={view} navigateTo={navigateTo} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
         }
         if (isTeacher) {
-            return <TeacherDashboard view={view} navigateTo={navigateTo} onOpenCreateModal={handleOpenCreate} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
+            return <TeacherDashboard context="class" contextId={activeType === 'class' ? activeId : null} view={view} navigateTo={navigateTo} onOpenCreateModal={handleOpenCreate} onEditHomework={handleOpenEdit} onOpenDiscussion={handleOpenDiscussion} refreshTrigger={refreshTrigger} />;
         }
         if (isStudent) {
             // 学生 Dashboard
-            return <StudentDashboard view={view} navigateTo={navigateTo} onOpenDiscussion={handleOpenDiscussion} />;
+            return <StudentDashboard context="class" contextId={activeType === 'class' ? activeId : null} view={view} navigateTo={navigateTo} onOpenDiscussion={handleOpenDiscussion} />;
         }
         // 4. 兜底处理：如果有 detailInfo 但不属于任何角色（例如新注册账号）
         return <div className="no-access">您当前没有加入任何班级或学校。</div>;

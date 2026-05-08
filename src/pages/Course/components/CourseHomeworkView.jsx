@@ -149,6 +149,8 @@ const CourseHomeworkView = ({ courseId }) => {
     if (isTeacher) {
       return (
         <TeacherDashboard
+          context="course"
+          contextId={courseId}
           view={view}
           navigateTo={navigateTo}
           onOpenCreateModal={handleOpenCreate}
@@ -161,6 +163,8 @@ const CourseHomeworkView = ({ courseId }) => {
     if (isStudent) {
       return (
         <StudentDashboard
+          context="course"
+          contextId={courseId}
           view={view}
           navigateTo={navigateTo}
           onOpenDiscussion={handleOpenDiscussion}
