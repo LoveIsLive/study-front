@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { homeworkApi, submissionApi } from '../../../services/api';
+import useAuthStore from '../../../store/authStore'; // 【新增引入】
 import HomeworkList from './HomeworkList';
 import SubmissionDetailView from './SubmissionDetailView';
 import SubmissionList from './SubmissionList';
@@ -9,6 +10,9 @@ import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
 
 const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
+    // 【新增】判断用户是否为访客
+    const isGuest = useAuthStore((state) => state.isGuest());
+
     const [activeTab, setActiveTab] = useState('all-homework');
     const [homeworks, setHomeworks] = useState([]);
     const [submissions, setSubmissions] = useState([]);
@@ -30,26 +34,30 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
     }, []);
 
     const fetchMySubmissions = useCallback(async () => {
+        // 【修改】拦截：如果角色是访客，不请求 submission 接口以防报错
+        if (isGuest) return;
+
         setIsLoading(true);
         try {
             const response = await submissionApi.get('/student/all');
             setSubmissions(response.data.data || []);
         } catch (error) {
-            Swal.fire({ icon: 'error', title: '加载我的提交失败' });
+            Swal.fire({ icon: "error", title: "加载我的提交失败" });
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [isGuest]); // 增加依赖项
 
     useEffect(() => {
         if (view.name === 'list') {
             if (activeTab === 'all-homework') {
                 fetchAllHomeworks();
-            } else {
+            } else if (!isGuest) {
+                // 【修改】仅非访客时允许触发拉取
                 fetchMySubmissions();
             }
         }
-    }, [view, activeTab, fetchAllHomeworks, fetchMySubmissions]);
+    }, [view, activeTab, fetchAllHomeworks, fetchMySubmissions, isGuest]);
 
     const handleOpenEditModal = (submission) => {
         setEditingSubmission(submission);
@@ -97,21 +105,26 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                     >
                         所有作业
                     </button>
-                    <button
-                        className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
-                        onClick={() => setActiveTab('my-submissions')}
-                    >
-                        我的提交
-                    </button>
+                    {/* 【修改】对于访客，隐藏“我的提交”选项卡 */}
+                    {!isGuest && (
+                        <button
+                            className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
+                            onClick={() => setActiveTab('my-submissions')}
+                        >
+                            我的提交
+                        </button>
+                    )}
                 </div>
-                {activeTab === 'all-homework' &&
+                {activeTab === 'all-homework' && (
                     <HomeworkList
                         homeworks={homeworks}
                         // 关键：学生点击作业，进入 homeworkDetail 模式，ID 为 homework.id
                         onSelectHomework={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
                         onOpenDiscussion={onOpenDiscussion}
-                    />}
-                {activeTab === 'my-submissions' &&
+                    />
+                )}
+                {/* 访客由于无法切换到这个tab，所以这个块对于他们不渲染 */}
+                {activeTab === 'my-submissions' && !isGuest && (
                     <SubmissionList
                         submissions={submissions}
                         isStudentView={true}
@@ -119,7 +132,8 @@ const StudentDashboard = ({ view, navigateTo, onOpenDiscussion }) => {
                         onOpenDiscussion={onOpenDiscussion}
                         // 关键：学生查看我的提交详情，本质也是看作业详情页，ID 为 homeworkId
                         onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
-                    />}
+                    />
+                )}
             </>
         );
     };

@@ -27,6 +27,15 @@ const createApiClient = (baseURL) => {
           });
         }
       }
+      if (data && typeof data === 'object') {
+          // 确保请求头声明为 JSON 格式
+          if (headers && typeof headers.set === 'function') {
+              headers.set('Content-Type', 'application/json');
+          } else if (headers) {
+              headers['Content-Type'] = 'application/json';
+          }
+          return JSON.stringify(data);
+      }
       return data;
     }],
   });

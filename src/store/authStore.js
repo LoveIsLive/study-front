@@ -44,6 +44,7 @@ const useAuthStore = create(
   isTeacher: () => get().getActiveIdentity()?.role === "ROLE_TEACHER",
   isStudent: () => get().getActiveIdentity()?.role === "ROLE_STUDENT",
   isPrincipal: () => get().getActiveIdentity()?.role === "ROLE_PRINCIPAL",
+  isGuest: () => get().getActiveIdentity()?.role === "ROLE_GUEST", // 【新增】判断是否为访客
 
   // --- 操作方法 ---
 
