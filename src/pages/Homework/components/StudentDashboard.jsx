@@ -53,30 +53,69 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
 
     // 加载作业列表
     const fetchAllHomeworks = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            let response;
-            if (context === 'course' && contextId) {
-                response = await homeworkApi.get(`/course/${contextId}`);
-            } else if (context === 'class' && contextId) {
-                response = await homeworkApi.get(`/class/${contextId}`);
-            } else {
-                if (isGuest) {
-                    setRawHomeworks([]);
-                    return; 
-                }
-                response = await homeworkApi.get('/student/all');
-            }
-            
-            if (response && response.data) {
-                setRawHomeworks(response.data.data || []);
-            }
-        } catch (error) {
-            Swal.fire({ icon: 'error', title: '加载作业列表失败' });
-        } finally {
+      setIsLoading(true);
+      try {
+        let response;
+
+        // 【核心修复】：如果是访客，且不在单一课程上下文中，拦截并改为按课程并发获取
+        if (isGuest && context !== "course") {
+          if (!courseList || courseList.length === 0) {
+            setRawHomeworks([]);
             setIsLoading(false);
+            return;
+          }
+
+          // 仅针对访客：并发请求所有其有权限查看的课程的作业
+          const fetchPromises = courseList.map((course) =>
+            homeworkApi.get(`/course/${course.id}`).catch((err) => {
+              console.warn(`获取课程 ${course.id} 作业失败`, err);
+              return null; // 捕获单个课程的错误，防止阻断整体加载
+            }),
+          );
+
+          const results = await Promise.all(fetchPromises);
+          let aggregatedHws = [];
+
+          // 遍历拼接所有结果
+          results.forEach((res) => {
+            if (
+              res &&
+              res.data &&
+              res.data.code === 200 &&
+              Array.isArray(res.data.data)
+            ) {
+              aggregatedHws.push(...res.data.data);
+            }
+          });
+
+          // 按更新时间降序排列，保证最新的作业在最上面
+          aggregatedHws.sort(
+            (a, b) =>
+              new Date(b.updateTime).getTime() - new Date(a.updateTime).getTime(),
+          );
+          setRawHomeworks(aggregatedHws);
+          setIsLoading(false);
+          return;
         }
-    }, [context, contextId, isGuest]);
+
+        // 原有的非访客逻辑 或 明确的单课程逻辑
+        if (context === "course" && contextId) {
+          response = await homeworkApi.get(`/course/${contextId}`);
+        } else if (context === "class" && contextId) {
+          response = await homeworkApi.get(`/class/${contextId}`);
+        } else {
+          response = await homeworkApi.get("/student/all");
+        }
+
+        if (response && response.data) {
+          setRawHomeworks(response.data.data || []);
+        }
+      } catch (error) {
+        Swal.fire({ icon: "error", title: "加载作业列表失败" });
+      } finally {
+        setIsLoading(false);
+      }
+    }, [context, contextId, isGuest, courseList]); // 【重要】：依赖项里必须加入 courseList
 
     // 加载我的提交记录
     const loadSubmissions = useCallback(async () => {

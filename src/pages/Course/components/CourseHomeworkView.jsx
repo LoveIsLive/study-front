@@ -23,6 +23,7 @@ const CourseHomeworkView = ({ courseId }) => {
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
   const isStudent = useAuthStore((state) => state.isStudent());
+  const isGuest = useAuthStore((state) => state.isGuest()); // 👈 1. 新增：获取访客状态
 
   const [view, setView] = useState({ name: "list", data: null, mode: null });
   const [editingHomework, setEditingHomework] = useState(null);
@@ -161,7 +162,7 @@ const CourseHomeworkView = ({ courseId }) => {
         />
       );
     }
-    if (isStudent) {
+    if (isStudent || isGuest) { // 👈 2. 核心修改：允许访客和学生一样进入仪表盘查看列表
       return (
         <StudentDashboard
           context="course"
@@ -189,9 +190,9 @@ const CourseHomeworkView = ({ courseId }) => {
             </div>
             <div>
               <h2>课程作业区</h2>
-              <p className={styles.subtitle}>
+              {/* <p className={styles.subtitle}>
                 在这里查看、提交和批改当前课程的作业
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

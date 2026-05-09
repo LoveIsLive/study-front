@@ -182,12 +182,16 @@ const HomeworkPage = () => {
       );
     }
     if (isStudent || isGuest) {
-      // 【新增 || isGuest】
-      // 学生和访客统一使用这个 Dashboard（Dashboard 内部已做了 UI 隔离）
+      // 【核心修改】：逻辑分发
+      // 1. 如果当前在班级上下文中（sidebar 选中了班级），则使用 class 模式
+      // 2. 如果是学生且在个人/全局模式，使用 global 模式（调用 /student/all）
+      // 3. 对于访客，如果没有班级上下文，global 模式会返回空列表（符合预期）
+      const isClassContext = activeType === "class" && activeId;
+
       return (
         <StudentDashboard
-          context="global"
-          contextId={null}
+          context={isClassContext ? "class" : "global"}
+          contextId={isClassContext ? activeId : null}
           view={view}
           navigateTo={navigateTo}
           onOpenDiscussion={handleOpenDiscussion}

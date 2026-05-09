@@ -42,6 +42,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isStudent = useAuthStore((state) => state.isStudent());
     const isPrincipal = useAuthStore((state) => state.isPrincipal());
+    const isGuest = useAuthStore((state) => state.isGuest()); // 👈 1. 新增：获取访客状态
     // 复用，操作者
     const isTeacher = useAuthStore((state) => state.isTeacher()) || isAdmin || isPrincipal;
 
@@ -326,7 +327,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
 
     const isStructured = homework.type === 'STRUCTURED';
     const canStudentEdit = isStudent && (!submission || ['被退回', '作业有更新'].includes(submission.status));
-    const isReadOnly = isTeacher || (isStudent && !canStudentEdit);
+    const isReadOnly = isTeacher || (isStudent && !canStudentEdit) || isGuest;
 
     return (
         <div className={styles.pageWrapper}>

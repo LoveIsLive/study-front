@@ -11,6 +11,7 @@ const HomeworkCard = ({ homework, onEdit, onViewSubmissions, onDeleteHomework, o
     const isAdmin = useAuthStore((state) => state.isAdmin());
     const isTeacher = useAuthStore((state) => state.isTeacher());
     const isPrincipal = useAuthStore((state) => state.isPrincipal());
+    const isGuest = useAuthStore((state) => state.isGuest()); // 【新增】
 
     const formatDate = (dateString) => new Date(dateString).toLocaleString('zh-CN');
 
@@ -57,7 +58,7 @@ const HomeworkCard = ({ homework, onEdit, onViewSubmissions, onDeleteHomework, o
                         className={`${styles.btn} ${styles.btnSecondary}`}
                         onClick={() => onSelectHomework(homework.id)}
                     >
-                        <FontAwesomeIcon icon={faUsers} /> 提交/查看
+                        <FontAwesomeIcon icon={faUsers} /> {isGuest ? " 查看作业" : " 提交/查看"}
                     </button>
                 )}
 
