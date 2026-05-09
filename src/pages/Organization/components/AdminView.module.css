@@ -1,154 +1,165 @@
+/* 顶部工具栏和面包屑 */
 .toolbar {
-    margin-bottom: 2rem;
-    text-align: right;
-}
-
-.classListGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.toolbar {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .breadcrumb h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #2c3e50;
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-color-dark);
+  font-weight: 600;
 }
 
-.classListGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-/* School Card specific styles */
-.schoolCard {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-}
-
-.schoolCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: var(--primary-color);
-}
-
-.cardHeader {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.cardTitle {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.schoolIcon {
-    color: var(--primary-color);
-}
-
-.cardBody {
-    flex: 1;
-    color: #666;
-    margin-bottom: 1.5rem;
-}
-
-.cardActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    border-top: 1px solid #f5f5f5;
-    padding-top: 1rem;
-}
-
-:global(.btn-sm) {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-}
-
-/* 复用 AdminDashboard 的搜索框样式 */
+/* 搜索面板包裹 */
 .searchContainer {
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-color-light);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .inputWrapper {
-    position: relative;
-    flex-grow: 1;
+  position: relative;
+  flex-grow: 1;
 }
 
 .searchIcon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    color: #aaa;
-    pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: var(--secondary-color);
+  pointer-events: none;
+  transition: color 0.3s ease;
 }
 
 .searchInput {
-    width: 100%;
-    padding: 12px 40px 12px 30px;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    transition: all 0.2s ease-in-out;
+  width: 100%;
+  padding: 12px 40px 12px 45px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .searchInput:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  outline: none;
+  background-color: var(--bg-color-light);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(3, 86, 202, 0.15); /* 使用 primary-color 的 RGBA */
+}
+
+.searchInput:focus + .searchIcon {
+  color: var(--primary-color);
 }
 
 .clearButton {
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 5px;
-    line-height: 1;
-    display: none;
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  line-height: 1;
+  display: none;
+  transition: color 0.2s;
 }
 
 .clearButton:hover {
-    color: #333;
+  color: var(--danger-color);
 }
 
 .inputWrapper.hasValue .clearButton {
-    display: block;
+  display: block;
+}
+
+/* 列表网格 */
+.classListGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* 学校卡片优化 */
+.schoolCard {
+  background: var(--bg-color-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  /* 平滑的过渡动画 */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.schoolCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-color-dark);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.schoolIcon {
+  color: var(--primary-color);
+  background: rgba(3, 86, 202, 0.1);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.cardBody {
+  flex: 1;
+  color: var(--text-color-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+:global(.btn-sm) {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
 }
