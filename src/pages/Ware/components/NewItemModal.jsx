@@ -81,6 +81,13 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
                 }
             });
             updateFileProgress(file.name, { percent: 100, status: '成功' });
+
+            // 新增：触发 AI 生成总结（异步，无需等待返回值）
+            wareApi
+                .post('/update/summary', null, {
+                    params: { path: destPath, summary: 'AI分析中...' },
+                })
+                .catch((e) => console.error(e));
         } catch (error) {
             console.error(`Failed to upload ${file.name}:`, error);
             updateFileProgress(file.name, { percent: 0, status: '失败', error: true });
@@ -149,6 +156,13 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
             await wareApi.post('/chunk/merge', formData);
             // TODO: 超大文件会长时间等待
             updateFileProgress(file.name, { percent: 100, status: '成功' });
+
+            // 新增：触发 AI 生成总结（异步，无需等待返回值）
+            wareApi
+                .post('/update/summary', null, {
+                    params: { path: destPath, summary: 'AI分析中...' },
+                })
+                .catch((e) => console.error(e));
         } catch (error) {
             updateFileProgress(file.name, { status: '合并失败', error: true });
             throw error;

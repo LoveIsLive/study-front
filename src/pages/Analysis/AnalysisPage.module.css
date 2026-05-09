@@ -1,118 +1,140 @@
-/* AnalysisPage.module.css - 仿照Course页面样式 */
+/* AnalysisPage.module.css - 升级版样式，与CourseDetailPage风格统一 */
 
-html {
-  overflow-y: scroll;
-}
-
-/* 页面外层容器，仿照 .courseListPage */
-.analysisPage {
-  min-height: 100vh;
-  background: #f8f9fa;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 主内容容器，仿照 .fileManager */
-.fileManager {
-  width: 1200px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-/* 头部区域，仿照 .fileManagerHeader */
-.fileManagerHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.fileManagerHeader .headerLeft,
-.fileManagerHeader .headerRight {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.headerLeft h1 {
-  margin: 0;
-  color: #343a40;
-  font-size: 1.8rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* 课程信息样式 */
-.courseInfo {
-  font-size: 1rem;
-  color: #6c757d;
-  background: #f8f9fa;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.courseInfo strong {
-  color: #0356ca;
-}
-
-.roleBadge {
-  background: #0356ca;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-/* 主要内容区域，仿照 .mainContent */
-.mainContent {
+/* === 容器层级设置 === */
+.detailContainer {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
-  flex: 1;
+}
+
+/* === 顶部区块 (Header Section) === */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0;
+  margin-bottom: 20px;
+}
+
+.titleWrapper {
+  align-self: center;
+  background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
+  padding: 12px 36px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.2);
+  margin-bottom: 32px;
+  transition: transform 0.3s ease;
+  cursor: default;
+}
+
+.titleWrapper:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #f0f0f0;
+  margin-bottom: 24px;
+}
+
+.descriptionSection {
+  text-align: left;
+  padding: 0 10px;
+}
+
+.descriptionHeader {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: #262626;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.descriptionHeader::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: #1890ff;
+  border-radius: 2px;
+}
+
+.descriptionText {
+  color: #595959;
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.descriptionText strong {
+  color: #1890ff;
+  margin-right: 12px;
+}
+
+.roleBadge {
+  background: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+/* === 主内容区块 (Content Section) === */
+.contentSection {
+  background: #ffffff;
+  min-height: 500px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  padding: 32px;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
   display: flex;
   flex-direction: column;
 }
 
-/* 通用区块样式 */
 .section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
 }
 
-.section h2 {
+.sectionTitle {
   margin-top: 0;
   margin-bottom: 24px;
-  color: #2c3e50;
-  font-size: 1.5rem;
+  color: #262626;
+  font-size: 1.4rem;
   font-weight: 600;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
   padding-bottom: 12px;
 }
 
 .section h3 {
   margin-top: 0;
   margin-bottom: 16px;
-  color: #3a506b;
-  font-size: 1.3rem;
+  color: #595959;
+  font-size: 1.15rem;
   font-weight: 600;
 }
 
-/* KPI卡片 */
+/* === KPI卡片样式 === */
 .kpiGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -122,18 +144,18 @@ html {
 
 .kpiCard {
   background: white;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 20px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #f0f0f0;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .kpiCard:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(24, 144, 255, 0.1);
   transform: translateY(-2px);
-  border-color: #0356ca;
+  border-color: #bae0ff;
 }
 
 .kpiHeader {
@@ -144,69 +166,83 @@ html {
 }
 
 .kpiIcon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: white;
 }
 
-.kpiIcon.blue { background: linear-gradient(135deg, #2196F3, #1976D2); }
-.kpiIcon.green { background: linear-gradient(135deg, #4CAF50, #388E3C); }
-.kpiIcon.red { background: linear-gradient(135deg, #F44336, #D32F2F); }
-.kpiIcon.gray { background: linear-gradient(135deg, #9E9E9E, #757575); }
-.kpiIcon.purple { background: linear-gradient(135deg, #9C27B0, #7B1FA2); }
+/* 主题颜色修改为 AntD 风格 */
+.kpiIcon.blue {
+  background: linear-gradient(135deg, #40a9ff, #096dd9);
+}
+.kpiIcon.green {
+  background: linear-gradient(135deg, #73d13d, #389e0d);
+}
+.kpiIcon.red {
+  background: linear-gradient(135deg, #ff7875, #cf1322);
+}
+.kpiIcon.gray {
+  background: linear-gradient(135deg, #bfbfbf, #8c8c8c);
+}
+.kpiIcon.purple {
+  background: linear-gradient(135deg, #b37feb, #531dab);
+}
 
 .kpiInfo h3 {
   margin: 0 0 6px 0;
-  font-size: 1rem;
-  color: #6c757d;
+  font-size: 0.95rem;
+  color: #8c8c8c;
   font-weight: 500;
 }
 
 .kpiValue {
   font-size: 2rem;
   font-weight: 700;
-  color: #343a40;
+  color: #262626;
   line-height: 1;
 }
 
 .kpiSubtitle {
-  font-size: 0.9rem;
-  color: #8a94a6;
-  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #bfbfbf;
+  margin-top: 6px;
 }
 
 .kpiTrend {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  border-radius: 20px;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 6px;
   margin-top: 12px;
   width: fit-content;
 }
 
 .kpiTrend.positive {
-  background: rgba(76, 175, 80, 0.1);
-  color: #388E3C;
+  background: #f6ffed;
+  color: #389e0d;
+  border: 1px solid #b7eb8f;
 }
 
 .kpiTrend.negative {
-  background: rgba(244, 67, 54, 0.1);
-  color: #D32F2F;
+  background: #fff2f0;
+  color: #cf1322;
+  border: 1px solid #ffa39e;
 }
 
 .kpiTrend.neutral {
-  background: rgba(158, 158, 158, 0.1);
-  color: #616161;
+  background: #fafafa;
+  color: #595959;
+  border: 1px solid #d9d9d9;
 }
 
-/* 趋势图表 */
+/* === 趋势图表区 === */
 .trendsSection {
   margin-top: 32px;
 }
@@ -218,17 +254,17 @@ html {
 }
 
 .trendItem {
-  background: #f8f9fa;
-  border-radius: 10px;
+  background: #fafafa;
+  border-radius: 8px;
   padding: 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .trendItem:hover {
-  background: #e9ecef;
-  border-color: #0356ca;
+  background: #f0f5ff;
+  border-color: #91d5ff;
 }
 
 .trendHeader {
@@ -242,8 +278,8 @@ html {
 
 .trendHeader h4 {
   margin: 0;
-  font-size: 1.1rem;
-  color: #343a40;
+  font-size: 1.05rem;
+  color: #262626;
   font-weight: 600;
 }
 
@@ -254,132 +290,123 @@ html {
 }
 
 .myScore {
-  color: #0356ca;
+  color: #1890ff;
   font-weight: 500;
 }
-
 .classAverage {
-  color: #6c757d;
+  color: #8c8c8c;
 }
-
 .highestScore {
-  color: #4CAF50;
+  color: #52c41a;
   font-weight: 500;
 }
-
 .submissionCount {
-  color: #9C27B0;
+  color: #722ed1;
 }
 
 .trendBar {
-  height: 24px;
-  background: #e9ecef;
-  border-radius: 12px;
+  height: 20px;
+  background: #f0f0f0;
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
   display: flex;
 }
 
 .trendBarMy {
-  background: linear-gradient(90deg, #0356ca, #2196F3);
+  background: linear-gradient(90deg, #1890ff, #40a9ff);
   height: 100%;
-  border-radius: 12px 0 0 12px;
+  border-radius: 10px 0 0 10px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding-right: 8px;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   min-width: 30px;
 }
 
 .trendBarAvg {
-  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  background: linear-gradient(90deg, #52c41a, #95de64);
   height: 100%;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 10px 10px 0;
   display: flex;
   align-items: center;
   padding-left: 8px;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   min-width: 30px;
 }
 
-/* 雷达图 */
+/* === 雷达图区 === */
+/* === 改进版 SVG 雷达图区 === */
 .radarSection {
   margin-top: 32px;
 }
 
-.radarChart {
+.radarChartWrapper {
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e9ecef;
-  position: relative;
-  height: 400px;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 350px; /* 控制整体高度 */
+  transition: box-shadow 0.3s;
 }
 
-.radarGrid {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  border-radius: 8px;
-  background: radial-gradient(circle at center, #f8f9fa 0%, transparent 70%);
+.radarChartWrapper:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-.radarDimension {
-  position: absolute;
-  transform: translate(-50%, -50%);
+.svgRadar {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
 }
 
-.radarLabel {
-  font-size: 0.9rem;
-  color: #343a40;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
+/* 动效：多边形区域鼠标悬浮加深 */
+.radarDataPolygon {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.radarDataPolygon:hover {
+  fill: rgba(24, 144, 255, 0.4);
 }
 
-.radarValue {
-  font-size: 0.8rem;
-  color: #6c757d;
-  text-align: center;
-  margin-top: 4px;
+/* 动效：数据圆点悬浮放大 */
+.radarDataPoint {
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
-
-.radarPoint {
-  width: 12px;
-  height: 12px;
-  background: #0356ca;
-  border-radius: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.radarDataPoint:hover {
+  r: 6;
+  fill: #1890ff;
 }
 
 .radarEmpty {
   text-align: center;
   padding: 60px 20px;
-  color: #6c757d;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 2px dashed #dee2e6;
+  color: #bfbfbf;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px dashed #d9d9d9;
 }
 
-/* 预警学生 */
+/* === 预警异动区 === */
 .warningSection {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 12px;
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  border-radius: 10px;
   padding: 20px;
   margin-top: 24px;
 }
 
 .warningSection h3 {
-  color: #856404;
+  color: #d46b08;
   margin-top: 0;
   display: flex;
   align-items: center;
@@ -398,21 +425,20 @@ html {
   align-items: center;
   padding: 12px 16px;
   background: white;
-  border-radius: 8px;
-  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  border: 1px solid #ffe58f;
 }
 
 .warningStudent {
   font-weight: 600;
-  color: #343a40;
+  color: #262626;
 }
-
 .warningReason {
-  color: #856404;
+  color: #d46b08;
   font-size: 0.9rem;
 }
 
-/* 错题集 */
+/* === 错题集区 === */
 .wrongQuestions {
   margin-top: 32px;
 }
@@ -420,10 +446,10 @@ html {
 .wrongQuestionsEmpty {
   text-align: center;
   padding: 40px 20px;
-  color: #6c757d;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 2px dashed #dee2e6;
+  color: #bfbfbf;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px dashed #d9d9d9;
 }
 
 .wrongQuestionsList {
@@ -433,10 +459,10 @@ html {
 }
 
 .wrongQuestionItem {
-  background: #f8f9fa;
-  border-radius: 10px;
+  background: #fafafa;
+  border-radius: 8px;
   padding: 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #f0f0f0;
 }
 
 .questionHeader {
@@ -450,51 +476,51 @@ html {
 
 .questionTitle {
   font-weight: 600;
-  color: #343a40;
-  font-size: 1.1rem;
+  color: #262626;
+  font-size: 1.05rem;
 }
 
 .questionType {
-  background: #e9ecef;
-  color: #6c757d;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  background: #e6f7ff;
+  color: #1890ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  border: 1px solid #91d5ff;
 }
 
 .questionScores {
   display: flex;
   gap: 20px;
   font-size: 0.9rem;
-  color: #6c757d;
+  color: #8c8c8c;
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .wrongCount {
-  color: #F44336;
+  color: #cf1322;
   font-weight: 500;
 }
-
 .errorRate {
-  color: #FF9800;
+  color: #fa8c16;
   font-weight: 500;
 }
 
 .aiComment {
-  background: #e3f2fd;
-  border-left: 4px solid #2196F3;
+  background: #f0f5ff;
+  border-left: 4px solid #1890ff;
   padding: 12px;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
   font-size: 0.95rem;
-  color: #1976D2;
+  color: #096dd9;
 }
 
 .aiComment strong {
-  color: #0d47a1;
+  color: #0050b3;
 }
 
-/* 成绩分布 */
+/* === 成绩分布区 === */
 .distributionSection {
   margin-top: 32px;
 }
@@ -507,22 +533,14 @@ html {
 }
 
 .pieChart {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
-  position: relative;
-  overflow: hidden;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 增加一点内阴影让纯 CSS 饼图更立体 */
+  /* background 将会由 React 行内 style 动态注入 conic-gradient */
 }
 
-.pieSlice {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform-origin: center;
-  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
-}
+/* 之前错误的 .pieSlice 类名可以直接删除了，因为已经不需要多层级切片了 */
 
 .distributionLegend {
   flex: 1;
@@ -537,8 +555,8 @@ html {
 }
 
 .legendColor {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
 }
 
@@ -547,10 +565,17 @@ html {
   justify-content: space-between;
   flex: 1;
   font-size: 0.95rem;
-  color: #343a40;
+  color: #595959;
 }
 
-/* 作业KPI */
+/* 后方增加的成绩显示补充 */
+.fullScore {
+  color: #bfbfbf;
+  font-size: 0.85rem;
+  margin-left: 8px;
+}
+
+/* === 辅助与交互提示 === */
 .homeworkKPIs {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -558,71 +583,56 @@ html {
   margin-bottom: 32px;
 }
 
-/* 加载状态 */
+.selectionHint {
+  text-align: center;
+  padding: 16px;
+  background: #e6f7ff;
+  border-radius: 8px;
+  color: #096dd9;
+  border: 1px solid #91d5ff;
+  font-size: 0.95rem;
+}
+
 .loading {
   text-align: center;
-  padding: 60px 20px;
-  color: #6c757d;
+  padding: 40px 20px;
+  color: #8c8c8c;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 16px;
 }
 
-.loading p {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-/* 空状态 */
 .emptyState {
   text-align: center;
   padding: 40px 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  color: #6c757d;
-  border: 2px dashed #dee2e6;
+  background: #fafafa;
+  border-radius: 8px;
+  color: #bfbfbf;
+  border: 1px dashed #d9d9d9;
 }
 
-.selectionHint {
-  text-align: center;
-  padding: 20px;
-  background: #e3f2fd;
-  border-radius: 12px;
-  color: #1976D2;
-  margin-top: 24px;
-  font-size: 0.95rem;
-}
-
-/* 错误状态 */
 .errorState {
   text-align: center;
   padding: 80px 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .errorState h2 {
-  color: #dc3545;
+  color: #f5222d;
   margin-bottom: 16px;
 }
-
 .errorState p {
-  color: #6c757d;
+  color: #8c8c8c;
   margin-bottom: 24px;
   font-size: 1.1rem;
 }
 
 .backButton {
-  background: #0356ca;
+  background: #1890ff;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 10px 24px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -633,57 +643,23 @@ html {
 }
 
 .backButton:hover {
-  background: #0244a1;
+  background: #096dd9;
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .analysisPage {
-    padding: 20px;
+  .detailContainer {
+    padding: 12px;
   }
-  
-  .fileManager {
-    width: 100%;
-    margin: 0;
-    border-radius: 0;
+  .headerSection {
+    padding: 20px 0;
   }
-  
-  .fileManagerHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .headerLeft, .headerRight {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .courseInfo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
   .kpiGrid {
     grid-template-columns: 1fr;
   }
-  
-  .trendHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .trendScores {
-    flex-wrap: wrap;
-  }
-  
   .distributionChart {
     flex-direction: column;
-    align-items: center;
   }
-  
   .homeworkKPIs {
     grid-template-columns: 1fr;
   }

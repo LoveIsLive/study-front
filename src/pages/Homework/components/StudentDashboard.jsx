@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { homeworkApi, submissionApi } from '../../../services/api';
-import useAuthStore from '../../../store/authStore'; // 【新增引入】
+import useAuthStore from '../../../store/authStore';
 import HomeworkList from './HomeworkList';
 import SubmissionDetailView from './SubmissionDetailView';
 import SubmissionList from './SubmissionList';
@@ -9,12 +9,35 @@ import Spinner from '../../../components/common/Spinner/Spinner';
 import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
 
+// 【修复核心 1】: 智能提取课程ID，兼容平铺或嵌套的实体类
+const extractCourseId = (obj) => {
+    if (!obj) return null;
+    // 直接在当前对象上
+    if (obj.courseId !== undefined && obj.courseId !== null) return String(obj.courseId);
+    // 嵌套在 course 对象中
+    if (obj.course && obj.course.id !== undefined && obj.course.id !== null) return String(obj.course.id);
+    // 嵌套在 homework 对象中 (常见于 Submission 提交记录)
+    if (obj.homework) {
+        if (obj.homework.courseId !== undefined && obj.homework.courseId !== null) return String(obj.homework.courseId);
+        if (obj.homework.course && obj.homework.course.id !== undefined && obj.homework.course.id !== null) return String(obj.homework.course.id);
+    }
+    return null;
+};
+
+// 【修复核心 2】: 状态归一化，兼容后端的数字枚举或中文字符串
+const normalizeStatus = (statusVal) => {
+    if (statusVal === null || statusVal === undefined) return 'UNSUBMITTED';
+    const s = String(statusVal).toUpperCase();
+    if (s === '0' || s === '未提交' || s === 'UNSUBMITTED') return 'UNSUBMITTED';
+    if (s === '1' || s === '已提交' || s === '提交' || s === 'SUBMITTED') return 'SUBMITTED';
+    if (s === '2' || s === '已批改' || s === '批改' || s === 'GRADED') return 'GRADED';
+    return s;
+};
+
 const StudentDashboard = ({ context = 'class', contextId = null, view, navigateTo, onOpenDiscussion }) => {
-    // 【新增】判断用户是否为访客
     const isGuest = useAuthStore((state) => state.isGuest());
 
     const [activeTab, setActiveTab] = useState('all-homework');
-    // 原始数据
     const [rawHomeworks, setRawHomeworks] = useState([]);
     const [rawSubmissions, setRawSubmissions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -22,13 +45,13 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
     const [editingSubmission, setEditingSubmission] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [filters, setFilters] = useState({
-        status: '', // 对应 HomeworkSubmissionStatusEnum
+        status: '', 
         courseId: context === 'course' ? contextId : '',
         scoreRange: ''
     });
     const { courseList } = useAuthStore();
 
-    // 加载作业列表（一次性）
+    // 加载作业列表
     const fetchAllHomeworks = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -38,20 +61,25 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
             } else if (context === 'class' && contextId) {
                 response = await homeworkApi.get(`/class/${contextId}`);
             } else {
-                // 回退到全局查询（例如学生所有作业）
+                if (isGuest) {
+                    setRawHomeworks([]);
+                    return; 
+                }
                 response = await homeworkApi.get('/student/all');
             }
-            setRawHomeworks(response.data.data || []);
+            
+            if (response && response.data) {
+                setRawHomeworks(response.data.data || []);
+            }
         } catch (error) {
             Swal.fire({ icon: 'error', title: '加载作业列表失败' });
         } finally {
             setIsLoading(false);
         }
-    }, [context, contextId]);
+    }, [context, contextId, isGuest]);
 
-    // 加载提交记录（一次性）
+    // 加载我的提交记录
     const loadSubmissions = useCallback(async () => {
-        // 【修改】拦截：如果角色是访客，不请求 submission 接口以防报错
         if (isGuest) return;
 
         setIsLoading(true);
@@ -67,35 +95,45 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
         } finally {
             setIsLoading(false);
         }
-    }, [isGuest]); // 增加依赖项
+    }, [isGuest]); 
 
     useEffect(() => {
         if (view.name === 'list') {
             if (activeTab === 'all-homework') {
                 fetchAllHomeworks();
             } else if (!isGuest) {
-                // 【修改】仅非访客时允许触发拉取
                 loadSubmissions();
             }
         }
     }, [view, activeTab, fetchAllHomeworks, loadSubmissions, isGuest, refreshTrigger]);
 
-    // 前端即时筛选 - 作业列表
+    // 【修正】使用安全提取器过滤所有作业
     const filteredHomeworks = useMemo(() => {
         return rawHomeworks.filter(item => {
-            // 课程筛选（如果需要在作业列表也筛选课程）
-            const matchCourse = !filters.courseId || String(item.courseId) === String(filters.courseId);
-            return matchCourse;
+            const itemCourseId = extractCourseId(item);
+            const matchCourse = !filters.courseId || itemCourseId === String(filters.courseId);
+            
+            const rawStatus = item.submissionStatus || item.status; 
+            const normalizedStatus = normalizeStatus(rawStatus);
+            const matchStatus = !filters.status || normalizedStatus === filters.status;
+            
+            return matchCourse && matchStatus;
         });
-    }, [rawHomeworks, filters.courseId]);
+    }, [rawHomeworks, filters.courseId, filters.status]);
 
-    // 前端即时筛选 - 提交记录
+    // 【修正】使用安全提取器过滤提交记录
     const filteredSubmissions = useMemo(() => {
         return rawSubmissions.filter(sub => {
-            const matchStatus = !filters.status || sub.status === filters.status;
-            const matchCourse = !filters.courseId || String(sub.courseId) === String(filters.courseId);
-            // 分数范围筛选（简单文本匹配）
-            const matchScore = !filters.scoreRange || String(sub.score || '').includes(filters.scoreRange);
+            const subCourseId = extractCourseId(sub);
+            const matchCourse = !filters.courseId || subCourseId === String(filters.courseId);
+
+            const normalizedStatus = normalizeStatus(sub.status);
+            const matchStatus = !filters.status || normalizedStatus === filters.status;
+            
+            // 修复0分无法被包含筛选的隐藏bug
+            const scoreStr = sub.score !== null && sub.score !== undefined ? String(sub.score) : '';
+            const matchScore = !filters.scoreRange || scoreStr.includes(filters.scoreRange);
+            
             return matchStatus && matchCourse && matchScore;
         });
     }, [rawSubmissions, filters]);
@@ -112,16 +150,13 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
 
     const handleModalSuccess = () => {
         handleModalClose();
-        // 如果当前在详情页，我们不导航，而是更新触发器来刷新子组件
         if (view.name === 'submissionDetail') {
-            setRefreshTrigger(t => t + 1); // 递增触发器
+            setRefreshTrigger(t => t + 1);
         } else {
-            // 如果是在列表页（例如将来可能在列表页直接修改），则刷新列表
             loadSubmissions();
         }
     };
 
-    // 已修复：重构渲染逻辑，将视图切换和模态框渲染分离
     const renderCurrentView = () => {
         if (isLoading) {
             return <Spinner />;
@@ -136,7 +171,6 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
             />;
         }
 
-        // 默认显示列表视图
         return (
             <>
                 <div className={styles.tabsContainer}>
@@ -146,7 +180,6 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
                     >
                         所有作业
                     </button>
-                    {/* 【修改】对于访客，隐藏"我的提交"选项卡 */}
                     {!isGuest && (
                         <button
                             className={`${styles.tabBtn} ${activeTab === 'my-submissions' ? styles.active : ''}`}
@@ -156,57 +189,61 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
                         </button>
                     )}
                 </div>
+
+                <div className="student-filters" style={{ marginBottom: '20px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* {!isGuest && (
+                        <select 
+                            value={filters.status} 
+                            onChange={e => setFilters({...filters, status: e.target.value})}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d9d9d9', outline: 'none', cursor: 'pointer' }}
+                        >
+                            <option value="">全部状态</option>
+                            <option value="UNSUBMITTED">未提交</option>
+                            <option value="SUBMITTED">已提交</option>
+                            <option value="GRADED">已批改</option>
+                        </select>
+                    )} */}
+                    
+                    {context !== 'course' && (
+                        <select 
+                            value={filters.courseId} 
+                            onChange={e => setFilters({...filters, courseId: e.target.value})}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d9d9d9', outline: 'none', cursor: 'pointer' }}
+                        >
+                            <option value="">全部课程</option>
+                            {courseList?.map(course => (
+                                <option key={course.id} value={course.id}>{course.name}</option>
+                            ))}
+                        </select>
+                    )}
+
+                    {activeTab === 'my-submissions' && !isGuest && (
+                        <input 
+                            type="text" 
+                            placeholder="分数包含 (如: 90)" 
+                            value={filters.scoreRange} 
+                            onChange={e => setFilters({...filters, scoreRange: e.target.value})}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d9d9d9', outline: 'none', width: '160px' }}
+                        />
+                    )}
+                </div>
+
                 {activeTab === 'all-homework' && (
                     <HomeworkList
                         homeworks={filteredHomeworks}
-                        // 关键：学生点击作业，进入 homeworkDetail 模式，ID 为 homework.id
                         onSelectHomework={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
                         onOpenDiscussion={onOpenDiscussion}
                     />
                 )}
-                {/* 访客由于无法切换到这个tab，所以这个块对于他们不渲染 */}
+
                 {activeTab === 'my-submissions' && !isGuest && (
-                    <>
-                        <div className="student-filters" style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <select 
-                                value={filters.status} 
-                                onChange={e => setFilters({...filters, status: e.target.value})}
-                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                            >
-                                <option value="">作业状态</option>
-                                <option value="SUBMITTED">已提交</option>
-                                <option value="GRADED">已批改</option>
-                            </select>
-                            {/* 其他筛选条件，如课程、发布者等 */}
-                            {context !== 'course' && (
-                                <select 
-                                    value={filters.courseId} 
-                                    onChange={e => setFilters({...filters, courseId: e.target.value})}
-                                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                                >
-                                    <option value="">全部课程</option>
-                                    {courseList?.map(course => (
-                                        <option key={course.id} value={course.id}>{course.name}</option>
-                                    ))}
-                                </select>
-                            )}
-                            <input 
-                                type="text" 
-                                placeholder="分数范围" 
-                                value={filters.scoreRange} 
-                                onChange={e => setFilters({...filters, scoreRange: e.target.value})}
-                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                        <SubmissionList
-                            submissions={filteredSubmissions}
-                            isStudentView={true}
-                            onEditSubmission={handleOpenEditModal}
-                            onOpenDiscussion={onOpenDiscussion}
-                            // 关键：学生查看我的提交详情，本质也是看作业详情页，ID 为 homeworkId
-                            onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
-                        />
-                    </>
+                    <SubmissionList
+                        submissions={filteredSubmissions}
+                        isStudentView={true}
+                        onEditSubmission={handleOpenEditModal}
+                        onOpenDiscussion={onOpenDiscussion}
+                        onViewDetail={(homeworkId) => navigateTo('homeworkDetail', homeworkId)}
+                    />
                 )}
             </>
         );
@@ -214,10 +251,7 @@ const StudentDashboard = ({ context = 'class', contextId = null, view, navigateT
 
     return (
         <div>
-            {/* 视图内容 */}
             {renderCurrentView()}
-
-            {/* 模态框始终在组件树中，仅通过 isOpen 控制可见性 */}
             <SubmissionModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}

@@ -46,6 +46,7 @@
 /* 包含头部、内容、操作的整个帖子区域 */
 .postWrapper {
     flex-grow: 1;
+    min-width: 0; /* 核心修复：允许 flex 子项收缩，防止被长文本撑破边界 */
 }
 
 /* 帖子内容的气泡 */
@@ -98,28 +99,41 @@
 
 .postHeader {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    align-items: baseline; /* baseline 让不同大小的文字底部对齐，视觉更舒服 */
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
+    /* 如果真的极度狭窄，允许时间戳掉到下一行 */
+    flex-wrap: wrap; 
 }
 
 .postAuthor {
     font-weight: 600;
     color: #2c3e50;
+    /* 以下三行是单行省略号的标配 */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    /* 允许名字占用最大宽度，但不允许撑破 */
+    max-width: 100%; 
+    flex: 0 1 auto; /* 允许收缩 */
 }
 
 .postTimestamp {
     font-size: 0.8rem;
     color: #888;
+    flex: 0 0 auto; /* 绝对不收缩，保证时间显示完整 */
+    white-space: nowrap;
 }
 
 .postBody {
     white-space: pre-wrap;
     line-height: 1.6;
     color: #333;
+    /* 强化换行规则 */
     word-break: break-word;
+    overflow-wrap: anywhere; /* 强制在任何可能溢出的地方将单词/网址切断换行 */
+    width: 100%;
 }
-
 /* 操作按钮默认隐藏，悬停显示 (单一、干净的定义) */
 .postActions {
     position: absolute;

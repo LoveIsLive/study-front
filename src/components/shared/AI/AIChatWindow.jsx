@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTimes, faPaperPlane, faBrain, faSpinner, faBars,
@@ -13,6 +13,7 @@ import useAIStore from '../../../store/aiStore';
 import { config } from '../../../utils/config';
 import { baseApi } from '../../../services/api';
 import { useDraggable } from '../../../hooks/useDraggable';
+import { useUploader } from '../../../hooks/useUploader';
 import { formatFileSize } from '../../../utils/helpers';
 import styles from './AIChatWindow.module.css';
 import AIChart from './AIChart';
@@ -160,6 +161,18 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     const textAreaRef = useRef(null);
     const fileInputRef = useRef(null);
 
+    // 新增：构建专属于 LLM 模块的上传ApiClient
+    const llmApiClient = useMemo(
+        () => ({
+            post: (url, data, config) => baseApi.post(`/llm${url}`, data, config),
+        }),
+        [],
+    );
+
+    // 新增：引入 hook 并拿到其控制变量和方法
+    const { uploadProgress, isUploading, startUpload } =
+        useUploader(llmApiClient);
+
     const { position, dragRef, handleMouseDown } = useDraggable({
         x: Math.max(0, window.innerWidth - 1000),
         y: Math.max(0, window.innerHeight - 800)
@@ -232,87 +245,131 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
 
     // --- Interaction ---
     const handleFileSelect = (e) => {
-        const newFiles = Array.from(e.target.files).filter(file => {
-            if (file.size > 100 * 1024 * 1024) {
+        const newFiles = Array.from(e.target.files).filter((file) => {
+            // 修改点：根据需求放宽单文件大小限制为 1GB（支持分片）
+            if (file.size > 1024 * 1024 * 1024) {
                 Swal.fire({
-                    toast: true, icon: 'warning', title: `${file.name} 超过 100MB`, customClass: {
-                        container: styles.swalHighZIndex
-                    }
+                    toast: true,
+                    icon: "warning",
+                    title: `${file.name} 超过 1GB限制`,
+                    customClass: {
+                        container: styles.swalHighZIndex,
+                    },
                 });
                 return false;
             }
             return true;
         });
-        setSelectedFiles(prev => [...prev, ...newFiles]);
-        e.target.value = '';
+        setSelectedFiles((prev) => [...prev, ...newFiles]);
+        e.target.value = "";
     };
 
     const removeSelectedFile = (index) => {
         setSelectedFiles(prev => prev.filter((_, i) => i !== index));
     };
 
+    // 修改点：重构 handleSend 函数以支持大文件分片
     const handleSend = async () => {
-        if ((!inputValue.trim() && selectedFiles.length === 0) || !currentSessionId) return;
+        if ((!inputValue.trim() && selectedFiles.length === 0) || !currentSessionId)
+            return;
 
         const userText = inputValue;
         const currentFiles = [...selectedFiles];
 
-        setInputValue('');
+        setInputValue("");
         setSelectedFiles([]);
-        if (textAreaRef.current) textAreaRef.current.style.height = 'auto';
+        if (textAreaRef.current) textAreaRef.current.style.height = "auto";
         setIsSending(true);
 
         const tempId = Date.now();
-        setMessages(prev => [...prev, {
-            role: 'user',
-            content: userText,
-            localFiles: currentFiles,
-            id: tempId,
-            type: currentFiles.length > 0 ? 'file' : 'text'
-        }]);
+        setMessages((prev) => [
+            ...prev,
+            {
+                role: "user",
+                content: userText,
+                localFiles: currentFiles,
+                id: tempId,
+                type: currentFiles.length > 0 ? "file" : "text",
+            },
+        ]);
 
         const aiMsgId = Date.now() + 1;
-        setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: '',
-            id: aiMsgId,
-            isWaitingFirstResponse: true,
-            type: 'text'
-        }]);
-
-        const formData = new FormData();
-        const requestDTO = {
-            sessionId: currentSessionId,
-            message: userText || ' ',
-            scene: context.scene, // 使用 store 中的 scene
-            sceneParams: context.sceneParams
-        };
-        formData.append('request', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
-        currentFiles.forEach(file => formData.append('files', file));
+        setMessages((prev) => [
+            ...prev,
+            {
+                role: "assistant",
+                content: "",
+                id: aiMsgId,
+                isWaitingFirstResponse: true,
+                type: "text",
+            },
+        ]);
 
         try {
+            // 1. 通过 useUploader 上传所有的文件
+            const { smallFiles, largeFileAttachmentIds } =
+                await startUpload(currentFiles);
+
+            // 2. 映射大文件数据格式给后端所需的 ChatRequestDTO
+            const uploadFilesList = largeFileAttachmentIds.map((item) => ({
+                fileName: item.fileName,
+                filePath: item.filePath,
+            }));
+
+            const formData = new FormData();
+            const requestDTO = {
+                sessionId: currentSessionId,
+                message: userText || " ",
+                scene: context.scene,
+                sceneParams: context.sceneParams,
+            };
+
+            // 加入大文件信息
+            if (uploadFilesList.length > 0) {
+                requestDTO.uploadFiles = uploadFilesList;
+            }
+
+            // 3. 构建表单载荷
+            formData.append(
+                "request",
+                new Blob([JSON.stringify(requestDTO)], { type: "application/json" }),
+            );
+            // 小文件仍通过原有的 formData 分区提交
+            smallFiles.forEach((file) => formData.append("files", file));
+
             if (useAgent) {
-                const response = await baseApi.post('/llm/chat/agent', formData);
+                // ... 保持原有逻辑不变
+                const response = await baseApi.post("/llm/chat/agent", formData);
                 const messageObj = response.data.data;
                 // 检测是否包含图表工具
-                const isChart = messageObj.tool_calls?.some(t => t.function.name === 'EChartsTool');
+                const isChart = messageObj.tool_calls?.some(
+                    (t) => t.function.name === "EChartsTool",
+                );
 
-                setMessages(prev => prev.map(msg =>
-                    msg.id === aiMsgId ? {
-                        ...msg,
-                        isWaitingFirstResponse: false,
-                        type: 'agent_result',
-                        content: messageObj.content,
-                        toolCalls: messageObj.tool_calls,
-                        isChart
-                    } : msg
-                ));
+                setMessages((prev) =>
+                    prev.map((msg) =>
+                        msg.id === aiMsgId
+                            ? {
+                                  ...msg,
+                                  isWaitingFirstResponse: false,
+                                  type: "agent_result",
+                                  content: messageObj.content,
+                                  toolCalls: messageObj.tool_calls,
+                                  isChart,
+                              }
+                            : msg,
+                    ),
+                );
             } else {
-                const response = await fetch(`${config.back_base_url}/llm/chat/stream`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
+                // ... 保持原有 stream 逻辑不变
+                const response = await fetch(
+                    `${config.back_base_url}/llm/chat/stream`,
+                    {
+                        method: "POST",
+                        headers: { Authorization: `Bearer ${token}` },
+                        body: formData,
+                    },
+                );
 
                 if (!response.ok) throw new Error("Stream Failed");
 
@@ -328,35 +385,66 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
 
                     if (!hasReceivedFirstToken) {
                         hasReceivedFirstToken = true;
-                        setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, isWaitingFirstResponse: false, isStreaming: true } : m));
+                        setMessages((prev) =>
+                            prev.map((m) =>
+                                m.id === aiMsgId
+                                    ? {
+                                          ...m,
+                                          isWaitingFirstResponse: false,
+                                          isStreaming: true,
+                                      }
+                                    : m,
+                            ),
+                        );
                     }
 
                     buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
+                    const lines = buffer.split("\n");
                     buffer = lines.pop();
 
                     for (const line of lines) {
                         const trimmed = line.trim();
-                        if (!trimmed || !trimmed.startsWith('data:')) continue;
+                        if (!trimmed || !trimmed.startsWith("data:")) continue;
                         const dataStr = trimmed.slice(5).trim();
                         try {
                             const json = JSON.parse(dataStr);
                             if (json.c) {
                                 aiContent += json.c;
-                                setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: aiContent } : m));
+                                setMessages((prev) =>
+                                    prev.map((m) =>
+                                        m.id === aiMsgId
+                                            ? { ...m, content: aiContent }
+                                            : m,
+                                    ),
+                                );
                             }
-                        } catch (e) { }
+                        } catch (e) {}
                     }
                 }
             }
             fetchSessions();
         } catch (error) {
-            setMessages(prev => prev.map(m => m.id === aiMsgId ? {
-                role: 'assistant', type: 'error', content: `请求失败: ${error.message}`, isWaitingFirstResponse: false
-            } : m));
+            setMessages((prev) =>
+                prev.map((m) =>
+                    m.id === aiMsgId
+                        ? {
+                              role: "assistant",
+                              type: "error",
+                              content: `请求失败: ${error.message}`,
+                              isWaitingFirstResponse: false,
+                          }
+                        : m,
+                ),
+            );
         } finally {
             setIsSending(false);
-            setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, isStreaming: false, isWaitingFirstResponse: false } : m));
+            setMessages((prev) =>
+                prev.map((m) =>
+                    m.id === aiMsgId
+                        ? { ...m, isStreaming: false, isWaitingFirstResponse: false }
+                        : m,
+                ),
+            );
         }
     };
 
@@ -579,9 +667,9 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                                 <button
                                     className={`${styles.iconBtn} ${styles.primary}`}
                                     onClick={handleSend}
-                                    disabled={isSending || (!inputValue.trim() && selectedFiles.length === 0)}
+                                    disabled={isSending || isUploading || (!inputValue.trim() && selectedFiles.length === 0)}
                                 >
-                                    {isSending ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPaperPlane} />}
+                                    {isSending || isUploading ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPaperPlane} />}
                                 </button>
                             </div>
                         </div>
