@@ -1,691 +1,905 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faTimes, faPaperPlane, faBrain, faSpinner, faBars,
-    faPlus, faCommentDots, faExclamationCircle, faTools, faTrashAlt,
-    faPaperclip, faFileAlt, faCodeBranch, faBuilding
-} from '@fortawesome/free-solid-svg-icons';
-import ReactMarkdown from 'react-markdown';
-import Swal from 'sweetalert2';
+  faTimes,
+  faPaperPlane,
+  faBrain,
+  faSpinner,
+  faBars,
+  faPlus,
+  faCommentDots,
+  faExclamationCircle,
+  faTools,
+  faTrashAlt,
+  faPaperclip,
+  faFileAlt,
+  faCodeBranch,
+  faBuilding,
+} from "@fortawesome/free-solid-svg-icons";
+import ReactMarkdown from "react-markdown";
+import Swal from "sweetalert2";
 
-import useAuthStore from '../../../store/authStore';
-import useAIStore from '../../../store/aiStore';
-import { config } from '../../../utils/config';
-import { baseApi } from '../../../services/api';
-import { useDraggable } from '../../../hooks/useDraggable';
-import { useUploader } from '../../../hooks/useUploader';
-import { formatFileSize } from '../../../utils/helpers';
-import styles from './AIChatWindow.module.css';
-import AIChart from './AIChart';
+import useAuthStore from "../../../store/authStore";
+import useAIStore from "../../../store/aiStore";
+import { config } from "../../../utils/config";
+import { baseApi } from "../../../services/api";
+import { useDraggable } from "../../../hooks/useDraggable";
+import { useUploader } from "../../../hooks/useUploader";
+import { formatFileSize } from "../../../utils/helpers";
+import styles from "./AIChatWindow.module.css";
+import AIChart from "./AIChart";
 
 const ThinkingBubble = () => (
-    <div className={styles.thinkingBubble}>
-        <div className={styles.dot}></div>
-        <div className={styles.dot}></div>
-        <div className={styles.dot}></div>
-        <span style={{ fontSize: '0.85rem', color: '#0984e3', marginLeft: '6px' }}>AI 正在思考...</span>
-    </div>
+  <div className={styles.thinkingBubble}>
+    <div className={styles.dot}></div>
+    <div className={styles.dot}></div>
+    <div className={styles.dot}></div>
+    <span style={{ fontSize: "0.85rem", color: "#0984e3", marginLeft: "6px" }}>
+      AI 正在思考...
+    </span>
+  </div>
 );
 
 const RemoteFileCard = ({ fileItem }) => {
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const isImage = fileItem.mimeTypeName?.startsWith('image/');
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const isImage = fileItem.mimeTypeName?.startsWith("image/");
 
-    const handleClick = async () => {
-        try {
-            const res = await baseApi.get('/llm/get/downloadId', {
-                params: { path: fileItem.path, fileName: fileItem.fileName }
-            });
-            if (res.data.code === 200) {
-                const token = res.data.data;
-                const url = `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`;
-                window.open(url, '_blank');
-            }
-        } catch (e) {
-            Swal.fire({
-                toast: true, icon: 'error', title: '无法预览文件', position: 'top', customClass: {
-                    container: styles.swalHighZIndex
-                }
-            });
+  const handleClick = async () => {
+    try {
+      const res = await baseApi.get("/llm/get/downloadId", {
+        params: { path: fileItem.path, fileName: fileItem.fileName },
+      });
+      if (res.data.code === 200) {
+        const token = res.data.data;
+        const url = `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`;
+        window.open(url, "_blank");
+      }
+    } catch (e) {
+      Swal.fire({
+        toast: true,
+        icon: "error",
+        title: "无法预览文件",
+        position: "top",
+        customClass: {
+          container: styles.swalHighZIndex,
+        },
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!isImage || !fileItem.path) return;
+    let isMounted = true;
+    const loadImg = async () => {
+      try {
+        const res = await baseApi.get("/llm/get/downloadId", {
+          params: { path: fileItem.path, fileName: fileItem.fileName },
+        });
+        if (res.data.code === 200 && isMounted) {
+          const token = res.data.data;
+          setPreviewUrl(
+            `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`,
+          );
         }
+      } catch (e) {
+        console.error(e);
+      }
     };
+    loadImg();
+    return () => {
+      isMounted = false;
+    };
+  }, [fileItem, isImage]);
 
-    useEffect(() => {
-        if (!isImage || !fileItem.path) return;
-        let isMounted = true;
-        const loadImg = async () => {
-            try {
-                const res = await baseApi.get('/llm/get/downloadId', {
-                    params: { path: fileItem.path, fileName: fileItem.fileName }
-                });
-                if (res.data.code === 200 && isMounted) {
-                    const token = res.data.data;
-                    setPreviewUrl(`${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`);
-                }
-            } catch (e) { console.error(e); }
-        };
-        loadImg();
-        return () => { isMounted = false; };
-    }, [fileItem, isImage]);
-
-    return (
-        <div className={styles.fileChip} onClick={handleClick} title="点击预览">
-            {isImage ? (
-                <div className={styles.imageWrapper}>
-                    {previewUrl ? <img src={previewUrl} alt="thumb" className={styles.fileThumbnail} /> : <div className={styles.fileIconPlaceholder}><FontAwesomeIcon icon={faSpinner} spin /></div>}
-                </div>
-            ) : (
-                <div className={styles.fileIconPlaceholder}>
-                    <FontAwesomeIcon icon={faFileAlt} />
-                </div>
-            )}
-            <div className={styles.fileInfo}>
-                <span className={styles.fileName}>{fileItem.fileName}</span>
-                <span className={styles.fileSize}>{formatFileSize(fileItem.fileSize)}</span>
+  return (
+    <div className={styles.fileChip} onClick={handleClick} title="点击预览">
+      {isImage ? (
+        <div className={styles.imageWrapper}>
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="thumb"
+              className={styles.fileThumbnail}
+            />
+          ) : (
+            <div className={styles.fileIconPlaceholder}>
+              <FontAwesomeIcon icon={faSpinner} spin />
             </div>
+          )}
         </div>
-    );
+      ) : (
+        <div className={styles.fileIconPlaceholder}>
+          <FontAwesomeIcon icon={faFileAlt} />
+        </div>
+      )}
+      <div className={styles.fileInfo}>
+        <span className={styles.fileName}>{fileItem.fileName}</span>
+        <span className={styles.fileSize}>
+          {formatFileSize(fileItem.fileSize)}
+        </span>
+      </div>
+    </div>
+  );
 };
 
 const LocalFileCard = ({ file, onRemove, onPreview }) => {
-    // 增加容错判断，有些文件对象的 type 可能是空的
-    const isImage = file.type?.startsWith('image/') || false;
-    const [fileUrl, setFileUrl] = useState('');
+  // 增加容错判断，有些文件对象的 type 可能是空的
+  const isImage = file.type?.startsWith("image/") || false;
+  const [fileUrl, setFileUrl] = useState("");
 
-    // 使用 useEffect 创建和释放 Blob URL，防止内存泄漏
-    useEffect(() => {
-        const url = URL.createObjectURL(file);
-        setFileUrl(url);
-        return () => {
-            URL.revokeObjectURL(url);
-        };
-    }, [file]);
-
-    const handleCardClick = () => {
-        if (!fileUrl) return;
-
-        if (isImage) {
-            // 是图片，触发相册 Lightbox 预览
-            onPreview(fileUrl);
-        } else {
-            // 是 PDF、TXT、代码文件等，直接在浏览器新标签页打开原生预览
-            window.open(fileUrl, '_blank');
-        }
+  // 使用 useEffect 创建和释放 Blob URL，防止内存泄漏
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    setFileUrl(url);
+    return () => {
+      URL.revokeObjectURL(url);
     };
+  }, [file]);
 
-    return (
-        <div className={styles.fileChip} onClick={handleCardClick} title="点击预览">
-            {onRemove && (
-                <button className={styles.removeFileBtn} onClick={(e) => { e.stopPropagation(); onRemove(); }}>
-                    &times;
-                </button>
-            )}
-            {isImage ? (
-                <div className={styles.imageWrapper}>
-                    <img src={fileUrl} alt="thumb" className={styles.fileThumbnail} />
-                </div>
-            ) : (
-                <div className={styles.fileIconPlaceholder}>
-                    <FontAwesomeIcon icon={faFileAlt} />
-                </div>
-            )}
-            <div className={styles.fileInfo}>
-                <span className={styles.fileName}>{file.name}</span>
-                <span className={styles.fileSize}>{formatFileSize(file.size)}</span>
-            </div>
+  const handleCardClick = () => {
+    if (!fileUrl) return;
+
+    if (isImage) {
+      // 是图片，触发相册 Lightbox 预览
+      onPreview(fileUrl);
+    } else {
+      // 是 PDF、TXT、代码文件等，直接在浏览器新标签页打开原生预览
+      window.open(fileUrl, "_blank");
+    }
+  };
+
+  return (
+    <div className={styles.fileChip} onClick={handleCardClick} title="点击预览">
+      {onRemove && (
+        <button
+          className={styles.removeFileBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+        >
+          &times;
+        </button>
+      )}
+      {isImage ? (
+        <div className={styles.imageWrapper}>
+          <img src={fileUrl} alt="thumb" className={styles.fileThumbnail} />
         </div>
-    );
+      ) : (
+        <div className={styles.fileIconPlaceholder}>
+          <FontAwesomeIcon icon={faFileAlt} />
+        </div>
+      )}
+      <div className={styles.fileInfo}>
+        <span className={styles.fileName}>{file.name}</span>
+        <span className={styles.fileSize}>{formatFileSize(file.size)}</span>
+      </div>
+    </div>
+  );
 };
 
 const AIChatWindow = ({ onClose, initialSessionId }) => {
-    const { token } = useAuthStore();
-    // 获取 AI Store 中的状态和方法
-    const { context, availableScene, isSceneActive, toggleSceneActive } = useAIStore();
+  const { token } = useAuthStore();
+  // 获取 AI Store 中的状态和方法
+  const { context, availableScene, isSceneActive, toggleSceneActive } =
+    useAIStore();
 
-    // --- State ---
-    const [currentSessionId, setCurrentSessionId] = useState(initialSessionId);
-    const [sessions, setSessions] = useState([]);
-    const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState('');
-    const [selectedFiles, setSelectedFiles] = useState([]);
+  // --- State ---
+  const [currentSessionId, setCurrentSessionId] = useState(initialSessionId);
+  const [sessions, setSessions] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
-    // Lightbox State
-    const [previewImage, setPreviewImage] = useState(null);
+  // Lightbox State
+  const [previewImage, setPreviewImage] = useState(null);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSending, setIsSending] = useState(false);
-    const [useAgent, setUseAgent] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [useAgent, setUseAgent] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    const messagesEndRef = useRef(null);
-    const textAreaRef = useRef(null);
-    const fileInputRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const textAreaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-    // 新增：构建专属于 LLM 模块的上传ApiClient
-    const llmApiClient = useMemo(
-        () => ({
-            post: (url, data, config) => baseApi.post(`/llm${url}`, data, config),
-        }),
-        [],
+  // 新增：构建专属于 LLM 模块的上传ApiClient
+  const llmApiClient = useMemo(
+    () => ({
+      post: (url, data, config) => baseApi.post(`/llm${url}`, data, config),
+    }),
+    [],
+  );
+
+  // 新增：引入 hook 并拿到其控制变量和方法
+  const { uploadProgress, isUploading, startUpload } =
+    useUploader(llmApiClient);
+
+  const { position, dragRef, handleMouseDown } = useDraggable({
+    x: Math.max(0, window.innerWidth - 1000),
+    y: Math.max(0, window.innerHeight - 800),
+  });
+
+  // --- Effects ---
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isSending, selectedFiles]);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height =
+        Math.min(textAreaRef.current.scrollHeight, 150) + "px";
+    }
+  }, [inputValue]);
+
+  const fetchSessions = useCallback(async () => {
+    try {
+      const res = await baseApi.get("/llm/sessions");
+      if (res.data.code === 200) setSessions(res.data.data || []);
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  // --- History Loading ---
+  const loadHistory = useCallback(async (sessionId) => {
+    if (!sessionId) {
+      setMessages([]);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const res = await baseApi.get(`/llm/history/${sessionId}`);
+      if (res.data.code === 200) {
+        const history = res.data.data.map((m) => {
+          if (m.type === "file") {
+            try {
+              const parsed = JSON.parse(m.content);
+              return {
+                ...m,
+                content: parsed.text || "",
+                fileItems: parsed.files || [],
+                type: "file",
+              };
+            } catch (e) {
+              return { ...m, type: "text", content: "消息解析失败" };
+            }
+          }
+          if (m.type === "tool" && m.role === "assistant") {
+            try {
+              const messageObj = JSON.parse(m.content);
+              // 检查是否有 EChartsTool 调用
+              const isChart = messageObj.tool_calls?.some(
+                (t) => t.function.name === "EChartsTool",
+              );
+              return {
+                ...m,
+                type: "agent_result",
+                content: messageObj.content,
+                toolCalls: messageObj.tool_calls,
+                isChart, // 标记图表
+              };
+            } catch (e) {
+              return { ...m, type: "text", content: m.content };
+            }
+          }
+          return { ...m, type: "text" };
+        });
+        setMessages(history);
+      }
+    } catch (e) {
+      setMessages([
+        { role: "assistant", type: "error", content: "加载历史记录失败" },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentSessionId) loadHistory(currentSessionId);
+    else setMessages([]);
+  }, [currentSessionId, loadHistory]);
+
+  // --- Interaction ---
+  const handleFileSelect = (e) => {
+    const newFiles = Array.from(e.target.files).filter((file) => {
+      // 修改点：根据需求放宽单文件大小限制为 1GB（支持分片）
+      if (file.size > 1024 * 1024 * 1024) {
+        Swal.fire({
+          toast: true,
+          icon: "warning",
+          title: `${file.name} 超过 1GB限制`,
+          customClass: {
+            container: styles.swalHighZIndex,
+          },
+        });
+        return false;
+      }
+      return true;
+    });
+    setSelectedFiles((prev) => [...prev, ...newFiles]);
+    e.target.value = "";
+  };
+
+  const removeSelectedFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 修改点：重构 handleSend 函数以支持大文件分片
+  // ====== 修改点：重构 handleSend 函数，支持外部强行传入文本发送 ======
+  const handleSend = async (overrideMsg = null) => {
+    // 判断参数是否是事件(点击按钮时产生)，如果是事件说明没有强制输入
+    const isEvent =
+      overrideMsg && typeof overrideMsg.preventDefault === "function";
+    const userText = typeof overrideMsg === "string" ? overrideMsg : inputValue;
+    const currentFiles = [...selectedFiles];
+
+    if ((!userText.trim() && currentFiles.length === 0) || !currentSessionId)
+      return;
+
+    // 清空输入框
+    if (!isEvent && typeof overrideMsg === "string") {
+      // 是自动派发的文本，无需额外操作
+    } else {
+      setInputValue("");
+    }
+
+    setSelectedFiles([]);
+    if (textAreaRef.current) textAreaRef.current.style.height = "auto";
+    setIsSending(true);
+
+    const tempId = Date.now();
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: userText,
+        localFiles: currentFiles,
+        id: tempId,
+        type: currentFiles.length > 0 ? "file" : "text",
+      },
+    ]);
+
+    const aiMsgId = Date.now() + 1;
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "",
+        id: aiMsgId,
+        isWaitingFirstResponse: true,
+        type: "text",
+      },
+    ]);
+
+    try {
+      const { smallFiles, largeFileAttachmentIds } =
+        await startUpload(currentFiles);
+
+      const uploadFilesList = largeFileAttachmentIds.map((item) => ({
+        fileName: item.fileName,
+        filePath: item.filePath,
+      }));
+
+      const formData = new FormData();
+      const requestDTO = {
+        sessionId: currentSessionId,
+        message: userText || " ",
+        scene: context.scene,
+        sceneParams: context.sceneParams, // 这里会携带文件 path
+      };
+
+      if (uploadFilesList.length > 0) {
+        requestDTO.uploadFiles = uploadFilesList;
+      }
+
+      formData.append(
+        "request",
+        new Blob([JSON.stringify(requestDTO)], { type: "application/json" }),
+      );
+      smallFiles.forEach((file) => formData.append("files", file));
+
+      if (useAgent) {
+        const response = await baseApi.post("/llm/chat/agent", formData);
+        const messageObj = response.data.data;
+        const isChart = messageObj.tool_calls?.some(
+          (t) => t.function.name === "EChartsTool",
+        );
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMsgId
+              ? {
+                  ...msg,
+                  isWaitingFirstResponse: false,
+                  type: "agent_result",
+                  content: messageObj.content,
+                  toolCalls: messageObj.tool_calls,
+                  isChart,
+                }
+              : msg,
+          ),
+        );
+      } else {
+        const response = await fetch(
+          `${config.back_base_url}/llm/chat/stream`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          },
+        );
+
+        if (!response.ok) throw new Error("Stream Failed");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aiContent = "";
+        let buffer = "";
+        let hasReceivedFirstToken = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          if (!hasReceivedFirstToken) {
+            hasReceivedFirstToken = true;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aiMsgId
+                  ? {
+                      ...m,
+                      isWaitingFirstResponse: false,
+                      isStreaming: true,
+                    }
+                  : m,
+              ),
+            );
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data:")) continue;
+            const dataStr = trimmed.slice(5).trim();
+            try {
+              const json = JSON.parse(dataStr);
+              if (json.c) {
+                aiContent += json.c;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === aiMsgId ? { ...m, content: aiContent } : m,
+                  ),
+                );
+              }
+            } catch (e) {}
+          }
+        }
+      }
+      fetchSessions();
+    } catch (error) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === aiMsgId
+            ? {
+                role: "assistant",
+                type: "error",
+                content: `请求失败: ${error.message}`,
+                isWaitingFirstResponse: false,
+              }
+            : m,
+        ),
+      );
+    } finally {
+      setIsSending(false);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === aiMsgId
+            ? { ...m, isStreaming: false, isWaitingFirstResponse: false }
+            : m,
+        ),
+      );
+    }
+  };
+
+  // ====== 修改点：新增副作用，监听并执行自动消息派发 ======
+  useEffect(() => {
+    if (
+      context.scene === "file-summary" &&
+      context.sceneParams?.autoSendMsg &&
+      currentSessionId
+    ) {
+      const msgToAutoSend = context.sceneParams.autoSendMsg;
+      // 为了防止死循环或被反复触发，消费该变量后立即清除它
+      useAIStore
+        .getState()
+        .setContext("file-summary", {
+          ...context.sceneParams,
+          autoSendMsg: null,
+        });
+
+      // 稍作延迟以确保滚动条和界面反应顺滑，随后触发自动发送
+      setTimeout(() => {
+        handleSend(msgToAutoSend);
+      }, 100);
+    }
+    // 我们只需监听 autoSendMsg 与 currentSessionId 的就绪状态
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context.sceneParams?.autoSendMsg, currentSessionId]);
+
+  const handleNewChat = async () => {
+    try {
+      const res = await baseApi.get("/llm/session/new");
+      if (res.data.code === 200) {
+        setCurrentSessionId(res.data.data);
+        if (window.innerWidth < 800) setIsSidebarOpen(false);
+      }
+    } catch (e) {}
+  };
+
+  const handleDeleteSession = async (e, targetSessionId) => {
+    e.stopPropagation();
+    const result = await Swal.fire({
+      title: "删除会话?",
+      text: "无法恢复",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff7675",
+      confirmButtonText: "删除",
+      width: "320px",
+      customClass: {
+        container: styles.swalHighZIndex,
+      },
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await baseApi.delete(`/llm/session/${targetSessionId}`);
+      setSessions((prev) =>
+        prev.filter((s) => s.sessionId !== targetSessionId),
+      );
+      if (targetSessionId === currentSessionId) setCurrentSessionId(null);
+    } catch (error) {}
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!isSending && (inputValue.trim() || selectedFiles.length > 0))
+        handleSend();
+    }
+  };
+
+  // --- Render Content ---
+  const renderMessageContent = (msg) => {
+    if (msg.type === "error") {
+      return (
+        <div
+          style={{
+            color: "#d63031",
+            display: "flex",
+            gap: "8px",
+            alignItems: "center",
+          }}
+        >
+          <FontAwesomeIcon icon={faExclamationCircle} /> {msg.content}
+        </div>
+      );
+    }
+
+    if (msg.isWaitingFirstResponse) {
+      return <ThinkingBubble />;
+    }
+
+    const renderFiles = () => (
+      <>
+        {msg.localFiles && msg.localFiles.length > 0 && (
+          <div className={styles.filePreviewArea}>
+            {msg.localFiles.map((f, i) => (
+              <LocalFileCard
+                key={i}
+                file={f}
+                onPreview={(url) => setPreviewImage(url)}
+              />
+            ))}
+          </div>
+        )}
+        {msg.fileItems && msg.fileItems.length > 0 && (
+          <div className={styles.filePreviewArea}>
+            {msg.fileItems.map((f, i) => (
+              <RemoteFileCard key={i} fileItem={f} />
+            ))}
+          </div>
+        )}
+      </>
     );
 
-    // 新增：引入 hook 并拿到其控制变量和方法
-    const { uploadProgress, isUploading, startUpload } =
-        useUploader(llmApiClient);
-
-    const { position, dragRef, handleMouseDown } = useDraggable({
-        x: Math.max(0, window.innerWidth - 1000),
-        y: Math.max(0, window.innerHeight - 800)
-    });
-
-    // --- Effects ---
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isSending, selectedFiles]);
-
-    useEffect(() => {
-        if (textAreaRef.current) {
-            textAreaRef.current.style.height = 'auto';
-            textAreaRef.current.style.height = Math.min(textAreaRef.current.scrollHeight, 150) + 'px';
-        }
-    }, [inputValue]);
-
-    const fetchSessions = useCallback(async () => {
-        try {
-            const res = await baseApi.get('/llm/sessions');
-            if (res.data.code === 200) setSessions(res.data.data || []);
-        } catch (e) { }
-    }, []);
-
-    useEffect(() => { fetchSessions(); }, [fetchSessions]);
-
-    // --- History Loading ---
-    const loadHistory = useCallback(async (sessionId) => {
-        if (!sessionId) { setMessages([]); return; }
-        setIsLoading(true);
-        try {
-            const res = await baseApi.get(`/llm/history/${sessionId}`);
-            if (res.data.code === 200) {
-                const history = res.data.data.map(m => {
-                    if (m.type === 'file') {
-                        try {
-                            const parsed = JSON.parse(m.content);
-                            return { ...m, content: parsed.text || '', fileItems: parsed.files || [], type: 'file' };
-                        } catch (e) { return { ...m, type: 'text', content: '消息解析失败' }; }
-                    }
-                    if (m.type === 'tool' && m.role === 'assistant') {
-                        try {
-                            const messageObj = JSON.parse(m.content);
-                            // 检查是否有 EChartsTool 调用
-                            const isChart = messageObj.tool_calls?.some(t => t.function.name === 'EChartsTool');
-                            return {
-                                ...m,
-                                type: 'agent_result',
-                                content: messageObj.content,
-                                toolCalls: messageObj.tool_calls,
-                                isChart // 标记图表
-                            };
-                        } catch (e) { return { ...m, type: 'text', content: m.content }; }
-                    }
-                    return { ...m, type: 'text' };
-                });
-                setMessages(history);
-            }
-        } catch (e) {
-            setMessages([{ role: 'assistant', type: 'error', content: '加载历史记录失败' }]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (currentSessionId) loadHistory(currentSessionId);
-        else setMessages([]);
-    }, [currentSessionId, loadHistory]);
-
-    // --- Interaction ---
-    const handleFileSelect = (e) => {
-        const newFiles = Array.from(e.target.files).filter((file) => {
-            // 修改点：根据需求放宽单文件大小限制为 1GB（支持分片）
-            if (file.size > 1024 * 1024 * 1024) {
-                Swal.fire({
-                    toast: true,
-                    icon: "warning",
-                    title: `${file.name} 超过 1GB限制`,
-                    customClass: {
-                        container: styles.swalHighZIndex,
-                    },
-                });
-                return false;
-            }
-            return true;
-        });
-        setSelectedFiles((prev) => [...prev, ...newFiles]);
-        e.target.value = "";
-    };
-
-    const removeSelectedFile = (index) => {
-        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    };
-
-    // 修改点：重构 handleSend 函数以支持大文件分片
-    const handleSend = async () => {
-        if ((!inputValue.trim() && selectedFiles.length === 0) || !currentSessionId)
-            return;
-
-        const userText = inputValue;
-        const currentFiles = [...selectedFiles];
-
-        setInputValue("");
-        setSelectedFiles([]);
-        if (textAreaRef.current) textAreaRef.current.style.height = "auto";
-        setIsSending(true);
-
-        const tempId = Date.now();
-        setMessages((prev) => [
-            ...prev,
-            {
-                role: "user",
-                content: userText,
-                localFiles: currentFiles,
-                id: tempId,
-                type: currentFiles.length > 0 ? "file" : "text",
-            },
-        ]);
-
-        const aiMsgId = Date.now() + 1;
-        setMessages((prev) => [
-            ...prev,
-            {
-                role: "assistant",
-                content: "",
-                id: aiMsgId,
-                isWaitingFirstResponse: true,
-                type: "text",
-            },
-        ]);
-
-        try {
-            // 1. 通过 useUploader 上传所有的文件
-            const { smallFiles, largeFileAttachmentIds } =
-                await startUpload(currentFiles);
-
-            // 2. 映射大文件数据格式给后端所需的 ChatRequestDTO
-            const uploadFilesList = largeFileAttachmentIds.map((item) => ({
-                fileName: item.fileName,
-                filePath: item.filePath,
-            }));
-
-            const formData = new FormData();
-            const requestDTO = {
-                sessionId: currentSessionId,
-                message: userText || " ",
-                scene: context.scene,
-                sceneParams: context.sceneParams,
-            };
-
-            // 加入大文件信息
-            if (uploadFilesList.length > 0) {
-                requestDTO.uploadFiles = uploadFilesList;
+    if (
+      msg.type === "agent_result" ||
+      (msg.type === "tool" && msg.role === "assistant")
+    ) {
+      const tools = msg.toolCalls || [];
+      return (
+        <>
+          {renderFiles()}
+          {msg.content && <ReactMarkdown>{msg.content}</ReactMarkdown>}
+          {tools.map((toolCall, idx) => {
+            const func = toolCall.function;
+            let args = {};
+            try {
+              args = JSON.parse(func.arguments);
+            } catch (e) {
+              args = func.arguments;
             }
 
-            // 3. 构建表单载荷
-            formData.append(
-                "request",
-                new Blob([JSON.stringify(requestDTO)], { type: "application/json" }),
-            );
-            // 小文件仍通过原有的 formData 分区提交
-            smallFiles.forEach((file) => formData.append("files", file));
-
-            if (useAgent) {
-                // ... 保持原有逻辑不变
-                const response = await baseApi.post("/llm/chat/agent", formData);
-                const messageObj = response.data.data;
-                // 检测是否包含图表工具
-                const isChart = messageObj.tool_calls?.some(
-                    (t) => t.function.name === "EChartsTool",
-                );
-
-                setMessages((prev) =>
-                    prev.map((msg) =>
-                        msg.id === aiMsgId
-                            ? {
-                                  ...msg,
-                                  isWaitingFirstResponse: false,
-                                  type: "agent_result",
-                                  content: messageObj.content,
-                                  toolCalls: messageObj.tool_calls,
-                                  isChart,
-                              }
-                            : msg,
-                    ),
-                );
-            } else {
-                // ... 保持原有 stream 逻辑不变
-                const response = await fetch(
-                    `${config.back_base_url}/llm/chat/stream`,
-                    {
-                        method: "POST",
-                        headers: { Authorization: `Bearer ${token}` },
-                        body: formData,
-                    },
-                );
-
-                if (!response.ok) throw new Error("Stream Failed");
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let aiContent = "";
-                let buffer = "";
-                let hasReceivedFirstToken = false;
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    if (!hasReceivedFirstToken) {
-                        hasReceivedFirstToken = true;
-                        setMessages((prev) =>
-                            prev.map((m) =>
-                                m.id === aiMsgId
-                                    ? {
-                                          ...m,
-                                          isWaitingFirstResponse: false,
-                                          isStreaming: true,
-                                      }
-                                    : m,
-                            ),
-                        );
-                    }
-
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split("\n");
-                    buffer = lines.pop();
-
-                    for (const line of lines) {
-                        const trimmed = line.trim();
-                        if (!trimmed || !trimmed.startsWith("data:")) continue;
-                        const dataStr = trimmed.slice(5).trim();
-                        try {
-                            const json = JSON.parse(dataStr);
-                            if (json.c) {
-                                aiContent += json.c;
-                                setMessages((prev) =>
-                                    prev.map((m) =>
-                                        m.id === aiMsgId
-                                            ? { ...m, content: aiContent }
-                                            : m,
-                                    ),
-                                );
-                            }
-                        } catch (e) {}
-                    }
-                }
+            // 1. ReplayTool
+            if (func.name === "ReplayTool") {
+              return (
+                <div key={idx} style={{ marginTop: "10px" }}>
+                  <ReactMarkdown>{args.message || args}</ReactMarkdown>
+                </div>
+              );
             }
-            fetchSessions();
-        } catch (error) {
-            setMessages((prev) =>
-                prev.map((m) =>
-                    m.id === aiMsgId
-                        ? {
-                              role: "assistant",
-                              type: "error",
-                              content: `请求失败: ${error.message}`,
-                              isWaitingFirstResponse: false,
-                          }
-                        : m,
-                ),
-            );
-        } finally {
-            setIsSending(false);
-            setMessages((prev) =>
-                prev.map((m) =>
-                    m.id === aiMsgId
-                        ? { ...m, isStreaming: false, isWaitingFirstResponse: false }
-                        : m,
-                ),
-            );
-        }
-    };
 
-    const handleNewChat = async () => {
-        try {
-            const res = await baseApi.get('/llm/session/new');
-            if (res.data.code === 200) {
-                setCurrentSessionId(res.data.data);
-                if (window.innerWidth < 800) setIsSidebarOpen(false);
+            // 2. EChartsTool
+            if (func.name === "EChartsTool") {
+              const option = JSON.parse(args.option);
+              return (
+                <div key={idx} className={styles.chartContainer}>
+                  <AIChart option={option} title={args.explanation} />
+                </div>
+              );
             }
-        } catch (e) { }
-    };
 
-    const handleDeleteSession = async (e, targetSessionId) => {
-        e.stopPropagation();
-        const result = await Swal.fire({
-            title: '删除会话?', text: "无法恢复", icon: 'warning',
-            showCancelButton: true, confirmButtonColor: '#ff7675', confirmButtonText: '删除', width: '320px', customClass: {
-                container: styles.swalHighZIndex
-            }
-        });
-        if (!result.isConfirmed) return;
-        try {
-            await baseApi.delete(`/llm/session/${targetSessionId}`);
-            setSessions(prev => prev.filter(s => s.sessionId !== targetSessionId));
-            if (targetSessionId === currentSessionId) setCurrentSessionId(null);
-        } catch (error) { }
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (!isSending && (inputValue.trim() || selectedFiles.length > 0)) handleSend();
-        }
-    };
-
-    // --- Render Content ---
-    const renderMessageContent = (msg) => {
-        if (msg.type === 'error') {
-            return <div style={{ color: '#d63031', display: 'flex', gap: '8px', alignItems: 'center' }}><FontAwesomeIcon icon={faExclamationCircle} /> {msg.content}</div>;
-        }
-
-        if (msg.isWaitingFirstResponse) {
-            return <ThinkingBubble />;
-        }
-
-        const renderFiles = () => (
-            <>
-                {msg.localFiles && msg.localFiles.length > 0 && (
-                    <div className={styles.filePreviewArea}>
-                        {msg.localFiles.map((f, i) => (
-                            <LocalFileCard key={i} file={f} onPreview={(url) => setPreviewImage(url)} />
-                        ))}
-                    </div>
-                )}
-                {msg.fileItems && msg.fileItems.length > 0 && (
-                    <div className={styles.filePreviewArea}>
-                        {msg.fileItems.map((f, i) => <RemoteFileCard key={i} fileItem={f} />)}
-                    </div>
-                )}
-            </>
-        );
-
-        if (msg.type === 'agent_result' || (msg.type === 'tool' && msg.role === 'assistant')) {
-            const tools = msg.toolCalls || [];
+            // 3. Other Tools
             return (
-                <>
-                    {renderFiles()}
-                    {msg.content && <ReactMarkdown>{msg.content}</ReactMarkdown>}
-                    {tools.map((toolCall, idx) => {
-                        const func = toolCall.function;
-                        let args = {};
-                        try { args = JSON.parse(func.arguments); } catch (e) { args = func.arguments; }
-
-                        // 1. ReplayTool
-                        if (func.name === 'ReplayTool') {
-                            return <div key={idx} style={{ marginTop: '10px' }}><ReactMarkdown>{args.message || args}</ReactMarkdown></div>;
-                        }
-
-                        // 2. EChartsTool
-                        if (func.name === 'EChartsTool') {
-                            const option = JSON.parse(args.option);
-                            return (
-                                <div key={idx} className={styles.chartContainer}>
-                                    <AIChart option={option} title={args.explanation} />
-                                </div>
-                            );
-                        }
-
-                        // 3. Other Tools
-                        return (
-                            <div key={idx} className={styles.toolContainer}>
-                                <div className={styles.toolHeader}><FontAwesomeIcon icon={faCodeBranch} /> 调用工具: {func.name}</div>
-                                <div className={styles.toolBody}>{JSON.stringify(args, null, 2)}</div>
-                            </div>
-                        );
-                    })}
-                </>
+              <div key={idx} className={styles.toolContainer}>
+                <div className={styles.toolHeader}>
+                  <FontAwesomeIcon icon={faCodeBranch} /> 调用工具: {func.name}
+                </div>
+                <div className={styles.toolBody}>
+                  {JSON.stringify(args, null, 2)}
+                </div>
+              </div>
             );
-        }
-
-        return (
-            <>
-                {renderFiles()}
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
-                {msg.isStreaming && <span style={{ display: 'inline-block', width: '6px', height: '14px', background: '#2d3436', marginLeft: '4px', animation: 'blink 1s infinite' }}></span>}
-            </>
-        );
-    };
+          })}
+        </>
+      );
+    }
 
     return (
-        <>
-            <div className={styles.chatWindow} style={{ left: position.x, top: position.y }} ref={dragRef}>
-                <div className={styles.header} onMouseDown={handleMouseDown}>
-                    <div className={`${styles.titleArea} no-drag`}>
-                        <button className={styles.toggleSidebarBtn} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                            <FontAwesomeIcon icon={faBars} />
-                        </button>
-                        <div className={styles.titleText}>
-                            <h3>AI 教学助手</h3>
-                            <span>{useAgent ? 'Agent 深度模式' : '极速对话模式'}</span>
-                        </div>
-                    </div>
-                    <button className={`${styles.closeButton} no-drag`} onClick={onClose}><FontAwesomeIcon icon={faTimes} /></button>
+      <>
+        {renderFiles()}
+        <ReactMarkdown>{msg.content}</ReactMarkdown>
+        {msg.isStreaming && (
+          <span
+            style={{
+              display: "inline-block",
+              width: "6px",
+              height: "14px",
+              background: "#2d3436",
+              marginLeft: "4px",
+              animation: "blink 1s infinite",
+            }}
+          ></span>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <>
+      <div
+        className={styles.chatWindow}
+        style={{ left: position.x, top: position.y }}
+        ref={dragRef}
+      >
+        <div className={styles.header} onMouseDown={handleMouseDown}>
+          <div className={`${styles.titleArea} no-drag`}>
+            <button
+              className={styles.toggleSidebarBtn}
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <FontAwesomeIcon icon={faBars} />
+            </button>
+            <div className={styles.titleText}>
+              <h3>AI 教学助手</h3>
+              <span>{useAgent ? "Agent 深度模式" : "极速对话模式"}</span>
+            </div>
+          </div>
+          <button className={`${styles.closeButton} no-drag`} onClick={onClose}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+
+        <div className={styles.contentContainer}>
+          <div
+            className={`${styles.sidebar} ${!isSidebarOpen ? styles.collapsed : ""}`}
+          >
+            <button className={styles.newChatBtn} onClick={handleNewChat}>
+              <FontAwesomeIcon icon={faPlus} /> 新建对话
+            </button>
+            <div className={styles.sessionList}>
+              {sessions.map((s) => (
+                <div
+                  key={s.id}
+                  className={`${styles.sessionItem} ${s.sessionId === currentSessionId ? styles.active : ""}`}
+                  onClick={() => setCurrentSessionId(s.sessionId)}
+                >
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                    }}
+                  >
+                    {s.title}
+                  </span>
+                  <button
+                    className={styles.deleteSessionBtn}
+                    onClick={(e) => handleDeleteSession(e, s.sessionId)}
+                  >
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div className={styles.contentContainer}>
-                    <div className={`${styles.sidebar} ${!isSidebarOpen ? styles.collapsed : ''}`}>
-                        <button className={styles.newChatBtn} onClick={handleNewChat}>
-                            <FontAwesomeIcon icon={faPlus} /> 新建对话
-                        </button>
-                        <div className={styles.sessionList}>
-                            {sessions.map(s => (
-                                <div key={s.id}
-                                    className={`${styles.sessionItem} ${s.sessionId === currentSessionId ? styles.active : ''}`}
-                                    onClick={() => setCurrentSessionId(s.sessionId)}
-                                >
-                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{s.title}</span>
-                                    <button className={styles.deleteSessionBtn} onClick={(e) => handleDeleteSession(e, s.sessionId)}>
-                                        <FontAwesomeIcon icon={faTrashAlt} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className={styles.mainArea}>
-                        <div className={styles.messageList}>
-                            {messages.length === 0 && !isLoading && (
-                                <div className={styles.emptyState}>
-                                    <h1 className={styles.emptyTitle}>ASK ME</h1>
-                                    <span className={styles.emptySubtitle}>我能为您做些什么？</span>
-                                </div>
-                            )}
-                            {messages.map((msg, index) => (
-                                <div key={index} className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}>
-                                    <div className={styles.messageContent}>
-                                        {renderMessageContent(msg)}
-                                    </div>
-                                </div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        <div className={styles.footer}>
-                            <div className={styles.toolbar}>
-                                <div className={styles.agentSwitch} onClick={() => setUseAgent(!useAgent)}>
-                                    <div className={`${styles.switchTrack} ${useAgent ? styles.active : ''}`}>
-                                        <div className={styles.switchKnob}></div>
-                                    </div>
-                                    <span>Agent 模式</span>
-                                </div>
-
-                                {/* 场景感知开关 */}
-                                {availableScene && (
-                                    <div
-                                        className={styles.agentSwitch}
-                                        onClick={toggleSceneActive}
-                                        title={`开启后，AI将获取${availableScene === 'organization' ? '组织架构' : '当前页面'}相关数据`}
-                                    >
-                                        <div className={`${styles.switchTrack} ${styles.blueTrack} ${isSceneActive ? styles.active : ''}`}>
-                                            <div className={styles.switchKnob}></div>
-                                        </div>
-                                        <span>
-                                            <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '4px', color: isSceneActive ? '#0984e3' : '#b2bec3' }} />
-                                            {availableScene === 'organization' ? '获取组织数据' : '获取页面数据'}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {selectedFiles.length > 0 && (
-                                <div className={styles.filePreviewArea}>
-                                    {selectedFiles.map((f, i) => (
-                                        <LocalFileCard
-                                            key={i}
-                                            file={f}
-                                            onRemove={() => removeSelectedFile(i)}
-                                            onPreview={(url) => setPreviewImage(url)}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-
-                            <div className={styles.inputWrapper}>
-                                <input
-                                    type="file" ref={fileInputRef} style={{ display: 'none' }} multiple
-                                    accept="image/*,text/*,.txt,.md,.json,.js,.java,.py,.c,.cpp,.h,.css,.html"
-                                    onChange={handleFileSelect}
-                                />
-                                <button className={styles.iconBtn} onClick={() => fileInputRef.current.click()} title="上传文件">
-                                    <FontAwesomeIcon icon={faPaperclip} />
-                                </button>
-                                <textarea
-                                    ref={textAreaRef} className={styles.textInput}
-                                    placeholder="输入消息..." rows={1}
-                                    value={inputValue} onChange={e => setInputValue(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                                <button
-                                    className={`${styles.iconBtn} ${styles.primary}`}
-                                    onClick={handleSend}
-                                    disabled={isSending || isUploading || (!inputValue.trim() && selectedFiles.length === 0)}
-                                >
-                                    {isSending || isUploading ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPaperPlane} />}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+          <div className={styles.mainArea}>
+            <div className={styles.messageList}>
+              {messages.length === 0 && !isLoading && (
+                <div className={styles.emptyState}>
+                  <h1 className={styles.emptyTitle}>ASK ME</h1>
+                  <span className={styles.emptySubtitle}>
+                    我能为您做些什么？
+                  </span>
                 </div>
+              )}
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.aiMessage}`}
+                >
+                  <div className={styles.messageContent}>
+                    {renderMessageContent(msg)}
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* 图片预览 Lightbox */}
-            {previewImage && (
-                <div className={styles.imageLightbox} onClick={() => setPreviewImage(null)}>
-                    <div className={styles.closeLightbox}>&times;</div>
-                    <img src={previewImage} alt="Full Preview" className={styles.lightboxImg} onClick={(e) => e.stopPropagation()} />
+            <div className={styles.footer}>
+              <div className={styles.toolbar}>
+                <div
+                  className={styles.agentSwitch}
+                  onClick={() => setUseAgent(!useAgent)}
+                >
+                  <div
+                    className={`${styles.switchTrack} ${useAgent ? styles.active : ""}`}
+                  >
+                    <div className={styles.switchKnob}></div>
+                  </div>
+                  <span>Agent 模式</span>
                 </div>
-            )}
-        </>
-    );
+
+                {/* 场景感知开关 */}
+                {availableScene && (
+                  <div
+                    className={styles.agentSwitch}
+                    onClick={toggleSceneActive}
+                    title={`开启后，AI将获取${availableScene === "organization" ? "组织架构" : "当前页面"}相关数据`}
+                  >
+                    <div
+                      className={`${styles.switchTrack} ${styles.blueTrack} ${isSceneActive ? styles.active : ""}`}
+                    >
+                      <div className={styles.switchKnob}></div>
+                    </div>
+                    <span>
+                      <FontAwesomeIcon
+                        icon={faBuilding}
+                        style={{
+                          marginRight: "4px",
+                          color: isSceneActive ? "#0984e3" : "#b2bec3",
+                        }}
+                      />
+                      {availableScene === "organization"
+                        ? "获取组织数据"
+                        : "获取页面数据"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {selectedFiles.length > 0 && (
+                <div className={styles.filePreviewArea}>
+                  {selectedFiles.map((f, i) => (
+                    <LocalFileCard
+                      key={i}
+                      file={f}
+                      onRemove={() => removeSelectedFile(i)}
+                      onPreview={(url) => setPreviewImage(url)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.inputWrapper}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  multiple
+                  accept="image/*,text/*,.txt,.md,.json,.js,.java,.py,.c,.cpp,.h,.css,.html"
+                  onChange={handleFileSelect}
+                />
+                <button
+                  className={styles.iconBtn}
+                  onClick={() => fileInputRef.current.click()}
+                  title="上传文件"
+                >
+                  <FontAwesomeIcon icon={faPaperclip} />
+                </button>
+                <textarea
+                  ref={textAreaRef}
+                  className={styles.textInput}
+                  placeholder="输入消息..."
+                  rows={1}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                <button
+                  className={`${styles.iconBtn} ${styles.primary}`}
+                  onClick={handleSend}
+                  disabled={
+                    isSending ||
+                    isUploading ||
+                    (!inputValue.trim() && selectedFiles.length === 0)
+                  }
+                >
+                  {isSending || isUploading ? (
+                    <FontAwesomeIcon icon={faSpinner} spin />
+                  ) : (
+                    <FontAwesomeIcon icon={faPaperPlane} />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 图片预览 Lightbox */}
+      {previewImage && (
+        <div
+          className={styles.imageLightbox}
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className={styles.closeLightbox}>&times;</div>
+          <img
+            src={previewImage}
+            alt="Full Preview"
+            className={styles.lightboxImg}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
+  );
 };
 
 export default AIChatWindow;

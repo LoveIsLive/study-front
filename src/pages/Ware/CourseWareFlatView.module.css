@@ -3,6 +3,9 @@
   background: #ffffff;
   border-radius: 8px;
   min-height: 400px;
+  padding: 8px;
+  /* 预留底部空间，防止最下面的菜单展开时被浏览器边缘切掉 */
+  padding-bottom: 80px; 
 }
 
 .nodeList {
@@ -24,14 +27,17 @@
   border-radius: 8px;
   transition: all 0.25s ease;
   border: 1px solid transparent;
+  /* 解决 Issue 3：赋予相对定位并在 hover 时提高层级，防覆盖 */
+  position: relative;
+  z-index: 1;
 }
 
 .nodeContent:hover {
   background-color: #f8fbff;
   border-color: #e6f3ff;
+  z-index: 10;
 }
 
-/* 更现代化的方形圆角图标 */
 .iconCircle {
   width: 36px;
   height: 36px;
@@ -51,22 +57,151 @@
   transform: scale(1.05);
 }
 
-.nodeName {
+.nodeNameWrapper {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.nodeName {
   font-size: 15px;
   color: #333;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 右侧箭头过渡旋转动画 */
+.renameInput {
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Hover 动作图标面板 */
+.actions {
+  display: none;
+  align-items: center;
+  gap: 16px;
+  margin-left: 16px;
+  margin-right: 8px;
+}
+
+.nodeContent:hover .actions {
+  display: flex;
+}
+
+.actionBtn {
+  color: #8c8c8c;
+  transition: color 0.2s;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.actionBtn:hover {
+  color: #1890ff;
+}
+
+.deleteBtn:hover {
+  color: #ff4d4f;
+}
+
+/* 更多选项下拉菜单Wrapper */
+.moreMenuWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 4px; /* 增加热区面积防止误触离开 */
+  margin: -4px;
+}
+
+.dropdownMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  /* 去掉 margin-top 解决死区缝隙问题 */
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 6px;
+  padding: 6px 0;
+  z-index: 999;
+  min-width: 130px;
+  border: 1px solid #f0f0f0;
+}
+
+/* 透明桥梁：即便有一点距离，鼠标往下移动也不会触发 onMouseLeave */
+.dropdownMenu::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: transparent;
+}
+
+.dropdownMenu div {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.dropdownMenu div:hover {
+  background: #f5f5f5;
+  color: #1890ff;
+}
+
+/* 顶部上传区域 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.newBtn {
+  background: #1890ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.newBtn:hover {
+  background: #40a9ff;
+}
+
+.newBtn:active {
+  transform: scale(0.96);
+}
+
 .arrow {
   color: #bfbfbf;
   display: flex;
   align-items: center;
   margin-left: 8px;
-  transition:
-    transform 0.3s ease,
-    color 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .arrowExpanded {
@@ -74,20 +209,24 @@
   color: #1890ff;
 }
 
-/* ===== 核心动画包裹层 (Grid布局技巧) ===== */
+/* 核心动画包裹层 */
 .childrenWrapper {
   display: grid;
-  grid-template-rows: 0fr; /* 默认收起 */
+  grid-template-rows: 0fr; 
   transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .childrenWrapper.expanded {
-  grid-template-rows: 1fr; /* 展开 */
+  grid-template-rows: 1fr; 
 }
 
-/* 必须有一层 overflow: hidden 才能配合 grid 隐藏内容 */
 .childrenInner {
   overflow: hidden;
+}
+
+/* 解决 Issue 3：动画展开后取消 hidden 裁剪，使得内部弹窗得以突破包围 */
+.childrenWrapper.expanded > .childrenInner {
+  overflow: visible;
 }
 
 .childrenContainer {
@@ -98,8 +237,7 @@
   margin-bottom: 8px;
 }
 
-/* 加载动画样式 */
-.loading {
+.loading, .loadingMain {
   font-size: 14px;
   color: #1890ff;
   padding: 12px 0;
@@ -110,11 +248,10 @@
 
 .loadingMain {
   font-size: 16px;
-  color: #1890ff;
   padding: 24px;
 }
 
-.loading::before {
+.loading::before, .loadingMain::before {
   content: "";
   width: 14px;
   height: 14px;
@@ -125,7 +262,5 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }

@@ -311,7 +311,7 @@ const Header = () => {
           )}
 
           {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
-          {activeType === 'class' && currentCourseId ? (
+          {/* {activeType === 'class' && currentCourseId ? (
             <NavLink
               to={`/ware/home/${currentCourseId}`}
               className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
@@ -324,7 +324,7 @@ const Header = () => {
               <FontAwesomeIcon icon={faBook} fixedWidth />
               <span>课程仓库</span>
             </div>
-          )}
+          )} */}
 
           {/* 作业区按钮 - 始终显示 */}
           <NavLink
@@ -336,13 +336,13 @@ const Header = () => {
           </NavLink>
 
           {/* 讨论区按钮 - 始终显示 */}
-          <NavLink
+          {/* <NavLink
             to="/discussion"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faComments} fixedWidth />
             <span>课程讨论区</span>
-          </NavLink>
+          </NavLink> */}
 
           {/* 成绩分析按钮 - 始终显示 */}
           <NavLink
