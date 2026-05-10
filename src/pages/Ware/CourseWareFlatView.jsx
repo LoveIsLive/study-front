@@ -220,17 +220,33 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         }
       }
 
-      // --- 修改点：AI一键总结，借用自带聊天窗口和 /chat/stream 的能力 ---
+      // --- 终极修改点：AI一键总结 ---
       if (action === "ai-summary") {
         const aiStore = useAIStore.getState();
-        // 设置场景及携带路径，同时注入 autoSendMsg 参数
+        const authStore = useAuthStore.getState();
+
+        // 【核心修复】：手动模拟 apiClient 的行为，把课程 ID 拼接到路径最前面
+        let apiPath = fullPath;
+        if (authStore.currentCourseId) {
+          const courseIdStr = String(authStore.currentCourseId);
+          if (!apiPath.startsWith(`/${courseIdStr}`)) {
+            if (apiPath === "/" || apiPath === "") {
+              apiPath = `/${courseIdStr}`;
+            } else {
+              const normalizedPath = apiPath.startsWith("/")
+                ? apiPath
+                : "/" + apiPath;
+              apiPath = `/${courseIdStr}${normalizedPath}`;
+            }
+          }
+        }
+
+        // 此时的 apiPath 必定是类似 "/12/main.jsx" 的绝对路径
         aiStore.setContext("file-summary", {
-          path: fullPath,
+          path: apiPath,
           autoSendMsg: `请帮我总结一下这个文件：${node.name}`,
         });
 
-        aiStore.toggleChat(true);
-        // 唤醒全局AI气泡
         window.dispatchEvent(new CustomEvent("open-ai-chat"));
 
         Swal.fire({
@@ -246,17 +262,19 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
       // --- 修改点：查看并修改AI总结，对接 /get/summary 接口 ---
       if (action === "view-summary") {
-        // 调用正确的获取总结的接口
+        // 调用获取总结接口
         const response = await wareApi.get("/get/summary", {
           params: { path: fullPath },
         });
-        // 从后端的 NodeMetadata 取出 summary 字段
-        const currentSummary = response.data.data?.summary || "";
+
+        // 【核心修复】：后端返回的字段名是 aiSummary 而不是 summary
+        // 增加 response.data.data 的存在性检查以防万一
+        const currentSummary = response.data.data?.aiSummary || "";
 
         const { value: newSummary, isConfirmed } = await Swal.fire({
           title: "AI 文件总结",
           input: "textarea",
-          inputValue: currentSummary,
+          inputValue: currentSummary, // 此时 "hello" 就能正确填入这里了
           inputPlaceholder:
             "暂无AI总结内容，您可以使用【AI一键总结】生成，也可以直接在此编辑...",
           showCancelButton: true,
@@ -268,9 +286,13 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         });
 
         if (isConfirmed && newSummary !== currentSummary) {
-          // 保存修改后的总结
+          // 保存修改后的总结。注意：请确认后端 /update/summary 接口接收的参数名
+          // 如果后端接收的也是 aiSummary，请把下面的 summary: newSummary 改为 aiSummary: newSummary
           await wareApi.post("/update/summary", null, {
-            params: { path: fullPath, summary: newSummary },
+            params: {
+              path: fullPath,
+              summary: newSummary,
+            },
           });
           Swal.fire({
             toast: true,

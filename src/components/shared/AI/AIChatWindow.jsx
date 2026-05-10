@@ -185,7 +185,7 @@ const LocalFileCard = ({ file, onRemove, onPreview }) => {
 };
 
 const AIChatWindow = ({ onClose, initialSessionId }) => {
-  const { token } = useAuthStore();
+  const { token, currentCourseId, currentOrgId } = useAuthStore();
   // 获取 AI Store 中的状态和方法
   const { context, availableScene, isSceneActive, toggleSceneActive } =
     useAIStore();
@@ -249,6 +249,15 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
+
+  // 【核心修复：添加这段防御性代码】
+  // 当外层异步获取到 sessionId 传递进组件时，确保组件内部的状态能够成功接收它
+  useEffect(() => {
+    if (initialSessionId && !currentSessionId) {
+      setCurrentSessionId(initialSessionId);
+    }
+  }, [initialSessionId, currentSessionId]);
+  // ===================================
 
   // --- History Loading ---
   const loadHistory = useCallback(async (sessionId) => {
@@ -431,14 +440,29 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           ),
         );
       } else {
+        const authState = useAuthStore.getState();
+        const fetchHeaders = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        // 必须使用 X-Active-Class-Id 或 X-Active-School-Id，后端 ContextConflictFilter 只认这个
+        if (authState.activeType === "class" && authState.activeId) {
+          fetchHeaders["X-Active-Class-Id"] = String(authState.activeId);
+        } else if (authState.activeType === "school" && authState.activeId) {
+          fetchHeaders["X-Active-School-Id"] = String(authState.activeId);
+        }
+
+        // 发送原生 fetch 请求
         const response = await fetch(
           `${config.back_base_url}/llm/chat/stream`,
           {
             method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData,
+            headers: fetchHeaders, // 此时带上了完全正确的 Header
+            body: formData, // 保持 FormData 不变，后端可正常解析
           },
         );
+
+        if (!response.ok) throw new Error("Stream Failed");
 
         if (!response.ok) throw new Error("Stream Failed");
 
@@ -467,25 +491,53 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             );
           }
 
+          // 解码最新的二进制块并拼接到 buffer 中
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
+          // 弹出最后一行（可能是不完整的被截断的 JSON），留到下一个 chunk 再拼合
           buffer = lines.pop();
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith("data:")) continue;
-            const dataStr = trimmed.slice(5).trim();
-            try {
-              const json = JSON.parse(dataStr);
-              if (json.c) {
-                aiContent += json.c;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === aiMsgId ? { ...m, content: aiContent } : m,
-                  ),
-                );
+            if (!trimmed) continue;
+
+            // 【核心修复点】：智能格式兼容
+            let dataStr = trimmed;
+
+            // 1. 如果后端使用的是标准的 SSE 格式 (data: {...})
+            if (trimmed.startsWith("data:")) {
+              dataStr = trimmed.slice(5).trim();
+            }
+            // 2. 忽略 SSE 的控制字符，防止 JSON.parse 报错
+            else if (
+              trimmed.startsWith("event:") ||
+              trimmed.startsWith("id:") ||
+              trimmed.startsWith("retry:")
+            ) {
+              continue;
+            }
+
+            // 3. 此时 dataStr 应该是纯 JSON 字符串了。尝试解析并提取 "c" 字段
+            if (dataStr.startsWith("{") && dataStr.endsWith("}")) {
+              try {
+                const json = JSON.parse(dataStr);
+                // 提取内容并拼接到总回复中 (兼容不同格式)
+                const chunkText = json.c !== undefined ? json.c : json.content;
+
+                if (chunkText) {
+                  aiContent += chunkText;
+
+                  // 驱动 React 实时重绘，实现“打字机”效果
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === aiMsgId ? { ...m, content: aiContent } : m,
+                    ),
+                  );
+                }
+              } catch (e) {
+                console.warn("Failed to parse chunk:", dataStr);
               }
-            } catch (e) {}
+            }
           }
         }
       }
@@ -524,12 +576,10 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     ) {
       const msgToAutoSend = context.sceneParams.autoSendMsg;
       // 为了防止死循环或被反复触发，消费该变量后立即清除它
-      useAIStore
-        .getState()
-        .setContext("file-summary", {
-          ...context.sceneParams,
-          autoSendMsg: null,
-        });
+      useAIStore.getState().setContext("file-summary", {
+        ...context.sceneParams,
+        autoSendMsg: null,
+      });
 
       // 稍作延迟以确保滚动条和界面反应顺滑，随后触发自动发送
       setTimeout(() => {
