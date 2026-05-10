@@ -814,7 +814,7 @@ const CourseListPage = () => {
                         <div className={styles.courseHeader}>
                           <h3 className={styles.courseTitle}>{course.name}</h3>
                           <div className={styles.courseListItemActions}>
-                            <button
+                            {/* <button
                               className={styles.listSelectButton}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -823,7 +823,7 @@ const CourseListPage = () => {
                               title="选择课程"
                             >
                               <FontAwesomeIcon icon={faCheck} /> 选择
-                            </button>
+                            </button> */}
                             <button
                               className={styles.listEditButton}
                               onClick={(e) => {

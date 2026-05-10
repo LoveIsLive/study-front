@@ -1,532 +1,581 @@
 /* --- 通用容器 --- */
 .appContainer {
-    max-width: 1200px;
-    margin: 2.5rem auto;
-    padding: 0 2rem;
-    color: #333;
+  max-width: 1200px;
+  margin: 2.5rem auto;
+  padding: 0 2rem;
+  color: #333;
 }
 
 /* --- 页面主标题区域 (现在用于各 Dashboard 内部) --- */
 .dashboardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dashboardHeader h2 {
-    color: #2c3e50;
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 /* --- 按钮通用样式 (使用全局 .btn) --- */
 .btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-    opacity: 0.65;
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.65;
 }
 
 .btnPrimary {
-    background-color: var(--primary-color);
-    color: white;
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .btnPrimary:hover:not(:disabled) {
-    background-color: var(--primary-hover-color);
+  background-color: var(--primary-hover-color);
 }
 
 .btnSecondary {
-    background-color: var(--secondary-color);
-    color: white;
+  background-color: var(--secondary-color);
+  color: white;
 }
 
 .btnSecondary:hover:not(:disabled) {
-    background-color: var(--secondary-hover-color);
+  background-color: var(--secondary-hover-color);
 }
 
 .btnDanger {
-    background-color: var(--danger-color);
-    color: white;
+  background-color: var(--danger-color);
+  color: white;
 }
 
 .btnDanger:hover:not(:disabled) {
-    background-color: #c82333;
+  background-color: #c82333;
 }
 
 .actionBtn {
-    background: transparent;
-    border: none;
-    color: var(--primary-color);
-    cursor: pointer;
-    font-size: 0.9rem;
+  background: transparent;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .actionBtn:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* --- 作业卡片样式 --- */
 .listContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .itemCard,
 .submissionDetailCard {
-    position: relative;
-    overflow: hidden;
-    background-color: #fff;
-    border-radius: 12px;
-    /* 更大的圆角 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem 2rem;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 12px;
+  /* 更大的圆角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem 2rem;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
 }
 
 .itemCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    border-color: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-color);
 }
 
 .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .cardTitle,
 .cardNoclickTitle {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-    padding-right: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  padding-right: 1rem;
 }
 
 .cardTitle {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .cardTitle:hover {
-    color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .cardMeta {
-    font-size: 0.85rem;
-    color: #888;
-    text-align: right;
-    line-height: 1.5;
-    flex-shrink: 0;
-    margin-left: 1rem;
+  font-size: 0.85rem;
+  color: #888;
+  text-align: right;
+  line-height: 1.5;
+  flex-shrink: 0;
+  margin-left: 1rem;
 }
 
 .cardContent {
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    white-space: pre-wrap;
-    flex-grow: 1;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  white-space: pre-wrap;
+  flex-grow: 1;
 }
 
 .cardAttachments h4 {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.8rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .submissionFormCard h4 {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.8rem;
-    font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
 }
 
 .attachmentList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .attachmentItem {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
 }
 
 .attachmentItem:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .attachmentInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #333;
-    font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-size: 0.95rem;
 }
 
 .attachmentActions {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
 }
 
 .actionIcon {
-    color: var(--primary-color);
-    cursor: pointer;
-    font-size: 1.1rem;
-    opacity: 0.7;
-    transition: all 0.2s ease;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
 .actionIcon:hover {
-    opacity: 1;
-    transform: scale(1.15);
-    color: var(--primary-hover-color);
+  opacity: 1;
+  transform: scale(1.15);
+  color: var(--primary-hover-color);
 }
 
 .cardFooter {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
 .cardFooter:empty {
-    display: none;
+  display: none;
 }
 
-
 .statusTag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    /* 胶囊形状 */
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    /* 与内容保持间距 */
-    color: #fff;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  /* 胶囊形状 */
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  /* 与内容保持间距 */
+  color: #fff;
+  white-space: nowrap;
 }
 
 .statusSubmitted {
-    background-color: #17a2b8;
-    /* 信息蓝 */
-    box-shadow: 0 2px 5px rgba(23, 162, 184, 0.3);
+  background-color: #17a2b8;
+  /* 信息蓝 */
+  box-shadow: 0 2px 5px rgba(23, 162, 184, 0.3);
 }
 
 .statusResubmitted {
-    background-color: #28a745;
-    /* 成功绿 */
-    box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
+  background-color: #28a745;
+  /* 成功绿 */
+  box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
 }
 
 .statusUpdated {
-    background-color: #ffc107;
-    /* 警告黄 */
-    color: #212529;
-    /* 黄色背景需要深色文字 */
-    box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+  background-color: #ffc107;
+  /* 警告黄 */
+  color: #212529;
+  /* 黄色背景需要深色文字 */
+  box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
 }
 
 .statusReturned {
-    background-color: #dc3545;
-    /* 危险红 */
-    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+  background-color: #dc3545;
+  /* 危险红 */
+  box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
 }
 
 .statusGraded {
-    background: #FFF0F6;
-    color: #EB2F96;
+  background: #fff0f6;
+  color: #eb2f96;
 }
 
 /* --- 视图切换 & 标题 --- */
 .view {
-    animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .viewHeader {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .viewHeader h2 {
-    margin: 0;
-    color: #2c3e50;
+  margin: 0;
+  color: #2c3e50;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- Tab 样式 (学生) --- */
 .tabsContainer {
-    margin-bottom: 2rem;
-    border-bottom: 2px solid #ddd;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #ddd;
 }
 
 .tabBtn {
-    padding: 12px 24px;
-    cursor: pointer;
-    border: none;
-    background-color: transparent;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-color-secondary);
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.2s ease, border-color 0.2s ease;
+  padding: 12px 24px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .tabBtn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    font-weight: 600;
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
 }
 
 /* --- 表单样式 --- */
 .formGroup {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .formGroup label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .formGroup input[type="text"],
 .formGroup textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .formGroup input:focus,
 .formGroup textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.2);
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.2);
 }
 
 .formGroup input:disabled,
 .formGroup textarea:disabled {
-    background-color: #e9ecef;
-    cursor: not-allowed;
+  background-color: #e9ecef;
+  cursor: not-allowed;
 }
 
 .formGroup textarea {
-    resize: vertical;
+  resize: vertical;
 }
 
 .formActions {
-    text-align: right;
-    margin-top: 2rem;
+  text-align: right;
+  margin-top: 2rem;
 }
 
 /* --- 加载动画 --- */
 .spinnerContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
 }
 
 .spinner {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid var(--primary-color);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
 
-    100% {
-        transform: rotate(360deg);
-    }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- 学生提交详情页卡片 --- */
 .homeworkDetailCard {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 1.5rem 2rem;
-    margin-bottom: 2rem;
-    position: static;
-    overflow: visible;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  position: static;
+  overflow: visible;
 }
 
 .detailCardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .detailCardHeader .cardMeta {
-    font-size: 0.9em;
-    color: #666;
-    text-align: right;
+  font-size: 0.9em;
+  color: #666;
+  text-align: right;
 }
 
 .detailCardHeader h3 {
-    font-size: 1.3rem;
-    color: #2c3e50;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .submissionFormCard h3 {
-    font-size: 1.3rem;
-    color: #2c3e50;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .submissionDetailCard h3 {
-    font-size: 1.3rem;
-    color: #2c3e50;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 .submissionDetailCard,
 .submissionFormCard {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .submissionDetailCard p {
-    white-space: pre-wrap;
-    line-height: 1.7;
+  white-space: pre-wrap;
+  line-height: 1.7;
 }
 
 .placeholderText {
-    text-align: center;
-    color: #888;
-    padding: 3rem;
-    background: #fafafa;
-    border-radius: 8px;
+  text-align: center;
+  color: #888;
+  padding: 3rem;
+  background: #fafafa;
+  border-radius: 8px;
 }
 
 /* --- 已有附件列表的样式 --- */
 .existingAttachmentList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .existingAttachmentList li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background-color: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #eee;
 }
 
 .existingAttachmentList li span {
-    flex-grow: 1;
-    font-size: 0.9rem;
+  flex-grow: 1;
+  font-size: 0.9rem;
 }
 
 .deleteAttachmentBtn {
-    background: transparent;
-    border: none;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 5px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
 }
 
 .deleteAttachmentBtn:hover {
-    color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+/* --- 统一筛选框样式 (适配类似 CourseTeacherDashboard 的 UI) --- */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filterIcon {
+  color: #bfbfbf;
+  font-size: 14px;
+}
+
+.filterInput {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  outline: none;
+  font-size: 14px;
+  color: #595959;
+  transition: all 0.3s;
+  background-color: #fff;
+  min-width: 150px;
+}
+
+.filterInput:focus,
+.filterInput:hover {
+  border-color: var(--primary-color, #ff7b54);
+  box-shadow: 0 0 0 2px rgba(255, 123, 84, 0.15);
 }

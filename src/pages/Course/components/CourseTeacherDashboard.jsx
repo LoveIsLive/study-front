@@ -24,8 +24,8 @@ const CourseTeacherDashboard = ({
   const [rawHomeworks, setRawHomeworks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 专属于课程视图，仅保留日期筛选
-  const [filters, setFilters] = useState({ date: "" });
+  // 专属于课程视图，新增发布者姓名筛选
+  const [filters, setFilters] = useState({ date: "", creatorName: "" });
 
   useEffect(() => {
     const fetchCourseHomeworks = async () => {
@@ -55,7 +55,11 @@ const CourseTeacherDashboard = ({
     return rawHomeworks.filter((item) => {
       const matchDate =
         !filters.date || item.createTime?.startsWith(filters.date);
-      return matchDate;
+      // 匹配 teacherName
+      const matchCreator =
+        !filters.creatorName ||
+        (item.teacherName && item.teacherName.includes(filters.creatorName));
+      return matchDate && matchCreator;
     });
   }, [rawHomeworks, filters]);
 
@@ -115,10 +119,24 @@ const CourseTeacherDashboard = ({
           <div className={styles.filterIcon}>
             <FontAwesomeIcon icon={faFilter} />
           </div>
+
+          {/* 新增的发布者筛选输入框 */}
+          <input
+            type="text"
+            placeholder="发布者姓名"
+            value={filters.creatorName}
+            onChange={(e) =>
+              setFilters({ ...filters, creatorName: e.target.value })
+            }
+            className={styles.dateInput}
+            style={{ marginRight: "10px" }}
+            title="按发布者筛选"
+          />
+
           <input
             type="date"
             value={filters.date}
-            onChange={(e) => setFilters({ date: e.target.value })}
+            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
             className={styles.dateInput}
             title="按发布日期筛选"
           />
@@ -142,4 +160,5 @@ const CourseTeacherDashboard = ({
   );
 };
 
+// 【这一行就是解决白屏的核心，不可省略】
 export default CourseTeacherDashboard;

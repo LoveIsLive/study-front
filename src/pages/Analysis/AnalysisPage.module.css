@@ -11,8 +11,8 @@
 .headerSection {
   display: flex;
   flex-direction: column;
-  padding: 40px 0;
-  margin-bottom: 20px;
+  padding: 40px 0 0px 0;
+  margin-bottom: 0px;
 }
 
 .titleWrapper {
@@ -663,4 +663,53 @@
   .homeworkKPIs {
     grid-template-columns: 1fr;
   }
+}
+
+/* === 统一筛选框样式 === */
+.toolbar {
+  display: flex;
+  align-items: center;
+  background: #fafafa;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  margin-top: 16px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filterIcon {
+  color: #bfbfbf;
+  font-size: 14px;
+}
+
+.filterLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #595959;
+}
+
+.filterInput {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  outline: none;
+  font-size: 14px;
+  color: #595959;
+  transition: all 0.3s;
+  background-color: #fff;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.filterInput:focus,
+.filterInput:hover {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
 }

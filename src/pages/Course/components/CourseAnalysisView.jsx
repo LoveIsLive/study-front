@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
   faSpinner,
-  faArrowLeft,
   faUsers,
   faChartBar,
   faExclamationTriangle,
@@ -15,38 +13,35 @@ import {
   faArrowDown,
   faEquals,
   faBookOpen,
-  faFilter,
 } from "@fortawesome/free-solid-svg-icons";
-import useAuthStore from "../../store/authStore";
-import styles from "./AnalysisPage.module.css";
-// 修复点 1：引入 courseApi，移除默认导入的 apiClient
-import { analysisApi, homeworkApi, courseApi } from "../../services/api";
+import { analysisApi } from "../../../services/api";
+import useAuthStore from "../../../store/authStore";
+// 【注意】这里直接引用原本 AnalysisPage 的样式文件，保证完美适配
+import styles from "../../../pages/Analysis/AnalysisPage.module.css";
 
-// 1. KPI卡片组件
-const KPICard = ({ title, value, icon, color, subtitle, trend }) => {
-  return (
-    <div className={styles.kpiCard}>
-      <div className={styles.kpiHeader}>
-        <div className={`${styles.kpiIcon} ${styles[color]}`}>
-          <FontAwesomeIcon icon={icon} />
-        </div>
-        <div className={styles.kpiInfo}>
-          <h3>{title}</h3>
-          <div className={styles.kpiValue}>{value}</div>
-          {subtitle && <div className={styles.kpiSubtitle}>{subtitle}</div>}
-        </div>
+// KPI卡片组件
+const KPICard = ({ title, value, icon, color, subtitle, trend }) => (
+  <div className={styles.kpiCard}>
+    <div className={styles.kpiHeader}>
+      <div className={`${styles.kpiIcon} ${styles[color]}`}>
+        <FontAwesomeIcon icon={icon} />
       </div>
-      {trend && (
-        <div className={`${styles.kpiTrend} ${styles[trend.type]}`}>
-          <FontAwesomeIcon icon={trend.icon} />
-          <span>{trend.text}</span>
-        </div>
-      )}
+      <div className={styles.kpiInfo}>
+        <h3>{title}</h3>
+        <div className={styles.kpiValue}>{value}</div>
+        {subtitle && <div className={styles.kpiSubtitle}>{subtitle}</div>}
+      </div>
     </div>
-  );
-};
+    {trend && (
+      <div className={`${styles.kpiTrend} ${styles[trend.type]}`}>
+        <FontAwesomeIcon icon={trend.icon} />
+        <span>{trend.text}</span>
+      </div>
+    )}
+  </div>
+);
 
-// 2. 趋势图表项
+// 趋势图表项
 const TrendItem = ({
   homeworkTitle,
   myScore,
@@ -56,56 +51,54 @@ const TrendItem = ({
   role,
   fullScore = 100,
   onClick,
-}) => {
-  return (
-    <div className={styles.trendItem} onClick={onClick}>
-      <div className={styles.trendHeader}>
-        <h4>
-          <FontAwesomeIcon
-            icon={faBookOpen}
-            style={{ marginRight: "8px", color: "#1890ff" }}
-          />
-          {homeworkTitle}
-        </h4>
-        <div className={styles.trendScores}>
-          {role === "STUDENT" && myScore !== null && (
-            <span className={styles.myScore}>我的得分: {myScore}</span>
-          )}
-          <span className={styles.classAverage}>班级均分: {classAverage}</span>
-          {role === "TEACHER" && highestScore !== null && (
-            <span className={styles.highestScore}>最高分: {highestScore}</span>
-          )}
-          {role === "TEACHER" && submissionCount !== null && (
-            <span className={styles.submissionCount}>
-              提交: {submissionCount}人
-            </span>
-          )}
-          <span className={styles.fullScore}>满分: {fullScore}</span>
-        </div>
-      </div>
-      <div className={styles.trendBar}>
-        <div
-          className={styles.trendBarMy}
-          style={{
-            width: `${role === "STUDENT" && myScore != null ? (myScore / fullScore) * 100 : 0}%`,
-          }}
-        >
-          {role === "STUDENT" && myScore != null && <span>我</span>}
-        </div>
-        <div
-          className={styles.trendBarAvg}
-          style={{
-            width: `${classAverage != null ? (classAverage / fullScore) * 100 : 0}%`,
-          }}
-        >
-          <span>均</span>
-        </div>
+}) => (
+  <div className={styles.trendItem} onClick={onClick}>
+    <div className={styles.trendHeader}>
+      <h4>
+        <FontAwesomeIcon
+          icon={faBookOpen}
+          style={{ marginRight: "8px", color: "#1890ff" }}
+        />
+        {homeworkTitle}
+      </h4>
+      <div className={styles.trendScores}>
+        {role === "STUDENT" && myScore !== null && (
+          <span className={styles.myScore}>我的得分: {myScore}</span>
+        )}
+        <span className={styles.classAverage}>班级均分: {classAverage}</span>
+        {role === "TEACHER" && highestScore !== null && (
+          <span className={styles.highestScore}>最高分: {highestScore}</span>
+        )}
+        {role === "TEACHER" && submissionCount !== null && (
+          <span className={styles.submissionCount}>
+            提交: {submissionCount}人
+          </span>
+        )}
+        <span className={styles.fullScore}>满分: {fullScore}</span>
       </div>
     </div>
-  );
-};
+    <div className={styles.trendBar}>
+      <div
+        className={styles.trendBarMy}
+        style={{
+          width: `${role === "STUDENT" && myScore != null ? (myScore / fullScore) * 100 : 0}%`,
+        }}
+      >
+        {role === "STUDENT" && myScore != null && <span>我</span>}
+      </div>
+      <div
+        className={styles.trendBarAvg}
+        style={{
+          width: `${classAverage != null ? (classAverage / fullScore) * 100 : 0}%`,
+        }}
+      >
+        <span>均</span>
+      </div>
+    </div>
+  </div>
+);
 
-// 3. 雷达图表项
+// 雷达图表项
 const RadarChart = ({ data }) => {
   if (!data || Object.keys(data).length === 0) {
     return (
@@ -114,11 +107,9 @@ const RadarChart = ({ data }) => {
       </div>
     );
   }
-
   const dimensions = Object.keys(data);
   const values = Object.values(data);
   const numDimensions = dimensions.length;
-
   const size = 320;
   const center = size / 2;
   const radius = 100;
@@ -164,7 +155,6 @@ const RadarChart = ({ data }) => {
             />
           );
         })}
-
         {dimensions.map((_, index) => {
           const { x, y } = getPointCoordinates(100, index);
           return (
@@ -179,7 +169,6 @@ const RadarChart = ({ data }) => {
             />
           );
         })}
-
         <polygon
           points={polygonPoints}
           fill="rgba(24, 144, 255, 0.25)"
@@ -187,7 +176,6 @@ const RadarChart = ({ data }) => {
           strokeWidth="2"
           className={styles.radarDataPolygon}
         />
-
         {dataPoints.map((p, i) => (
           <circle
             key={`point-${i}`}
@@ -200,7 +188,6 @@ const RadarChart = ({ data }) => {
             className={styles.radarDataPoint}
           />
         ))}
-
         {dimensions.map((dim, index) => {
           const labelPoint = getPointCoordinates(120, index);
           const val = values[index];
@@ -239,10 +226,9 @@ const RadarChart = ({ data }) => {
   );
 };
 
-// 4. 预警学生列表
+// 预警学生列表
 const WarningStudents = ({ students }) => {
   if (!students || Object.keys(students).length === 0) return null;
-
   return (
     <div className={styles.warningSection}>
       <h3>
@@ -260,7 +246,7 @@ const WarningStudents = ({ students }) => {
   );
 };
 
-// 5. 错题集组件
+// 错题集组件
 const WrongQuestions = ({ questions, role }) => {
   if (!questions || questions.length === 0) {
     return (
@@ -269,7 +255,6 @@ const WrongQuestions = ({ questions, role }) => {
       </div>
     );
   }
-
   return (
     <div className={styles.wrongQuestions}>
       <h3>{role === "STUDENT" ? "我的错题" : "高频错题"}</h3>
@@ -306,14 +291,13 @@ const WrongQuestions = ({ questions, role }) => {
   );
 };
 
-// 6. 成绩分布饼图
+// 成绩分布饼图
 const ScoreDistribution = ({ distribution }) => {
   if (!distribution || Object.keys(distribution).length === 0) return null;
-
   const total = Object.values(distribution).reduce((sum, val) => sum + val, 0);
   const colors = ["#52c41a", "#1890ff", "#faad14", "#ff4d4f"];
-
   let cumulativePercent = 0;
+
   const gradientStops =
     total === 0
       ? "#f5f5f5 0% 100%"
@@ -343,7 +327,6 @@ const ScoreDistribution = ({ distribution }) => {
             const percentage =
               total === 0 ? "0.0" : ((count / total) * 100).toFixed(1);
             const color = colors[index % 4];
-
             return (
               <div key={category} className={styles.legendItem}>
                 <div
@@ -365,108 +348,22 @@ const ScoreDistribution = ({ distribution }) => {
   );
 };
 
-// 7. 主页面组件
-const AnalysisPage = () => {
-  const navigate = useNavigate();
-  const { detailInfo, courseList } = useAuthStore();
-  const isAdmin = useAuthStore((state) => state.isAdmin());
-  const isPrincipal = useAuthStore((state) => state.isPrincipal());
-  const isTeacher = useAuthStore((state) => state.isTeacher());
-  const isStudent = useAuthStore((state) => state.isStudent());
-
-  // 下拉框状态管理
-  const [classList, setClassList] = useState([]);
-  const [availableCourses, setAvailableCourses] = useState([]);
-  const [selectedClassId, setSelectedClassId] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState("");
-
-  // 数据分析状态管理
+const CourseAnalysisView = ({ courseId }) => {
   const [courseData, setCourseData] = useState(null);
   const [homeworkData, setHomeworkData] = useState(null);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isHomeworkLoading, setIsHomeworkLoading] = useState(false);
 
-  // 1. 初始化获取班级或课程列表
+  // 初始化加载课程大盘分析
   useEffect(() => {
-    const initSelection = async () => {
-      if ((isPrincipal || isTeacher) && detailInfo?.classMembers) {
-        // 使用 flatMap 确保展开嵌套的班级数组，并过滤空值
-        const classes = detailInfo.classMembers
-          .flatMap((member) => member.classes || [])
-          .filter((cls) => cls !== null);
-
-        if (classes.length > 0) {
-          setClassList(classes);
-          setSelectedClassId(classes[0].id);
-          return;
-        }
-      }
-
-      // 超级管理员逻辑
-      if (isAdmin) {
-        try {
-          const res = await analysisApi
-            .get("/organization/class/all")
-            .catch(() => null);
-          if (res?.data?.code === 200 && res.data.data.length > 0) {
-            setClassList(res.data.data);
-            setSelectedClassId(res.data.data[0].id);
-          }
-        } catch (err) {
-          console.error("初始化班级选择失败", err);
-        }
-      } else if (isStudent) {
-        // 学生角色直接使用已有的课程列表
-        if (courseList && courseList.length > 0) {
-          setAvailableCourses(courseList);
-          setSelectedCourseId(courseList[0].id);
-        }
-      }
-    };
-
-    initSelection();
-  }, [isAdmin, isPrincipal, isTeacher, isStudent, detailInfo, courseList]);
-
-  // 2. 联动逻辑：当所选班级改变时，更新课程列表
-  useEffect(() => {
-    if (selectedClassId && (isAdmin || isPrincipal || isTeacher)) {
-      const fetchCoursesByClass = async () => {
-        try {
-          // 修复点 2：使用配置好的 courseApi 发送请求
-          const res = await courseApi.get(`/class/${selectedClassId}`);
-
-          if (res.data && res.data.code === 200) {
-            const courses = res.data.data || [];
-            setAvailableCourses(courses);
-
-            if (courses.length > 0) {
-              // 默认选中第一门课程，这将触发 Effect 3
-              setSelectedCourseId(courses[0].id);
-            } else {
-              setSelectedCourseId("");
-              setCourseData(null);
-            }
-          }
-        } catch (err) {
-          console.error("获取班级课程列表失败", err);
-        }
-      };
-      fetchCoursesByClass();
-    }
-  }, [selectedClassId, isAdmin, isPrincipal, isTeacher]);
-
-  // 3. 当选中的课程ID改变时，请求该课程的成绩大盘数据
-  useEffect(() => {
-    if (!selectedCourseId) return;
-
+    if (!courseId) return;
     const fetchCourseAnalysis = async () => {
       setIsLoading(true);
       try {
-        const response = await analysisApi.get(`/course/${selectedCourseId}`);
+        const response = await analysisApi.get(`/course/${courseId}`);
         if (response.data && response.data.code === 200) {
           setCourseData(response.data.data);
-          setSelectedHomeworkId(null);
         } else {
           throw new Error(response.data.message || "接口返回错误");
         }
@@ -481,17 +378,15 @@ const AnalysisPage = () => {
         setIsLoading(false);
       }
     };
-
     fetchCourseAnalysis();
-  }, [selectedCourseId]);
+  }, [courseId]);
 
-  // 4. 加载单次作业微观诊断数据
+  // 加载单次作业详情微观分析
   useEffect(() => {
     if (!selectedHomeworkId) {
       setHomeworkData(null);
       return;
     }
-
     const fetchHomeworkAnalysis = async () => {
       setIsHomeworkLoading(true);
       try {
@@ -514,14 +409,30 @@ const AnalysisPage = () => {
         setIsHomeworkLoading(false);
       }
     };
-
     fetchHomeworkAnalysis();
   }, [selectedHomeworkId]);
 
-  // 渲染判定函数
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "30vh",
+        }}
+      >
+        <div className={styles.loading}>
+          <FontAwesomeIcon icon={faSpinner} spin size="3x" color="#1890ff" />
+          <p style={{ marginTop: "16px" }}>加载成绩分析中...</p>
+        </div>
+      </div>
+    );
+  }
+
   const role = courseData?.role || "STUDENT";
-  const isTeacherView = role === "TEACHER";
-  const isStudentView = role === "STUDENT";
+  const isTeacher = role === "TEACHER";
+  const isStudent = role === "STUDENT";
 
   const getTrendIcon = (diff) => {
     if (diff > 0)
@@ -536,77 +447,11 @@ const AnalysisPage = () => {
   };
 
   return (
-    <div className={styles.detailContainer}>
-      <div className={styles.headerSection}>
-        <div className={styles.titleWrapper}>
-          <h1 className={styles.title}>
-            <FontAwesomeIcon icon={faChartLine} />
-            成绩与数据分析
-          </h1>
-        </div>
-
-        <div className={styles.toolbar}>
-          <div className={styles.filterGroup}>
-            <FontAwesomeIcon icon={faFilter} className={styles.filterIcon} />
-          </div>
-
-          {(isAdmin || isPrincipal || isTeacher) && (
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>选择班级：</label>
-              <select
-                value={selectedClassId}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className={styles.filterInput}
-              >
-                {classList.map((cls) => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>选择课程：</label>
-            <select
-              value={selectedCourseId}
-              onChange={(e) => setSelectedCourseId(e.target.value)}
-              className={styles.filterInput}
-            >
-              {availableCourses.length > 0 ? (
-                availableCourses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))
-              ) : (
-                <option value="">无可选课程</option>
-              )}
-            </select>
-          </div>
-        </div>
-
-        <div className={styles.divider} style={{ marginTop: "24px" }}></div>
-      </div>
-
+    <div style={{ padding: "20px 0" }}>
       <div className={styles.contentSection}>
-        {isLoading ? (
-          <div
-            className={styles.loading}
-            style={{ textAlign: "center", padding: "50px" }}
-          >
-            <FontAwesomeIcon icon={faSpinner} spin size="3x" color="#1890ff" />
-            <p style={{ marginTop: "16px" }}>加载成绩分析中...</p>
-          </div>
-        ) : courseData ? (
+        {courseData && (
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              宏观课程分析 -{" "}
-              {availableCourses.find(
-                (c) => String(c.id) === String(selectedCourseId),
-              )?.name || "未知课程"}
-            </h2>
+            <h2 className={styles.sectionTitle}>宏观课程分析</h2>
 
             <div className={styles.kpiGrid}>
               <KPICard
@@ -614,21 +459,21 @@ const AnalysisPage = () => {
                 value={courseData.submissionRate ?? "-"}
                 icon={faUsers}
                 color="blue"
-                subtitle={isTeacherView ? "全班平均提交率" : "个人提交率"}
+                subtitle={isTeacher ? "全班平均提交率" : "个人提交率"}
               />
               <KPICard
                 title="平均得分"
                 value={courseData.averageScore ?? "-"}
                 icon={faTrophy}
                 color="green"
-                subtitle={isTeacherView ? "班级平均分" : "个人平均分"}
+                subtitle={isTeacher ? "班级平均分" : "个人平均分"}
                 trend={
-                  isStudentView && courseData.diffWithClassAverage !== null
+                  isStudent && courseData.diffWithClassAverage !== null
                     ? getTrendIcon(courseData.diffWithClassAverage)
                     : null
                 }
               />
-              {isStudentView && courseData.diffWithClassAverage !== null && (
+              {isStudent && courseData.diffWithClassAverage !== null && (
                 <KPICard
                   title="与班级均分差"
                   value={
@@ -655,7 +500,7 @@ const AnalysisPage = () => {
               )}
             </div>
 
-            {isTeacherView && courseData.warningStudents && (
+            {isTeacher && courseData.warningStudents && (
               <WarningStudents students={courseData.warningStudents} />
             )}
 
@@ -675,94 +520,81 @@ const AnalysisPage = () => {
               </div>
             )}
 
-            {isStudentView && courseData.radarData && (
+            {isStudent && courseData.radarData && (
               <div className={styles.radarSection}>
                 <h3>个人能力雷达图</h3>
                 <RadarChart data={courseData.radarData} />
               </div>
             )}
           </div>
-        ) : (
-          <div
-            style={{ textAlign: "center", color: "#999", padding: "50px 0" }}
-          >
-            请在上方选择一个有数据的课程进行分析
-          </div>
         )}
 
-        {courseData && (
-          <>
-            <div className={styles.divider} style={{ margin: "24px 0" }}></div>
+        <div className={styles.divider} style={{ margin: "24px 0" }}></div>
 
-            <div className={styles.section} id="micro-analysis">
-              <h2 className={styles.sectionTitle}>作业微观诊断</h2>
+        <div className={styles.section} id="micro-analysis">
+          <h2 className={styles.sectionTitle}>作业微观诊断</h2>
 
-              {!selectedHomeworkId && courseData?.trends?.length > 0 ? (
-                <div className={styles.selectionHint}>
-                  <p>
-                    👆
-                    点击上方的趋势图中的单次作业，即可在此处查看其详细微观诊断。
-                  </p>
-                </div>
-              ) : isHomeworkLoading ? (
-                <div className={styles.loading}>
-                  <FontAwesomeIcon
-                    icon={faSpinner}
-                    spin
-                    size="2x"
-                    color="#1890ff"
-                  />
-                  <p style={{ marginTop: "12px" }}>抽取诊断数据中...</p>
-                </div>
-              ) : homeworkData ? (
-                <>
-                  <div className={styles.homeworkKPIs}>
-                    <KPICard
-                      title="班级平均分"
-                      value={homeworkData.classAverage ?? "-"}
-                      icon={faUsers}
-                      color="blue"
-                    />
-                    <KPICard
-                      title="班级最高分"
-                      value={homeworkData.classHighest ?? "-"}
-                      icon={faTrophy}
-                      color="green"
-                    />
-                    {isStudentView && homeworkData.myScore !== null && (
-                      <KPICard
-                        title="我的得分"
-                        value={homeworkData.myScore}
-                        icon={faUser}
-                        color="purple"
-                      />
-                    )}
-                  </div>
-
-                  {isTeacherView && homeworkData.scoreDistribution && (
-                    <ScoreDistribution
-                      distribution={homeworkData.scoreDistribution}
-                    />
-                  )}
-
-                  {homeworkData.wrongQuestions && (
-                    <WrongQuestions
-                      questions={homeworkData.wrongQuestions}
-                      role={role}
-                    />
-                  )}
-                </>
-              ) : (
-                <div className={styles.emptyState}>
-                  <p>暂无相关作业诊断数据</p>
-                </div>
-              )}
+          {!selectedHomeworkId && courseData?.trends?.length > 0 ? (
+            <div className={styles.selectionHint}>
+              <p>
+                👆 点击上方的趋势图中的单次作业，即可在此处查看其详细微观诊断。
+              </p>
             </div>
-          </>
-        )}
+          ) : isHomeworkLoading ? (
+            <div className={styles.loading}>
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                size="2x"
+                color="#1890ff"
+              />
+              <p style={{ marginTop: "12px" }}>抽取诊断数据中...</p>
+            </div>
+          ) : homeworkData ? (
+            <>
+              <div className={styles.homeworkKPIs}>
+                <KPICard
+                  title="班级平均分"
+                  value={homeworkData.classAverage ?? "-"}
+                  icon={faUsers}
+                  color="blue"
+                />
+                <KPICard
+                  title="班级最高分"
+                  value={homeworkData.classHighest ?? "-"}
+                  icon={faTrophy}
+                  color="green"
+                />
+                {isStudent && homeworkData.myScore !== null && (
+                  <KPICard
+                    title="我的得分"
+                    value={homeworkData.myScore}
+                    icon={faUser}
+                    color="purple"
+                  />
+                )}
+              </div>
+              {isTeacher && homeworkData.scoreDistribution && (
+                <ScoreDistribution
+                  distribution={homeworkData.scoreDistribution}
+                />
+              )}
+              {homeworkData.wrongQuestions && (
+                <WrongQuestions
+                  questions={homeworkData.wrongQuestions}
+                  role={role}
+                />
+              )}
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <p>暂无相关作业诊断数据</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default AnalysisPage;
+export default CourseAnalysisView;
