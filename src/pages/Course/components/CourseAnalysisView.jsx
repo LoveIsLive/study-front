@@ -16,7 +16,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { analysisApi } from "../../../services/api";
 import useAuthStore from "../../../store/authStore";
-// 【注意】这里直接引用原本 AnalysisPage 的样式文件，保证完美适配
 import styles from "../../../pages/Analysis/AnalysisPage.module.css";
 
 // KPI卡片组件
@@ -364,6 +363,16 @@ const CourseAnalysisView = ({ courseId }) => {
         const response = await analysisApi.get(`/course/${courseId}`);
         if (response.data && response.data.code === 200) {
           setCourseData(response.data.data);
+
+          // 【修改点】：默认选中趋势列表中的第一个作业用于展示微观分析
+          if (
+            response.data.data.trends &&
+            response.data.data.trends.length > 0
+          ) {
+            setSelectedHomeworkId(response.data.data.trends[0].homeworkId);
+          } else {
+            setSelectedHomeworkId(null);
+          }
         } else {
           throw new Error(response.data.message || "接口返回错误");
         }

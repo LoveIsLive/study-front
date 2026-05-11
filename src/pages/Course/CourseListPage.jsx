@@ -1,3 +1,4 @@
+// src/pages/Course/CourseListPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,9 +31,6 @@ import styles from "./CourseListPage.module.css";
 
 /**
  * 压缩图片到指定最大大小（单位：字节）
- * @param {File} file - 图片文件
- * @param {number} maxSize - 最大大小（字节），默认1MB
- * @returns {Promise<string>} base64字符串
  */
 const compressImage = (file, maxSize = 1024 * 1024) => {
   return new Promise((resolve, reject) => {
@@ -44,8 +42,7 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
         let width = img.width;
         let height = img.height;
 
-        // 如果图片尺寸过大，先缩小尺寸
-        const maxDimension = 2048; // 最大边长
+        const maxDimension = 2048;
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
             height = Math.round((height * maxDimension) / width);
@@ -56,7 +53,6 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
           }
         }
 
-        // 根据文件类型选择输出格式
         const mimeType = file.type || "image/jpeg";
         const isPng = mimeType === "image/png";
         const outputType = isPng ? "image/png" : "image/jpeg";
@@ -93,12 +89,9 @@ const compressImage = (file, maxSize = 1024 * 1024) => {
             return;
           }
 
-          // 如果文件仍然太大，尝试降低质量（对于JPEG）或缩小尺寸
           if (!isPng && quality > 0.1) {
-            // JPEG：降低质量
             await tryCompress(currentWidth, currentHeight, quality - 0.1);
           } else {
-            // PNG或JPEG质量已最低：缩小尺寸
             const newWidth = Math.floor(currentWidth * 0.8);
             const newHeight = Math.floor(currentHeight * 0.8);
             await tryCompress(newWidth, newHeight, quality);
@@ -128,7 +121,6 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
     course?.coverImage || "",
   );
 
-  // 管理 body 的 overflow 以防止布局偏移
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -155,7 +147,6 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 检查文件类型是否为图片
     if (!file.type.startsWith("image/")) {
       Swal.fire({
         icon: "warning",
@@ -166,7 +157,6 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
       return;
     }
 
-    // 检查文件大小（1MB） - 大于1MB禁止上传
     const maxSize = 1 * 1024 * 1024; // 1MB in bytes
     if (file.size > maxSize) {
       Swal.fire({
@@ -178,12 +168,9 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
       return;
     }
 
-    // 文件小于等于1MB，允许上传
-    // 保存 File 对象用于上传，生成 base64 用于预览
     setCoverImageFile(file);
     setFormData({ ...formData, coverImage: file });
 
-    // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64String = event.target.result;
@@ -201,7 +188,6 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
 
     setSaving(true);
     try {
-      // 如果用户没有选择新文件，coverImage 保持原值（可能是 URL 或 base64）
       await onSave(course.id, formData);
       onClose();
     } catch (error) {
@@ -256,23 +242,6 @@ const EditCourseModal = ({ course, isOpen, onClose, onSave }) => {
                 accept="image/*"
                 onChange={handleCoverImageChange}
               />
-              {/* {coverImagePreview && (
-                <div className={styles.coverImagePreview}>
-                  <p>预览：</p>
-                  <img
-                    src={coverImagePreview}
-                    alt="预览"
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "200px",
-                      marginTop: "8px",
-                    }}
-                  />
-                </div>
-              )}
-              {!coverImagePreview && (
-                <p className={styles.helpText}>未选择图片</p>
-              )} */}
             </div>
           </div>
           <div className={styles.modalFooter}>
@@ -307,7 +276,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
   const [creating, setCreating] = useState(false);
   const [coverImagePreview, setCoverImagePreview] = useState("");
 
-  // 管理 body 的 overflow 以防止布局偏移
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -323,7 +291,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 检查文件类型是否为图片
     if (!file.type.startsWith("image/")) {
       Swal.fire({
         icon: "warning",
@@ -334,7 +301,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
       return;
     }
 
-    // 检查文件大小（1MB） - 大于1MB禁止上传
     const maxSize = 1 * 1024 * 1024; // 1MB in bytes
     if (file.size > maxSize) {
       Swal.fire({
@@ -346,11 +312,8 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
       return;
     }
 
-    // 文件小于等于1MB，允许上传
-    // 保存 File 对象用于上传
     setFormData({ ...formData, coverImage: file });
 
-    // 生成预览
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64String = event.target.result;
@@ -369,7 +332,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
     setCreating(true);
     try {
       await onCreate(formData);
-      // 重置表单
       setFormData({ name: "", description: "", coverImage: "" });
       setCoverImagePreview("");
       onClose();
@@ -425,23 +387,6 @@ const CreateCourseModal = ({ isOpen, onClose, onCreate }) => {
                 accept="image/*"
                 onChange={handleCoverImageChange}
               />
-              {/* {coverImagePreview && (
-                <div className={styles.coverImagePreview}>
-                  <p>预览：</p>
-                  <img
-                    src={coverImagePreview}
-                    alt="预览"
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "200px",
-                      marginTop: "8px",
-                    }}
-                  />
-                </div>
-              )}
-              {!coverImagePreview && (
-                <p className={styles.helpText}>未选择图片</p>
-              )} */}
             </div>
           </div>
           <div className={styles.modalFooter}>
@@ -478,6 +423,12 @@ const CourseListPage = () => {
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
+  // 【修复点 2】：引入权限判断，防止学生和访客看到管理按钮
+  const isTeacher = useAuthStore((state) => state.isTeacher());
+  const isAdmin = useAuthStore((state) => state.isAdmin());
+  const isPrincipal = useAuthStore((state) => state.isPrincipal());
+  const canManageCourse = isTeacher || isAdmin || isPrincipal; // 除了老师外，管理员和校长也有管理权限，学生和访客不会匹配
+
   // 搜索和分页状态
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
@@ -487,7 +438,6 @@ const CourseListPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
 
-  // 确保当前上下文是班级
   useEffect(() => {
     if (activeType !== "class") {
       Swal.fire({
@@ -499,7 +449,6 @@ const CourseListPage = () => {
     }
   }, [activeType, navigate]);
 
-  // 加载课程列表
   useEffect(() => {
     if (activeType === "class" && activeId) {
       loadCourses();
@@ -523,7 +472,6 @@ const CourseListPage = () => {
     }
   };
 
-  // 课程封面图片组件（通过axios获取图片）
   const CourseCoverImage = ({ coverImage, alt, className }) => {
     const [imgSrc, setImgSrc] = useState("");
     const [loading, setLoading] = useState(false);
@@ -534,20 +482,17 @@ const CourseListPage = () => {
         return;
       }
 
-      // 如果已经是 data URL，直接使用
       if (coverImage.startsWith("data:")) {
         setImgSrc(coverImage);
         return;
       }
 
-      // 如果是路径，通过 axios 获取图片
       let active = true;
       const currentBlobUrl = { current: null };
 
       const fetchImage = async () => {
         setLoading(true);
         try {
-          // 使用 courseApi 获取图片，注意添加 responseType: 'blob'
           const response = await courseApi.get("/getCoverImage", {
             params: { path: coverImage },
             responseType: "blob",
@@ -571,7 +516,6 @@ const CourseListPage = () => {
 
       fetchImage();
 
-      // 清理函数：组件卸载或依赖项变化时释放 blob URL
       return () => {
         active = false;
         if (currentBlobUrl.current) {
@@ -603,7 +547,6 @@ const CourseListPage = () => {
       return <img src={imgSrc} alt={alt} className={className} />;
     }
 
-    // 默认占位符
     return (
       <div className={styles.courseCoverPlaceholder}>
         <FontAwesomeIcon icon={faBookOpen} />
@@ -612,7 +555,6 @@ const CourseListPage = () => {
     );
   };
 
-  // 过滤课程列表（基于搜索词）
   const filteredCourses = useMemo(() => {
     if (!courseList) return [];
     if (!searchTerm.trim()) return courseList;
@@ -627,14 +569,12 @@ const CourseListPage = () => {
     });
   }, [courseList, searchTerm]);
 
-  // 分页计算
   const totalCourses = filteredCourses.length;
   const totalPages = Math.max(1, Math.ceil(totalCourses / pageSize));
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalCourses);
   const paginatedCourses = filteredCourses.slice(startIndex, endIndex);
 
-  // 处理创建课程
   const handleCreateCourse = async (courseData) => {
     try {
       await createCourse(courseData);
@@ -652,7 +592,6 @@ const CourseListPage = () => {
     }
   };
 
-  // 处理更新课程
   const handleUpdateCourse = async (courseId, courseData) => {
     try {
       await updateCourse(courseId, courseData);
@@ -689,7 +628,6 @@ const CourseListPage = () => {
         await deleteCourse(courseId);
         Swal.fire({ icon: "success", title: "删除成功", text: "课程已删除。" });
         await loadCourses(true);
-        // 如果删除的是当前选中的课程，清空选择
         if (currentCourseId === courseId) {
           useAuthStore.getState().clearCurrentCourse();
         }
@@ -704,20 +642,6 @@ const CourseListPage = () => {
     }
   };
 
-  // 1. "选择"按钮：仅更新全局持久化状态
-  const handleSelectCourse = (course) => {
-    setCurrentCourse(course.id, course);
-    // 可以加个简单的提示
-    Swal.fire({
-      icon: "success",
-      title: `已选中课程：${course.name}`,
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  };
-
-  // 2. "卡片"点击：打开新标签页浏览详情，不改变全局"选中"的课程
-  // 2. "卡片"点击：打开新标签页浏览详情，不改变全局"选中"的课程
   const handleCourseCardClick = (courseId) => {
     window.open(`/course/${courseId}`, "_blank");
   };
@@ -735,15 +659,17 @@ const CourseListPage = () => {
   return (
     <div className={styles.courseListPage}>
       <div className={styles.fileManager}>
-        {/* 头部区域：左侧新增课程按钮，右侧搜索框，再右侧分页条数下拉框 */}
         <header className={styles.fileManagerHeader}>
           <div className={styles.headerLeft}>
-            <button
-              className={styles.topCreateButton}
-              onClick={() => setShowCreateModal(true)}
-            >
-              <FontAwesomeIcon icon={faPlus} /> 新增课程
-            </button>
+            {/* 权限判断：学生、访客隐藏新增按钮 */}
+            {canManageCourse && (
+              <button
+                className={styles.topCreateButton}
+                onClick={() => setShowCreateModal(true)}
+              >
+                <FontAwesomeIcon icon={faPlus} /> 新增课程
+              </button>
+            )}
           </div>
 
           <div className={styles.headerRight}>
@@ -755,7 +681,7 @@ const CourseListPage = () => {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1); // 搜索时重置到第一页
+                  setCurrentPage(1);
                 }}
               />
             </div>
@@ -764,7 +690,7 @@ const CourseListPage = () => {
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
-                setCurrentPage(1); // 切换每页条数时重置到第一页
+                setCurrentPage(1);
               }}
             >
               <option value={5}>5 条/页</option>
@@ -777,7 +703,6 @@ const CourseListPage = () => {
         </header>
 
         <div className={styles.mainContent}>
-          {/* 课程列表区域 */}
           <div className={styles.listContainer}>
             {loading ? (
               <div className={styles.loading}>
@@ -788,7 +713,9 @@ const CourseListPage = () => {
               <div className={styles.emptyState}>
                 <FontAwesomeIcon icon={faBookOpen} size="3x" />
                 <h3>当前班级暂无课程</h3>
-                <p>点击上方"新增课程"按钮添加第一个课程。</p>
+                {canManageCourse && (
+                  <p>点击上方"新增课程"按钮添加第一个课程。</p>
+                )}
               </div>
             ) : (
               <div className={styles.courseList}>
@@ -799,7 +726,6 @@ const CourseListPage = () => {
                     onClick={() => handleCourseCardClick(course.id)}
                   >
                     <div className={styles.courseListItemContent}>
-                      {/* 左侧：课程参考图 */}
                       <div className={styles.courseCoverContainer}>
                         <CourseCoverImage
                           coverImage={course.coverImage}
@@ -808,46 +734,38 @@ const CourseListPage = () => {
                         />
                       </div>
 
-                      {/* 右侧：课程信息区域 */}
                       <div className={styles.courseInfoContainer}>
-                        {/* 第一行：课程名称 + 操作按钮 */}
                         <div className={styles.courseHeader}>
                           <h3 className={styles.courseTitle}>{course.name}</h3>
                           <div className={styles.courseListItemActions}>
-                            {/* <button
-                              className={styles.listSelectButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectCourse(course);
-                              }}
-                              title="选择课程"
-                            >
-                              <FontAwesomeIcon icon={faCheck} /> 选择
-                            </button> */}
-                            <button
-                              className={styles.listEditButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingCourse(course);
-                              }}
-                              title="编辑课程"
-                            >
-                              <FontAwesomeIcon icon={faEdit} /> 编辑
-                            </button>
-                            <button
-                              className={styles.listDeleteButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteCourse(course.id, course.name);
-                              }}
-                              title="删除课程"
-                            >
-                              <FontAwesomeIcon icon={faTrash} /> 删除
-                            </button>
+                            {/* 权限判断：学生、访客隐藏编辑和删除按钮 */}
+                            {canManageCourse && (
+                              <>
+                                <button
+                                  className={styles.listEditButton}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingCourse(course);
+                                  }}
+                                  title="编辑课程"
+                                >
+                                  <FontAwesomeIcon icon={faEdit} /> 编辑
+                                </button>
+                                <button
+                                  className={styles.listDeleteButton}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteCourse(course.id, course.name);
+                                  }}
+                                  title="删除课程"
+                                >
+                                  <FontAwesomeIcon icon={faTrash} /> 删除
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
 
-                        {/* 第二行：课程描述 */}
                         <p
                           className={styles.courseDescription}
                           data-full-text={course.description || "暂无描述"}
@@ -859,7 +777,6 @@ const CourseListPage = () => {
                             : "暂无描述"}
                         </p>
 
-                        {/* 第三行：教师、创建时间、修改时间 */}
                         <div className={styles.courseMeta}>
                           <span>教师: {course.teacherName || "未知"}</span>
                           <span>
@@ -879,7 +796,6 @@ const CourseListPage = () => {
             )}
           </div>
 
-          {/* 分页组件 - 常态化存在 */}
           <div className={styles.pagination}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -913,22 +829,14 @@ const CourseListPage = () => {
               第 {currentPage} 页，共 {Math.max(1, totalPages)} 页
             </span>
           </div>
-
-          {/* 底部信息栏 */}
-          {/* <div className={styles.footer}>
-          <p>共 {totalCourses} 门课程（已过滤）</p>
-          <p>当前选中课程: {currentCourseId ? courseList.find(c => c.id === currentCourseId)?.name : '无'}</p>
-        </div> */}
         </div>
 
-        {/* 创建课程模态框 */}
         <CreateCourseModal
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreateCourse}
         />
 
-        {/* 编辑课程模态框 */}
         <EditCourseModal
           course={editingCourse}
           isOpen={!!editingCourse}

@@ -110,9 +110,9 @@ const TeacherDashboard = ({
   // --- 返回的视图（修改部分在这里） ---
   return (
     <div>
-      <div className={styles.dashboardHeader}>
+      {/* <div className={styles.dashboardHeader}>
         <h2>我发布的</h2>
-      </div>
+      </div> */}
 
       <div className={styles.toolbar}>
         <div className={styles.filterGroup}>

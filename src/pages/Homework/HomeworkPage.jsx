@@ -1,3 +1,4 @@
+// src/pages/Homework/HomeworkPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import useAuthStore from "../../store/authStore";
 import TeacherDashboard from "./components/TeacherDashboard";
@@ -153,7 +154,6 @@ const HomeworkPage = () => {
         />
       );
     }
-    console.log(isTeacher, "是否是教师");
 
     // 4. 仪表盘视图 (列表页)
     if (isAdmin || isPrincipal) {
@@ -182,16 +182,13 @@ const HomeworkPage = () => {
       );
     }
     if (isStudent || isGuest) {
-      // 【核心修改】：逻辑分发
-      // 1. 如果当前在班级上下文中（sidebar 选中了班级），则使用 class 模式
-      // 2. 如果是学生且在个人/全局模式，使用 global 模式（调用 /student/all）
-      // 3. 对于访客，如果没有班级上下文，global 模式会返回空列表（符合预期）
-      const isClassContext = activeType === "class" && activeId;
-
+      // 【修改点】：直接强行设定 context 为 "global"。
+      // 这将使得 StudentDashboard 不受左侧班级列表的限制，统一走 else 分支，
+      // 即调用 homeworkApi.get("/student/all") 接口拉取全部作业。
       return (
         <StudentDashboard
-          context={isClassContext ? "class" : "global"}
-          contextId={isClassContext ? activeId : null}
+          context="global"
+          contextId={null}
           view={view}
           navigateTo={navigateTo}
           onOpenDiscussion={handleOpenDiscussion}

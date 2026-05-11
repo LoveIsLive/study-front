@@ -536,30 +536,35 @@
   color: var(--danger-color);
 }
 
-/* --- 统一筛选框样式 (适配类似 CourseTeacherDashboard 的 UI) --- */
+/* --- 统一筛选框样式 (与 AnalysisPage 样式保持一致) --- */
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: center; /* 去掉了 justify-content: space-between，让元素默认靠左 */
   background: #fafafa;
   padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid #f0f0f0;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 24px; /* 间距与 AnalysisPage 保持一致 */
 }
 
 .filterGroup {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .filterIcon {
   color: #bfbfbf;
   font-size: 14px;
+}
+
+/* 补充文本 Label 的样式 */
+.filterLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #595959;
 }
 
 .filterInput {
@@ -571,11 +576,12 @@
   color: #595959;
   transition: all 0.3s;
   background-color: #fff;
-  min-width: 150px;
+  min-width: 160px; /* 宽度加宽至与 AnalysisPage 一致 */
+  cursor: pointer;
 }
 
 .filterInput:focus,
 .filterInput:hover {
-  border-color: var(--primary-color, #ff7b54);
-  box-shadow: 0 0 0 2px rgba(255, 123, 84, 0.15);
+  border-color: #1890ff; /* 聚焦时的颜色改为科技蓝 */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
 }

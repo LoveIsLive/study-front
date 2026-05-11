@@ -88,7 +88,7 @@ const CourseDetailPage = () => {
           className={`${styles.tabButton} ${currentTab === "discussion" ? styles.active : ""}`}
           onClick={() => navigate(`/course/${courseId}/discussion`)}
         >
-          课程讨论区
+          讨论区
         </button>
         {/* 【新增】分析模块 Tab */}
         <button

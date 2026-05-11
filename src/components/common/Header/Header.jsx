@@ -28,22 +28,33 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import ChangeUsernameModal from "./ChangeUsernameModal";
 
 const Header = () => {
-  const { user, detailInfo, activeId, activeType, switchContext, logout, currentCourseId, currentCourse, courseList, setCurrentCourse, fetchCourseList } =
-    useAuthStore(
-      useShallow((state) => ({
-        user: state.user,
-        detailInfo: state.detailInfo,
-        activeId: state.activeId,
-        activeType: state.activeType,
-        switchContext: state.switchContext,
-        logout: state.logout,
-        currentCourseId: state.currentCourseId,
-        currentCourse: state.currentCourse,
-        courseList: state.courseList,
-        setCurrentCourse: state.setCurrentCourse,
-        fetchCourseList: state.fetchCourseList,
-      })),
-    );
+  const {
+    user,
+    detailInfo,
+    activeId,
+    activeType,
+    switchContext,
+    logout,
+    currentCourseId,
+    currentCourse,
+    courseList,
+    setCurrentCourse,
+    fetchCourseList,
+  } = useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      detailInfo: state.detailInfo,
+      activeId: state.activeId,
+      activeType: state.activeType,
+      switchContext: state.switchContext,
+      logout: state.logout,
+      currentCourseId: state.currentCourseId,
+      currentCourse: state.currentCourse,
+      courseList: state.courseList,
+      setCurrentCourse: state.setCurrentCourse,
+      fetchCourseList: state.fetchCourseList,
+    })),
+  );
 
   const activeIdentity = useAuthStore((state) => state.getActiveIdentity());
   const isAdmin = useAuthStore((state) => state.isAdmin());
@@ -101,7 +112,8 @@ const Header = () => {
                         <FontAwesomeIcon
                           icon={
                             activeType === "school" ? faSchool : faChalkboard
-                          } fixedWidth
+                          }
+                          fixedWidth
                         />
                       </div>
                       <div className={styles.contextInfo}>
@@ -114,7 +126,8 @@ const Header = () => {
                           {isPrincipal ? "校长" : isTeacher ? "教师" : "学生"}
                         </span>
                       </div>
-                      <FontAwesomeIcon fixedWidth
+                      <FontAwesomeIcon
+                        fixedWidth
                         icon={faChevronDown}
                         className={`${styles.chevron} ${isSwitcherOpen ? styles.rotate : ""}`}
                       />
@@ -280,8 +293,6 @@ const Header = () => {
         </div>
       </header>
 
-
-
       {/* ===================== 左侧固定侧边栏 ===================== */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarMenu}>
@@ -295,16 +306,21 @@ const Header = () => {
           </NavLink>
 
           {/* 课程选择按钮 - 班级上下文显示，学校上下文隐藏或禁用 */}
-          {activeType === 'class' ? (
+          {activeType === "class" ? (
             <NavLink
               to="/courses"
-              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+              className={({ isActive }) =>
+                isActive ? styles.sidebarActive : ""
+              }
             >
               <FontAwesomeIcon icon={faList} fixedWidth />
               <span>课程选择</span>
             </NavLink>
           ) : (
-            <div className={styles.sidebarItemDisabled} title="课程选择仅适用于班级上下文">
+            <div
+              className={styles.sidebarItemDisabled}
+              title="课程选择仅适用于班级上下文"
+            >
               <FontAwesomeIcon icon={faList} fixedWidth />
               <span>课程选择</span>
             </div>
@@ -335,15 +351,6 @@ const Header = () => {
             <span>作业区</span>
           </NavLink>
 
-          {/* 讨论区按钮 - 始终显示 */}
-          {/* <NavLink
-            to="/discussion"
-            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-          >
-            <FontAwesomeIcon icon={faComments} fixedWidth />
-            <span>课程讨论区</span>
-          </NavLink> */}
-
           {/* 成绩分析按钮 - 始终显示 */}
           <NavLink
             to="/analysis"
@@ -358,6 +365,15 @@ const Header = () => {
           >
             <FontAwesomeIcon icon={faChartLine} fixedWidth />
             <span>Mind+工具</span>
+          </NavLink>
+
+          {/* 讨论区按钮 - 始终显示 */}
+          <NavLink
+            to="/discussion"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faComments} fixedWidth />
+            <span>班级讨论区</span>
           </NavLink>
         </div>
       </aside>

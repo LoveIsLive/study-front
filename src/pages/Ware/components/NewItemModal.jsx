@@ -9,6 +9,7 @@ import { buildNewPath, fileMimeTypeName } from "../../../utils/helpers";
 import { config } from "../../../utils/config";
 import Modal from "../../../components/common/Modal/Modal";
 import FileUpload from "../../../components/shared/FileUpload/FileUpload";
+import useAuthStore from "../../../store/authStore"; // 引入 AuthStore
 
 import styles from "./NewItemModal.module.css";
 
@@ -21,6 +22,9 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
   const abortControllersRef = useRef([]);
+
+  // 获取当前课程ID
+  const { currentCourseId } = useAuthStore();
 
   const resetForm = () => {
     setView("options");
@@ -60,6 +64,23 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
     return Promise.all(results);
   };
 
+  // 生成传递给 AI 的格式化路径（课程ID/路径）
+  const getFormatAiPath = (destPath) => {
+    const courseIdStr = currentCourseId ? String(currentCourseId) : "";
+    let finalPath = destPath;
+    if (courseIdStr) {
+      const cleanDest = destPath.startsWith("/") ? destPath.slice(1) : destPath;
+      if (!cleanDest.startsWith(`${courseIdStr}/`)) {
+        finalPath = `${courseIdStr}/${cleanDest}`;
+      } else {
+        finalPath = cleanDest;
+      }
+    } else {
+      finalPath = destPath.startsWith("/") ? destPath.slice(1) : destPath;
+    }
+    return finalPath;
+  };
+
   const uploadSmallFile = async (file, destPath) => {
     updateFileProgress(file.name, { percent: 0, status: "上传中..." });
     const formData = new FormData();
@@ -78,10 +99,11 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
       });
       updateFileProgress(file.name, { percent: 100, status: "成功" });
 
-      // 【修改点】：同步调用 /ai/summary 接口，要求传递 paths 数组，不等待返回值
+      // 同步调用 /ai/summary 接口，要求传递拼接上课程ID的 paths 数组
+      const aiPath = getFormatAiPath(destPath);
       const apiRoot = wareApi.defaults.baseURL.split("/ware")[0];
       wareApi
-        .post("/llm/ai/summary", { paths: [destPath] }, { baseURL: apiRoot })
+        .post("/llm/ai/summary", { paths: [aiPath] }, { baseURL: apiRoot })
         .catch((e) => console.error("AI Summary Trigger Failed:", e));
     } catch (error) {
       updateFileProgress(file.name, {
@@ -152,10 +174,11 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
       await wareApi.post("/chunk/merge", formData);
       updateFileProgress(file.name, { percent: 100, status: "成功" });
 
-      // 【修改点】：同步调用 /ai/summary 接口，要求传递 paths 数组，不等待返回值
+      // 同步调用 /ai/summary 接口，要求传递拼接上课程ID的 paths 数组
+      const aiPath = getFormatAiPath(destPath);
       const apiRoot = wareApi.defaults.baseURL.split("/ware")[0];
       wareApi
-        .post("/llm/ai/summary", { paths: [destPath] }, { baseURL: apiRoot })
+        .post("/llm/ai/summary", { paths: [aiPath] }, { baseURL: apiRoot })
         .catch((e) => console.error("AI Summary Trigger Failed:", e));
     } catch (error) {
       updateFileProgress(file.name, { status: "合并失败", error: true });

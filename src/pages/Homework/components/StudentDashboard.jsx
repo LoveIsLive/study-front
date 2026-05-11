@@ -1,3 +1,4 @@
+// src/pages/Homework/components/StudentDashboard.jsx
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { homeworkApi, submissionApi } from "../../../services/api";
 import useAuthStore from "../../../store/authStore";
@@ -8,6 +9,10 @@ import SubmissionModal from "./SubmissionModal";
 import Spinner from "../../../components/common/Spinner/Spinner";
 import styles from "../HomeworkPage.module.css";
 import Swal from "sweetalert2";
+
+// 【修复点 1】：引入缺失的 FontAwesomeIcon 和 faFilter
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
 // 智能提取课程ID，兼容平铺或嵌套的实体类
 const extractCourseId = (obj) => {
@@ -164,7 +169,7 @@ const StudentDashboard = ({
     refreshTrigger,
   ]);
 
-  // 【修正】使用安全提取器过滤所有作业，并加入发布者筛选
+  // 使用安全提取器过滤所有作业，并加入发布者筛选
   const filteredHomeworks = useMemo(() => {
     return rawHomeworks.filter((item) => {
       const itemCourseId = extractCourseId(item);
@@ -185,7 +190,7 @@ const StudentDashboard = ({
     });
   }, [rawHomeworks, filters.courseId, filters.status, filters.creatorName]);
 
-  // 【修正】使用安全提取器过滤提交记录
+  // 使用安全提取器过滤提交记录
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((sub) => {
       const subCourseId = extractCourseId(sub);
@@ -346,5 +351,4 @@ const StudentDashboard = ({
   );
 };
 
-// 【这一行就是解决白屏的核心，不可省略】
 export default StudentDashboard;

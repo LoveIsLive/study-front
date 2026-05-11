@@ -23,7 +23,7 @@ const CourseDiscussionView = ({ courseId }) => {
             <FontAwesomeIcon icon={faComments} />
           </div>
           <div>
-            <h2>课程讨论区</h2>
+            <h2>讨论区</h2>
             {/* <p className={styles.subtitle}>
               在这里与老师和同学交流心得、解答疑问
             </p> */}
