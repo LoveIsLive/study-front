@@ -39,27 +39,41 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
         }
     }, [homeworkId, isStudentView, studentSubmissions]);
 
+    const normalizeStatus = (statusVal) => {
+        if (statusVal === null || statusVal === undefined) return "UNSUBMITTED";
+        const s = String(statusVal).toUpperCase();
+        if (s === "0" || s === "未提交" || s === "UNSUBMITTED") return "UNSUBMITTED";
+        if (s === "1" || s === "已提交" || s === "提交" || s === "SUBMITTED")
+            return "SUBMITTED";
+        if (s === "2" || s === "已批改" || s === "批改" || s === "GRADED")
+            return "GRADED";
+        return s;
+    };
+
     const filteredSubmissions = React.useMemo(() => {
         return submissions.filter((sub) => {
-            // 状态
-            const matchStatus =
-                !filters.status ||
-                sub.status === filters.status ||
-                (filters.status === "SUBMITTED" && sub.status === "已提交");
-            // 分数范围 (例如输入 "80-100")
+            // 状态过滤修复
+            const normalizedStatus = normalizeStatus(sub.status);
+            const matchStatus = !filters.status || normalizedStatus === filters.status;
+
+            // 分数范围支持 (例: 80-100)
             let matchScore = true;
             if (filters.scoreRange && sub.score !== null) {
-                const [min, max] = filters.scoreRange.split("-").map(Number);
-                if (!isNaN(min) && !isNaN(max))
-                    matchScore = sub.score >= min && sub.score <= max;
-                else matchScore = String(sub.score).includes(filters.scoreRange); // 兼容单数字匹配
+                if (filters.scoreRange.includes("-")) {
+                    const [min, max] = filters.scoreRange.split("-").map(Number);
+                    if (!isNaN(min) && !isNaN(max))
+                        matchScore = sub.score >= min && sub.score <= max;
+                } else {
+                    matchScore = String(sub.score).includes(filters.scoreRange);
+                }
             } else if (filters.scoreRange && sub.score === null) {
                 matchScore = false;
             }
-            // 时间
+
+            // 【修复】：使用 updateTime 替代不存在的 submitTime
             const matchDate =
                 !filters.date ||
-                (sub.submitTime && sub.submitTime.startsWith(filters.date));
+                (sub.updateTime && sub.updateTime.substring(0, 10) === filters.date);
 
             return matchStatus && matchScore && matchDate;
         });
@@ -123,7 +137,7 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
                     </select>
                     <input
                         type="text"
-                        placeholder="分数筛选 (例: 80-100或90)"
+                        placeholder="分数筛选 (例: 80-100)"
                         value={filters.scoreRange}
                         onChange={(e) => setFilters({ ...filters, scoreRange: e.target.value })}
                         className={styles.filterInput}

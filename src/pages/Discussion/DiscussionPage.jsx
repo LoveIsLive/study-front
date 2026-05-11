@@ -24,6 +24,7 @@ const DiscussionPage = ({ classId: propClassId }) => {
   const [classList, setClassList] = useState([]);
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // 2. 自动获取当前用户所在的班级 ID (针对教师、学生、访客等无筛选框角色)
   const userClassId = useMemo(() => {
@@ -46,9 +47,10 @@ const DiscussionPage = ({ classId: propClassId }) => {
     }
   }, [isAdmin]);
 
-  // 4. 联动班级数据 (管理员拉取该学校下所有，校长基于个人管理范围)
+  // 4. 联动班级数据修复
   useEffect(() => {
     if (isAdmin && selectedSchoolId) {
+      setIsInitializing(true);
       classesApi
         .get("/all", { params: { schoolId: selectedSchoolId } })
         .then((res) => {
@@ -57,26 +59,37 @@ const DiscussionPage = ({ classId: propClassId }) => {
             setClassList(classes);
             if (classes.length > 0) setSelectedClassId(classes[0].id);
           }
+          setIsInitializing(false);
         });
     } else if (isPrincipal) {
-      if (detailInfo?.classMembers) {
-        const classes = detailInfo.classMembers
-          .map((m) => m.classes)
-          .filter(Boolean);
-        setClassList(classes);
-        if (classes.length > 0) setSelectedClassId(classes[0].id);
+      // 修复校长越界读取未分配的直接班级成员的问题
+      if (detailInfo?.schoolMembers?.length > 0) {
+        setIsInitializing(true);
+        const schoolId = detailInfo.schoolMembers[0].schoolId;
+        classesApi.get("/all", { params: { schoolId } }).then((res) => {
+          if (res.data?.code === 200) {
+            const classes = res.data.data || [];
+            setClassList(classes);
+            if (classes.length > 0) setSelectedClassId(classes[0].id);
+          }
+          setIsInitializing(false);
+        });
+      } else {
+        setIsInitializing(false);
       }
+    } else {
+      setIsInitializing(false);
     }
   }, [isAdmin, isPrincipal, selectedSchoolId, detailInfo]);
 
   // 【拦截器】利用 authStore 自身的初始化机制，如果 detailInfo 为空，说明全局接口还没拉完，展示 loading 即可
-  if (!detailInfo) {
+  if (!detailInfo || isInitializing) {
     return (
       <div className={styles.discussionPage}>
         <div className={styles.fileManager}>
           <div className={styles.loading}>
             <FontAwesomeIcon icon={faSpinner} spin size="2x" color="#1890ff" />
-            <p style={{ marginTop: "16px" }}>正在同步学习空间信息...</p>
+            <p style={{ marginTop: "16px" }}>正在初始化讨论区...</p>
           </div>
         </div>
       </div>

@@ -422,6 +422,8 @@ const CourseListPage = () => {
     fetchCourseList,
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [adminSchoolList, setAdminSchoolList] = useState([]); // 新增学校状态
+  const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [adminClassList, setAdminClassList] = useState([]);
   const [selectedAdminClassId, setSelectedAdminClassId] = useState("");
 
@@ -441,30 +443,62 @@ const CourseListPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
 
-  // 校长/管理员班级选择逻辑
+  // 【核心修改点】获取学校（仅管理员）
   useEffect(() => {
-    if (isAdmin || isPrincipal) {
-      const schoolId = detailInfo?.schoolMembers?.[0]?.schoolId; // 校长默认取管理的第一所学校
-      if (schoolId || isAdmin) {
-        classesApi
-          .get("/all", isAdmin ? {} : { params: { schoolId } })
-          .then((res) => {
-            if (res.data?.code === 200 && res.data.data.length > 0) {
-              setAdminClassList(res.data.data);
+    if (isAdmin) {
+      schoolApi.get("/all").then((res) => {
+        if (res.data?.code === 200 && res.data.data.length > 0) {
+          setAdminSchoolList(res.data.data);
+          setSelectedSchoolId(res.data.data[0].id);
+        }
+      });
+    }
+  }, [isAdmin]);
+
+  // 在获取班级的 useEffect 中
+  useEffect(() => {
+    if (isAdmin && selectedSchoolId) {
+      // 管理员逻辑保持不变...
+      classesApi
+        .get("/all", { params: { schoolId: selectedSchoolId } })
+        .then((res) => {
+          if (res.data?.code === 200) {
+            setAdminClassList(res.data.data || []);
+            if (res.data.data.length > 0)
               setSelectedAdminClassId(res.data.data[0].id);
+          }
+        });
+    } else if (isPrincipal) {
+      // 【优化】校长逻辑：获取所属学校的所有班级
+      const schoolId = detailInfo?.schoolMembers?.[0]?.schoolId;
+      if (schoolId) {
+        classesApi.get("/all", { params: { schoolId } }).then((res) => {
+          if (res.data?.code === 200) {
+            const classes = res.data.data || [];
+            setAdminClassList(classes);
+            // 默认选中第一个班级，从而触发 loadCourses
+            if (classes.length > 0) {
+              setSelectedAdminClassId(classes[0].id);
+            } else {
+              setSelectedAdminClassId("");
             }
-          });
+          }
+        });
       }
     }
-  }, [isAdmin, isPrincipal, detailInfo]);
+  }, [isAdmin, isPrincipal, selectedSchoolId, detailInfo]);
 
-  // 监听下拉框改变
+  // 监听下拉框改变，校长和管理员选择班级后自动加载课程
   useEffect(() => {
-    if (selectedAdminClassId) loadCourses(true);
-  }, [selectedAdminClassId]);
+    if ((isAdmin || isPrincipal) && selectedAdminClassId) {
+      loadCourses(true);
+    }
+  }, [selectedAdminClassId, isAdmin, isPrincipal]);
 
+  // 1. 修改拦截器：增加 detailInfo 存在性判断，防止刷新时误拦截
   useEffect(() => {
-    if (activeType !== "class") {
+    // 只有在用户信息已加载，且确定既不是管理员也不是校长，且不在班级上下文时才拦截
+    if (detailInfo && !isAdmin && !isPrincipal && activeType !== "class") {
       Swal.fire({
         icon: "warning",
         title: "提示",
@@ -472,7 +506,7 @@ const CourseListPage = () => {
       });
       navigate("/");
     }
-  }, [activeType, navigate]);
+  }, [activeType, navigate, isAdmin, isPrincipal, detailInfo]);
 
   useEffect(() => {
     if (activeType === "class" && activeId) {
@@ -480,15 +514,28 @@ const CourseListPage = () => {
     }
   }, [activeId, activeType]);
 
+  // 【核心修改点】加载课程后“默认选中第一项”防止详情报错
   const loadCourses = async (force = false) => {
     setLoading(true);
     try {
       if (isAdmin || isPrincipal) {
-        if (!selectedAdminClassId) return; // 还没选班级则不查
+        if (!selectedAdminClassId) {
+          useAuthStore.getState().setCourseList([]);
+          return;
+        }
         const res = await courseApi.get(`/class/${selectedAdminClassId}`);
-        useAuthStore.getState().setCourseList(res.data.data || []); // 手动更新给Store
+        const courses = res.data.data || [];
+        useAuthStore.getState().setCourseList(courses);
+        // 如果有课且当前没选中，默认选第一个
+        if (courses.length > 0 && !currentCourseId) {
+          useAuthStore.getState().setCurrentCourse(courses[0].id, courses[0]);
+        }
       } else {
         await fetchCourseList(force);
+        const courses = useAuthStore.getState().courseList || [];
+        if (courses.length > 0 && !useAuthStore.getState().currentCourseId) {
+          useAuthStore.getState().setCurrentCourse(courses[0].id, courses[0]);
+        }
       }
       setCurrentPage(1);
     } catch (error) {
@@ -683,7 +730,8 @@ const CourseListPage = () => {
     }
   };
 
-  if (activeType !== "class") {
+  // 2. 修改组件末尾的渲染守卫：允许管理员和校长在非 class 模式下渲染
+  if (!isAdmin && !isPrincipal && activeType !== "class") {
     return null;
   }
 
@@ -704,18 +752,26 @@ const CourseListPage = () => {
           </div>
 
           <div className={styles.headerRight}>
+            {/* 新增的下拉筛选框 */}
+            {isAdmin && (
+              <select
+                className={styles.pageSizeSelect}
+                style={{ marginRight: "10px", width: "160px" }} // 【修改】：固定学校下拉框宽度
+                value={selectedSchoolId}
+                onChange={(e) => setSelectedSchoolId(e.target.value)}
+              >
+                {adminSchoolList.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+              </select>
+            )}
             {(isAdmin || isPrincipal) && (
               <select
                 className={styles.pageSizeSelect}
-                style={{ marginRight: "10px" }}
+                style={{ marginRight: "10px", width: "160px" }} // 【修改】：固定班级下拉框宽度
                 value={selectedAdminClassId}
                 onChange={(e) => setSelectedAdminClassId(e.target.value)}
               >
-                {adminClassList.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+                <option value="">请选择班级</option>
+                {adminClassList.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
               </select>
             )}
             <div className={styles.searchContainer}>

@@ -14,6 +14,7 @@ import CourseAnalysisView from "./components/CourseAnalysisView"; // 【新增�
 import styles from "./CourseDetailPage.module.css";
 import useAuthStore from "../../store/authStore";
 import { getCourse } from "../../services/courseService";
+import { courseApi } from "../../services/api"; // 【新增引入 courseApi】
 
 const CourseDetailPage = () => {
   const { courseId } = useParams();
@@ -21,6 +22,7 @@ const CourseDetailPage = () => {
   const location = useLocation();
   const setCurrentCourse = useAuthStore((state) => state.setCurrentCourse);
   const [courseInfo, setCourseInfo] = useState(null);
+  const [coverImageUrl, setCoverImageUrl] = useState(""); // 【新增状态存储最终的图片URL】
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -48,6 +50,32 @@ const CourseDetailPage = () => {
     }
   }, [courseId, setCurrentCourse]);
 
+  // 【新增图片获取与转换逻辑】
+  useEffect(() => {
+    if (courseInfo?.coverImage) {
+      const fetchImage = async () => {
+        try {
+          const response = await courseApi.get("/getCoverImage", {
+            params: { path: courseInfo.coverImage },
+            responseType: "blob",
+          });
+          const blob = response.data;
+          // 兼容后端返回纯文本Base64或真实的图片文件流
+          if (blob.type && blob.type.includes("text")) {
+             const text = await blob.text();
+             setCoverImageUrl(text.startsWith("data:image") ? text : `data:image/jpeg;base64,${text}`);
+          } else {
+             const url = URL.createObjectURL(blob);
+             setCoverImageUrl(url);
+          }
+        } catch (error) {
+          console.error("获取封面图片失败:", error);
+        }
+      };
+      fetchImage();
+    }
+  }, [courseInfo?.coverImage]);
+
   // 【修改】增加 analysis 的路由判定
   const currentTab = location.pathname.includes("/homework")
     ? "homework"
@@ -62,9 +90,16 @@ const CourseDetailPage = () => {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.headerSection}>
-        <div className={styles.titleWrapper}>
-          <h1 className={styles.title}>{courseInfo.title}</h1>
+        {/* 【修改点：外层大方框包裹内层小方框】 */}
+        <div
+          className={styles.titleOuterWrapper}
+          style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : {}}
+        >
+          <div className={styles.titleInnerWrapper}>
+            <h1 className={styles.title}>{courseInfo.title}</h1>
+          </div>
         </div>
+
         <div className={styles.divider}></div>
         <div className={styles.descriptionSection}>
           <h2 className={styles.descriptionHeader}>课程描述</h2>

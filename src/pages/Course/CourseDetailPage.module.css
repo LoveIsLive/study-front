@@ -1,6 +1,5 @@
 /* src/pages/Course/CourseDetailPage.module.css */
 
-
 .detailContainer {
   max-width: 1200px;
   margin: 0 auto;
@@ -15,27 +14,57 @@
 }
 
 /* --- 课程名称方块（居中展示） --- */
-.titleWrapper {
-  align-self: center; /* 强制标题方块自身居中 */
-  background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
-  padding: 12px 36px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.2);
+.titleOuterWrapper {
+  width: 100%;
+  min-height: 240px;
+  border-radius: 16px;
+  background-color: #f0f2f5;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 32px;
-  transition: transform 0.3s ease;
-  cursor: default;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.titleWrapper:hover {
+/* src/pages/Course/CourseDetailPage.module.css 中修改 */
+.titleOuterWrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2); /* 【修改】：将0.45改为0.2，让图片更亮 */
+  z-index: 1;
+}
+
+.titleInnerWrapper {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 24px 60px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.titleInnerWrapper:hover {
   transform: translateY(-3px) scale(1.02);
 }
 
 .title {
   margin: 0;
-  font-size: 30px;
+  font-size: 34px;
   color: #ffffff;
   font-weight: 700;
   text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  letter-spacing: 2px;
 }
 
 /* --- 分隔线 --- */

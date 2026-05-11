@@ -199,9 +199,9 @@ const StudentDashboard = ({
   // 使用安全提取器过滤提交记录
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((sub) => {
-      const subCourseId = extractCourseId(sub);
-      const matchCourse =
-        !filters.courseId || subCourseId === String(filters.courseId);
+      // 提交记录列表中无需再过滤课程（因为页面上已经隐藏了这栏下拉框）
+      // const subCourseId = extractCourseId(sub);
+      // const matchCourse = !filters.courseId || subCourseId === String(filters.courseId);
 
       const normalizedStatus = normalizeStatus(sub.status);
       const matchStatus =
@@ -212,12 +212,17 @@ const StudentDashboard = ({
       const matchScore =
         !filters.scoreRange || scoreStr.includes(filters.scoreRange);
 
-      // 匹配时间
+      // 【修复】：匹配时间使用 updateTime
       const matchDate =
         !filters.date ||
-        (sub.submitTime && sub.submitTime.startsWith(filters.date));
+        (sub.updateTime && sub.updateTime.startsWith(filters.date));
 
-      return matchStatus && matchCourse && matchScore && matchDate;
+      // 【新增】：匹配发布者（从 sub.homework.teacherName 中提取）
+      const matchCreator =
+        !filters.creatorName ||
+        (sub.homework && sub.homework.teacherName && sub.homework.teacherName.includes(filters.creatorName));
+
+      return matchStatus && matchScore && matchDate && matchCreator;
     });
   }, [rawSubmissions, filters]);
 
@@ -275,62 +280,7 @@ const StudentDashboard = ({
           )}
         </div>
 
-        <div className={styles.toolbar}>
-          <div className={styles.filterGroup}>
-            <div className={styles.filterIcon}>
-              <FontAwesomeIcon icon={faFilter} />
-            </div>
-
-            {context !== "course" && (
-              <select
-                value={filters.courseId}
-                onChange={(e) =>
-                  setFilters({ ...filters, courseId: e.target.value })
-                }
-                className={styles.filterInput}
-              >
-                <option value="">全部课程</option>
-                {courseList?.map((course) => (
-                  <option key={course.id} value={course.id}>
-                    {course.name}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {activeTab === "all-homework" && (
-              <input
-                type="text"
-                placeholder="发布者姓名"
-                value={filters.creatorName}
-                onChange={(e) =>
-                  setFilters({ ...filters, creatorName: e.target.value })
-                }
-                className={styles.filterInput}
-              />
-            )}
-
-            {activeTab === "my-submissions" && !isGuest && (
-              <input
-                type="text"
-                placeholder="分数包含 (如: 90)"
-                value={filters.scoreRange}
-                onChange={(e) =>
-                  setFilters({ ...filters, scoreRange: e.target.value })
-                }
-                className={styles.filterInput}
-              />
-            )}
-
-            {/* 日期过滤 */}
-            <input
-              type="date"
-              value={filters.date}
-              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-              className={styles.filterInput}
-            />
-          </div>
-        </div>
+  
 
         {activeTab === "all-homework" && (
           <HomeworkList
