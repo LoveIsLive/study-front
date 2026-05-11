@@ -62,42 +62,8 @@ const CourseDetailPage = () => {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.headerSection}>
-        <div
-          className={styles.titleWrapper}
-          style={
-            courseInfo.coverImage
-              ? {
-                  backgroundImage: `url(${courseInfo.coverImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative",
-                  overflow: "hidden",
-                }
-              : {}
-          }
-        >
-          {" "}
-          {courseInfo.coverImage && (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                backgroundColor: "rgba(0,0,0,0.5)",
-                zIndex: 1,
-                borderRadius: "12px",
-              }}
-            ></div>
-          )}
-          <h1
-            className={styles.title}
-            style={{
-              position: "relative",
-              zIndex: 2,
-              textShadow: "0 2px 6px rgba(0,0,0,0.6)",
-            }}
-          >
-            {courseInfo.title}
-          </h1>
+        <div className={styles.titleWrapper}>
+          <h1 className={styles.title}>{courseInfo.title}</h1>
         </div>
         <div className={styles.divider}></div>
         <div className={styles.descriptionSection}>

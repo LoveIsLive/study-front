@@ -307,7 +307,7 @@ const Header = () => {
           </NavLink>
 
           {/* 课程选择按钮 - 班级上下文显示，学校上下文隐藏或禁用 */}
-          {activeType === "class" ? (
+          {/* {activeType === "class" ? (
             <NavLink
               to="/courses"
               className={({ isActive }) =>
@@ -325,7 +325,14 @@ const Header = () => {
               <FontAwesomeIcon icon={faList} fixedWidth />
               <span>课程</span>
             </div>
-          )}
+          )} */}
+          <NavLink
+            to="/courses"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faList} fixedWidth />
+            <span>课程</span>
+          </NavLink>
           {/* 【新增】课程详情按钮，通过 window.location.pathname 判定高亮 */}
           <NavLink
             to={currentCourseId ? `/course/${currentCourseId}` : "/courses"}

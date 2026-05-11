@@ -26,7 +26,7 @@ import {
   updateCourse,
   getCoursesByClassId,
 } from "../../services/courseService";
-import { wareApi, discussionApi, courseApi } from "../../services/api";
+import { wareApi, discussionApi, courseApi, classesApi, schoolApi } from "../../services/api";
 import styles from "./CourseListPage.module.css";
 
 /**
@@ -422,12 +422,15 @@ const CourseListPage = () => {
     fetchCourseList,
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [adminClassList, setAdminClassList] = useState([]);
+  const [selectedAdminClassId, setSelectedAdminClassId] = useState("");
 
   // 【修复点 2】：引入权限判断，防止学生和访客看到管理按钮
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
   const canManageCourse = isTeacher || isAdmin || isPrincipal; // 除了老师外，管理员和校长也有管理权限，学生和访客不会匹配
+  const detailInfo = useAuthStore((state) => state.detailInfo);
 
   // 搜索和分页状态
   const [searchTerm, setSearchTerm] = useState("");
@@ -437,6 +440,28 @@ const CourseListPage = () => {
   // 模态框状态
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
+
+  // 校长/管理员班级选择逻辑
+  useEffect(() => {
+    if (isAdmin || isPrincipal) {
+      const schoolId = detailInfo?.schoolMembers?.[0]?.schoolId; // 校长默认取管理的第一所学校
+      if (schoolId || isAdmin) {
+        classesApi
+          .get("/all", isAdmin ? {} : { params: { schoolId } })
+          .then((res) => {
+            if (res.data?.code === 200 && res.data.data.length > 0) {
+              setAdminClassList(res.data.data);
+              setSelectedAdminClassId(res.data.data[0].id);
+            }
+          });
+      }
+    }
+  }, [isAdmin, isPrincipal, detailInfo]);
+
+  // 监听下拉框改变
+  useEffect(() => {
+    if (selectedAdminClassId) loadCourses(true);
+  }, [selectedAdminClassId]);
 
   useEffect(() => {
     if (activeType !== "class") {
@@ -458,8 +483,14 @@ const CourseListPage = () => {
   const loadCourses = async (force = false) => {
     setLoading(true);
     try {
-      await fetchCourseList(force);
-      setCurrentPage(1); // 加载后重置到第一页
+      if (isAdmin || isPrincipal) {
+        if (!selectedAdminClassId) return; // 还没选班级则不查
+        const res = await courseApi.get(`/class/${selectedAdminClassId}`);
+        useAuthStore.getState().setCourseList(res.data.data || []); // 手动更新给Store
+      } else {
+        await fetchCourseList(force);
+      }
+      setCurrentPage(1);
     } catch (error) {
       console.error("加载课程列表失败:", error);
       Swal.fire({
@@ -673,6 +704,20 @@ const CourseListPage = () => {
           </div>
 
           <div className={styles.headerRight}>
+            {(isAdmin || isPrincipal) && (
+              <select
+                className={styles.pageSizeSelect}
+                style={{ marginRight: "10px" }}
+                value={selectedAdminClassId}
+                onChange={(e) => setSelectedAdminClassId(e.target.value)}
+              >
+                {adminClassList.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <div className={styles.searchContainer}>
               <FontAwesomeIcon icon={faSearch} className={styles.inputIcon} />
               <input

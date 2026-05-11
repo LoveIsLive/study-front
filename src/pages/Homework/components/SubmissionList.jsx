@@ -5,13 +5,18 @@ import SubmissionCard from './SubmissionCard';
 import styles from '../HomeworkPage.module.css';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faFilter } from '@fortawesome/free-solid-svg-icons';
 
 const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
     submissions: studentSubmissions, onEditSubmission, onOpenDiscussion, onViewDetail }) => {
     const [submissions, setSubmissions] = useState([]);
     const [homeworkTitle, setHomeworkTitle] = useState('');
     const [isLoading, setIsLoading] = useState(!isStudentView);
+    const [filters, setFilters] = useState({
+        status: "",
+        scoreRange: "",
+        date: "",
+    });
 
     const fetchSubmissions = useCallback(async () => {
         if (isStudentView) {
@@ -33,6 +38,32 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
             }
         }
     }, [homeworkId, isStudentView, studentSubmissions]);
+
+    const filteredSubmissions = React.useMemo(() => {
+        return submissions.filter((sub) => {
+            // 状态
+            const matchStatus =
+                !filters.status ||
+                sub.status === filters.status ||
+                (filters.status === "SUBMITTED" && sub.status === "已提交");
+            // 分数范围 (例如输入 "80-100")
+            let matchScore = true;
+            if (filters.scoreRange && sub.score !== null) {
+                const [min, max] = filters.scoreRange.split("-").map(Number);
+                if (!isNaN(min) && !isNaN(max))
+                    matchScore = sub.score >= min && sub.score <= max;
+                else matchScore = String(sub.score).includes(filters.scoreRange); // 兼容单数字匹配
+            } else if (filters.scoreRange && sub.score === null) {
+                matchScore = false;
+            }
+            // 时间
+            const matchDate =
+                !filters.date ||
+                (sub.submitTime && sub.submitTime.startsWith(filters.date));
+
+            return matchStatus && matchScore && matchDate;
+        });
+    }, [submissions, filters]);
 
     useEffect(() => {
         fetchSubmissions();
@@ -77,9 +108,38 @@ const SubmissionList = ({ homeworkId, onBack, isStudentView = false,
                 </div>
             )}
 
+            <div className={styles.toolbar} style={{ margin: "0 0 20px 0" }}>
+                <div className={styles.filterGroup}>
+                    <FontAwesomeIcon icon={faFilter} className={styles.filterIcon} />
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className={styles.filterInput}
+                    >
+                        <option value="">全部状态</option>
+                        <option value="UNSUBMITTED">未提交</option>
+                        <option value="SUBMITTED">已提交</option>
+                        <option value="GRADED">已批改</option>
+                    </select>
+                    <input
+                        type="text"
+                        placeholder="分数筛选 (例: 80-100或90)"
+                        value={filters.scoreRange}
+                        onChange={(e) => setFilters({ ...filters, scoreRange: e.target.value })}
+                        className={styles.filterInput}
+                    />
+                    <input
+                        type="date"
+                        value={filters.date}
+                        onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                        className={styles.filterInput}
+                    />
+                </div>
+            </div>
+
             <div className={styles.listContainer}>
-                {submissions.length > 0 ? (
-                    submissions.map(sub => (
+                {filteredSubmissions.length > 0 ? (
+                    filteredSubmissions.map(sub => (
                         <SubmissionCard
                             key={sub.id}
                             submission={sub}

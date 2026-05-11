@@ -69,6 +69,7 @@ const StudentDashboard = ({
     courseId: context === "course" ? contextId : "",
     scoreRange: "",
     creatorName: "", // 【新增】发布者筛选
+    date: "", // 【新增】时间过滤
   });
   const { courseList } = useAuthStore();
 
@@ -186,9 +187,14 @@ const StudentDashboard = ({
         !filters.creatorName ||
         (item.teacherName && item.teacherName.includes(filters.creatorName));
 
-      return matchCourse && matchStatus && matchCreator;
+      // 匹配时间
+      const matchDate =
+        !filters.date ||
+        (item.createTime && item.createTime.startsWith(filters.date));
+
+      return matchCourse && matchStatus && matchCreator && matchDate;
     });
-  }, [rawHomeworks, filters.courseId, filters.status, filters.creatorName]);
+  }, [rawHomeworks, filters.courseId, filters.status, filters.creatorName, filters.date]);
 
   // 使用安全提取器过滤提交记录
   const filteredSubmissions = useMemo(() => {
@@ -206,7 +212,12 @@ const StudentDashboard = ({
       const matchScore =
         !filters.scoreRange || scoreStr.includes(filters.scoreRange);
 
-      return matchStatus && matchCourse && matchScore;
+      // 匹配时间
+      const matchDate =
+        !filters.date ||
+        (sub.submitTime && sub.submitTime.startsWith(filters.date));
+
+      return matchStatus && matchCourse && matchScore && matchDate;
     });
   }, [rawSubmissions, filters]);
 
@@ -310,6 +321,14 @@ const StudentDashboard = ({
                 className={styles.filterInput}
               />
             )}
+
+            {/* 日期过滤 */}
+            <input
+              type="date"
+              value={filters.date}
+              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+              className={styles.filterInput}
+            />
           </div>
         </div>
 
