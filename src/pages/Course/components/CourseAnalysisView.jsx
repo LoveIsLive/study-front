@@ -561,6 +561,31 @@ const CourseAnalysisView = ({ courseId }) => {
             </div>
           ) : homeworkData ? (
             <>
+              <div
+                className={styles.filterGroup}
+                style={{
+                  marginBottom: "20px",
+                  background: "#f9f9f9",
+                  padding: "12px",
+                  borderRadius: "8px",
+                }}
+              >
+                <label className={styles.filterLabel}>分析目标作业：</label>
+                <select
+                  value={selectedHomeworkId || ""}
+                  onChange={(e) =>
+                    setSelectedHomeworkId(Number(e.target.value))
+                  }
+                  className={styles.filterInput}
+                  style={{ minWidth: "240px" }}
+                >
+                  {courseData?.trends?.map((t) => (
+                    <option key={t.homeworkId} value={t.homeworkId}>
+                      {t.homeworkTitle}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className={styles.homeworkKPIs}>
                 <KPICard
                   title="班级平均分"

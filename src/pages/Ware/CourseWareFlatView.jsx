@@ -116,9 +116,14 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   };
 
   // 双击触发预览功能
-  const handleDoubleClick = (e) => {
-    if (!isDir && isPreviewable(node.mimeTypeName || node.name)) {
-      handleAction("preview", e);
+  const handleItemClick = (e) => {
+    if (isDir) {
+      handleToggle(e); // 文件夹则展开/收起
+    } else {
+      // 文件则进行预览判定（单击预览）
+      if (isPreviewable(node.mimeTypeName || node.name)) {
+        handleAction("preview", e);
+      }
     }
   };
 
@@ -311,11 +316,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
   return (
     <li className={styles.nodeItem}>
-      <div
-        className={styles.nodeContent}
-        onClick={handleToggle}
-        onDoubleClick={handleDoubleClick}
-      >
+      <div className={styles.nodeContent} onClick={handleItemClick}>
         <div className={styles.iconCircle}>
           {isDir ? <FolderIcon /> : <FileIcon />}
         </div>

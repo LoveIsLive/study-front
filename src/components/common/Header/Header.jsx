@@ -26,6 +26,7 @@ import { config } from "../../../utils/config";
 import styles from "./Header.module.css";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ChangeUsernameModal from "./ChangeUsernameModal";
+import { faBrain } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   const {
@@ -314,7 +315,7 @@ const Header = () => {
               }
             >
               <FontAwesomeIcon icon={faList} fixedWidth />
-              <span>课程选择</span>
+              <span>课程</span>
             </NavLink>
           ) : (
             <div
@@ -322,9 +323,38 @@ const Header = () => {
               title="课程选择仅适用于班级上下文"
             >
               <FontAwesomeIcon icon={faList} fixedWidth />
-              <span>课程选择</span>
+              <span>课程</span>
             </div>
           )}
+          {/* 【新增】课程详情按钮，通过 window.location.pathname 判定高亮 */}
+          <NavLink
+            to={currentCourseId ? `/course/${currentCourseId}` : "/courses"}
+            className={({ isActive }) =>
+              window.location.pathname.includes("/course/") &&
+              !window.location.pathname.includes("/courses")
+                ? styles.sidebarActive
+                : ""
+            }
+            onClick={(e) => {
+              if (
+                !currentCourseId &&
+                !window.location.pathname.includes("/course/")
+              ) {
+                e.preventDefault();
+                Swal.fire({
+                  toast: true,
+                  position: "top-end",
+                  icon: "info",
+                  title: "请先在课程选择列表中选择一个课程",
+                  showConfirmButton: false,
+                  timer: 2000,
+                });
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={faBookOpen} fixedWidth />
+            <span>课程详情</span>
+          </NavLink>
 
           {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
           {/* {activeType === 'class' && currentCourseId ? (
@@ -363,7 +393,7 @@ const Header = () => {
             to="/mind"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
-            <FontAwesomeIcon icon={faChartLine} fixedWidth />
+            <FontAwesomeIcon icon={faBrain} fixedWidth />
             <span>Mind+工具</span>
           </NavLink>
 
@@ -373,7 +403,7 @@ const Header = () => {
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faComments} fixedWidth />
-            <span>班级讨论区</span>
+            <span>讨论区</span>
           </NavLink>
         </div>
       </aside>
