@@ -19,6 +19,42 @@ import Swal from "sweetalert2";
 import NewItemModal from "./components/NewItemModal";
 import styles from "./CourseWareFlatView.module.css";
 
+// 【新增】：根据身份重写完整后端实际仓库路径的包装器
+// 【新增】：根据身份重写完整后端实际仓库路径的包装器（基于名称拼接）
+const getWareApiPath = (path, courseId) => {
+  if (!courseId) return path;
+  const state = useAuthStore.getState();
+  const isAdmin = state.isAdmin();
+  const isPrincipal = state.isPrincipal();
+
+  // 剥离可能存在的原有 /courseId 前缀，获取干净的相对路径
+  let cleanPath = path || "/";
+  const prefix = `/${courseId}`;
+  if (cleanPath === prefix) {
+    cleanPath = "";
+  } else if (cleanPath.startsWith(prefix + "/")) {
+    cleanPath = cleanPath.slice(prefix.length);
+  }
+  if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+  if (cleanPath === "/") cleanPath = "";
+
+  // 仅针对管理视角的绝对路径重写
+  if (isAdmin || isPrincipal) {
+    // 【核心修复2】：从 localStorage 中提取在 CourseListPage 中选定的真实【名称】而不是ID
+    let schoolName = localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+    let className = localStorage.getItem("adminSelectedClassName") || "未知班级";
+
+    // 强制转换为带前缀的绝对路径 (按照要求的 {学校名}/{班级名}/{courseid} 结构)
+    if (isAdmin) {
+      return `/${schoolName}/${className}/${courseId}${cleanPath}`;
+    } else if (isPrincipal) {
+      return `/${className}/${courseId}${cleanPath}`;
+    }
+  }
+  
+  // 普通用户保持原样
+  return path;
+};
 // --- 自定义 SVG 图标 ---
 const FolderIcon = () => (
   <svg
@@ -93,8 +129,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
   const fetchChildren = async () => {
     try {
+      const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
       const response = await wareApi.get("/get/dir", {
-        params: { path: fullPath },
+        params: { path: reqPath }, // 【修改】
       });
       setChildren(response.data.data.fileObjectDescs || []);
       setHasFetched(true);
@@ -130,12 +167,13 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   const handleRename = async () => {
     if (newName && newName !== node.name) {
       try {
+        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
         if (isDir) {
           await wareApi.post("/update/dir", null, {
-            params: { path: fullPath, newName },
+            params: { path: reqPath, newName }, // 【修改】
           });
         } else {
-          await wareApi.post("/update/file", { path: fullPath, newName });
+          await wareApi.post("/update/file", { path: reqPath, newName }); // 【修改】
         }
         Swal.fire({
           toast: true,
@@ -171,8 +209,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
     if (result.isConfirmed) {
       try {
+        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
         const url = isDir ? "/delete/dir" : "/delete/file";
-        await wareApi.delete(url, { params: { path: fullPath } });
+        await wareApi.delete(url, { params: { path: reqPath } }); // 【修改】
         Swal.fire({
           toast: true,
           position: "top-end",
@@ -192,11 +231,13 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     e.stopPropagation();
     try {
       if (action === "preview" || action === "download") {
+        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
         const res = await wareApi.get("/get/downloadId", {
-          params: { path: fullPath },
+          params: { path: reqPath }, // 【修改】
         });
         const token = res.data.data;
         const baseUrl = wareApi.defaults.baseURL;
+
         let apiPath = fullPath;
         if (currentCourseId) {
           const courseIdStr = String(currentCourseId);
@@ -211,6 +252,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             }
           }
         }
+        apiPath = getWareApiPath(apiPath, currentCourseId); // 【新增：再次拦截确保拼接】
         const url = `${baseUrl}/download?path=${encodeURIComponent(apiPath)}&token=${token}`;
 
         if (action === "preview") {
@@ -265,8 +307,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
       // --- 修改点：查看并修改AI总结，对接 /get/summary 接口 ---
       if (action === "view-summary") {
+        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
         const response = await wareApi.get("/get/summary", {
-          params: { path: fullPath },
+          params: { path: reqPath }, // 【修改】
         });
 
         const currentSummary = response.data.data?.aiSummary || "";
@@ -291,7 +334,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           if (isConfirmed && newSummary !== currentSummary) {
             await wareApi.post("/update/summary", null, {
               params: {
-                path: fullPath,
+                path: reqPath, // 【修改】
                 summary: newSummary,
               },
             });
@@ -496,8 +539,9 @@ const CourseWareFlatView = ({ courseId }) => {
   const fetchRoot = async () => {
     setIsLoading(true);
     try {
+      const reqPath = getWareApiPath("/", courseId); // 【新增】
       const response = await wareApi.get("/get/dir", {
-        params: { path: "/" },
+        params: { path: reqPath }, // 【修改】
       });
       setRootNodes(response.data.data.fileObjectDescs || []);
     } catch (error) {
@@ -545,10 +589,11 @@ const CourseWareFlatView = ({ courseId }) => {
       </ul>
 
       {/* 复用新建/上传弹窗组件 */}
+      {/* 复用新建/上传弹窗组件 */}
       <NewItemModal
         isOpen={modalConfig.isOpen}
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
-        currentPath={modalConfig.path}
+        currentPath={getWareApiPath(modalConfig.path, courseId)} // 【修改点】
         onSuccess={() => {
           if (modalConfig.onRefresh) {
             modalConfig.onRefresh();

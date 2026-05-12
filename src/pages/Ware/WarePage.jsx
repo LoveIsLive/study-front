@@ -20,6 +20,42 @@ import Spinner from "../../components/common/Spinner/Spinner";
 import styles from "./WarePage.module.css";
 import Swal from "sweetalert2";
 
+// 【新增】：根据身份重写完整后端实际仓库路径的包装器
+// 【新增】：根据身份重写完整后端实际仓库路径的包装器（基于名称拼接）
+const getWareApiPath = (path, courseId) => {
+  if (!courseId) return path;
+  const state = useAuthStore.getState();
+  const isAdmin = state.isAdmin();
+  const isPrincipal = state.isPrincipal();
+
+  // 剥离可能存在的原有 /courseId 前缀，获取干净的相对路径
+  let cleanPath = path || "/";
+  const prefix = `/${courseId}`;
+  if (cleanPath === prefix) {
+    cleanPath = "";
+  } else if (cleanPath.startsWith(prefix + "/")) {
+    cleanPath = cleanPath.slice(prefix.length);
+  }
+  if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+  if (cleanPath === "/") cleanPath = "";
+
+  // 仅针对管理视角的绝对路径重写
+  if (isAdmin || isPrincipal) {
+    // 【核心修复2】：从 localStorage 中提取在 CourseListPage 中选定的真实【名称】而不是ID
+    let schoolName = localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+    let className = localStorage.getItem("adminSelectedClassName") || "未知班级";
+
+    // 强制转换为带前缀的绝对路径 (按照要求的 {学校名}/{班级名}/{courseid} 结构)
+    if (isAdmin) {
+      return `/${schoolName}/${className}/${courseId}${cleanPath}`;
+    } else if (isPrincipal) {
+      return `/${className}/${courseId}${cleanPath}`;
+    }
+  }
+  
+  // 普通用户保持原样
+  return path;
+};
 const WarePage = ({ courseId: propCourseId }) => {
   const { token } = useAuthStore();
   const storeCourseId = useAuthStore((state) => state.activeCourseId);
@@ -128,12 +164,14 @@ const WarePage = ({ courseId: propCourseId }) => {
           return;
         }
 
-        // apiPath 永远是类似 "/" 或 "/hello" 或 "/hello/test" 的相对路径
+        // 【修改点】：在此拦截 apiPath
+        const reqPath = getWareApiPath(apiPath, activeCourseId);
+
         const response = await wareApi.get("/get/dir", {
-          params: { path: apiPath },
+          params: { path: reqPath }, // 使用 reqPath 而非 apiPath
         });
         setNodes(response.data.data.fileObjectDescs || []);
-        setCurrentPath(apiPath);
+        setCurrentPath(apiPath); // UI 状态仍然保留原样以防路径导航错误
       } catch (error) {
         console.error("Failed to fetch nodes:", error);
         Swal.fire({
@@ -236,6 +274,7 @@ const WarePage = ({ courseId: propCourseId }) => {
       if (activeCourseId) {
         searchPath = `/${activeCourseId}`;
       }
+      searchPath = getWareApiPath(searchPath, activeCourseId);
       stompClientRef.current.publish({
         destination: "/app/ware/search",
         body: JSON.stringify({
@@ -290,7 +329,8 @@ const WarePage = ({ courseId: propCourseId }) => {
       <NewItemModal
         isOpen={isNewItemModalOpen}
         onClose={() => setNewItemModalOpen(false)}
-        currentPath={currentPath}
+        // 【修改点】：给上传模态框传递包含前缀的绝对路径
+        currentPath={getWareApiPath(currentPath, activeCourseId)}
         onSuccess={() => fetchNodes(currentPath)}
       />
       <SearchResultsModal

@@ -70,121 +70,128 @@ const createApiClient = (baseURL) => {
 
       // 为仓库API的路径参数添加课程ID前缀
       if (baseURL.includes("/ware/home") && state.currentCourseId) {
-        const courseIdStr = String(state.currentCourseId);
-        console.log(
-          "[apiClient] baseURL:",
-          baseURL,
-          "courseId:",
-          courseIdStr,
-          "original params:",
-          axiosConfig.params,
-          "original data:",
-          axiosConfig.data,
-        );
+        // 【核心修改点：增加校长和管理员判断，若是管理员/校长，直接跳过拼接逻辑】
+        if (state.isAdmin() || state.isPrincipal()) {
+          console.log(
+            "[apiClient] Admin or Principal detected, skipping courseId prefixing to avoid duplicate paths.",
+          );
+        } else {
+          const courseIdStr = String(state.currentCourseId);
+          console.log(
+            "[apiClient] baseURL:",
+            baseURL,
+            "courseId:",
+            courseIdStr,
+            "original params:",
+            axiosConfig.params,
+            "original data:",
+            axiosConfig.data,
+          );
 
-        // 处理查询参数中的 path
-        if (axiosConfig.params && axiosConfig.params.path) {
-          let path = axiosConfig.params.path;
-          console.log("[apiClient] original query path:", path);
-          // 清理路径：移除可能的 /ware/home 前缀
-          if (path.includes("/ware/home")) {
-            path = path.replace(/\/ware\/home/g, "");
-            console.log(
-              "[apiClient] cleaned /ware/home from query path:",
-              path,
-            );
-          }
-          // 如果路径不是以课程ID开头，则添加前缀
-          if (!path.startsWith(`/${courseIdStr}`)) {
-            if (path === "/" || path === "") {
-              path = `/${courseIdStr}`;
-            } else {
-              // 确保路径以斜杠开头，且不重复斜杠
-              const normalizedPath = path.startsWith("/") ? path : "/" + path;
-              path = `/${courseIdStr}${normalizedPath}`;
+          // 处理查询参数中的 path
+          if (axiosConfig.params && axiosConfig.params.path) {
+            let path = axiosConfig.params.path;
+            console.log("[apiClient] original query path:", path);
+            // 清理路径：移除可能的 /ware/home 前缀
+            if (path.includes("/ware/home")) {
+              path = path.replace(/\/ware\/home/g, "");
+              console.log(
+                "[apiClient] cleaned /ware/home from query path:",
+                path,
+              );
             }
-            axiosConfig.params.path = path;
-            console.log(
-              "[apiClient] updated query path:",
-              axiosConfig.params.path,
-            );
+            // 如果路径不是以课程ID开头，则添加前缀
+            if (!path.startsWith(`/${courseIdStr}`)) {
+              if (path === "/" || path === "") {
+                path = `/${courseIdStr}`;
+              } else {
+                // 确保路径以斜杠开头，且不重复斜杠
+                const normalizedPath = path.startsWith("/") ? path : "/" + path;
+                path = `/${courseIdStr}${normalizedPath}`;
+              }
+              axiosConfig.params.path = path;
+              console.log(
+                "[apiClient] updated query path:",
+                axiosConfig.params.path,
+              );
+            }
           }
-        }
 
-        // 处理请求体中的 path（JSON 或 FormData）
-        if (axiosConfig.data) {
-          // 处理 JSON 对象
-          if (
-            typeof axiosConfig.data === "object" &&
-            !(axiosConfig.data instanceof FormData)
-          ) {
+          // 处理请求体中的 path（JSON 或 FormData）
+          if (axiosConfig.data) {
+            // 处理 JSON 对象
             if (
-              axiosConfig.data.path &&
-              typeof axiosConfig.data.path === "string"
+              typeof axiosConfig.data === "object" &&
+              !(axiosConfig.data instanceof FormData)
             ) {
-              let path = axiosConfig.data.path;
-              console.log("[apiClient] original JSON path:", path);
-              // 清理路径：移除可能的 /ware/home 前缀
-              if (path.includes("/ware/home")) {
-                path = path.replace(/\/ware\/home/g, "");
-                console.log(
-                  "[apiClient] cleaned /ware/home from JSON path:",
-                  path,
-                );
-              }
-              if (!path.startsWith(`/${courseIdStr}`)) {
-                if (path === "/" || path === "") {
-                  path = `/${courseIdStr}`;
-                } else {
-                  const normalizedPath = path.startsWith("/")
-                    ? path
-                    : "/" + path;
-                  path = `/${courseIdStr}${normalizedPath}`;
+              if (
+                axiosConfig.data.path &&
+                typeof axiosConfig.data.path === "string"
+              ) {
+                let path = axiosConfig.data.path;
+                console.log("[apiClient] original JSON path:", path);
+                // 清理路径：移除可能的 /ware/home 前缀
+                if (path.includes("/ware/home")) {
+                  path = path.replace(/\/ware\/home/g, "");
+                  console.log(
+                    "[apiClient] cleaned /ware/home from JSON path:",
+                    path,
+                  );
                 }
-                axiosConfig.data.path = path;
-                console.log(
-                  "[apiClient] updated JSON path:",
-                  axiosConfig.data.path,
-                );
+                if (!path.startsWith(`/${courseIdStr}`)) {
+                  if (path === "/" || path === "") {
+                    path = `/${courseIdStr}`;
+                  } else {
+                    const normalizedPath = path.startsWith("/")
+                      ? path
+                      : "/" + path;
+                    path = `/${courseIdStr}${normalizedPath}`;
+                  }
+                  axiosConfig.data.path = path;
+                  console.log(
+                    "[apiClient] updated JSON path:",
+                    axiosConfig.data.path,
+                  );
+                }
+              }
+            }
+            // 处理 FormData
+            else if (axiosConfig.data instanceof FormData) {
+              // FormData 不能直接修改，需要获取并重新设置
+              const pathValue = axiosConfig.data.get("path");
+              console.log("[apiClient] original FormData path:", pathValue);
+              if (pathValue && typeof pathValue === "string") {
+                let newPath = pathValue;
+                // 清理路径：移除可能的 /ware/home 前缀
+                if (newPath.includes("/ware/home")) {
+                  newPath = newPath.replace(/\/ware\/home/g, "");
+                  console.log(
+                    "[apiClient] cleaned /ware/home from FormData path:",
+                    newPath,
+                  );
+                }
+                if (!newPath.startsWith(`/${courseIdStr}`)) {
+                  if (newPath === "/" || newPath === "") {
+                    newPath = `/${courseIdStr}`;
+                  } else {
+                    const normalizedPath = newPath.startsWith("/")
+                      ? newPath
+                      : "/" + newPath;
+                    newPath = `/${courseIdStr}${normalizedPath}`;
+                  }
+                  axiosConfig.data.set("path", newPath);
+                  console.log("[apiClient] updated FormData path:", newPath);
+                }
               }
             }
           }
-          // 处理 FormData
-          else if (axiosConfig.data instanceof FormData) {
-            // FormData 不能直接修改，需要获取并重新设置
-            const pathValue = axiosConfig.data.get("path");
-            console.log("[apiClient] original FormData path:", pathValue);
-            if (pathValue && typeof pathValue === "string") {
-              let newPath = pathValue;
-              // 清理路径：移除可能的 /ware/home 前缀
-              if (newPath.includes("/ware/home")) {
-                newPath = newPath.replace(/\/ware\/home/g, "");
-                console.log(
-                  "[apiClient] cleaned /ware/home from FormData path:",
-                  newPath,
-                );
-              }
-              if (!newPath.startsWith(`/${courseIdStr}`)) {
-                if (newPath === "/" || newPath === "") {
-                  newPath = `/${courseIdStr}`;
-                } else {
-                  const normalizedPath = newPath.startsWith("/")
-                    ? newPath
-                    : "/" + newPath;
-                  newPath = `/${courseIdStr}${normalizedPath}`;
-                }
-                axiosConfig.data.set("path", newPath);
-                console.log("[apiClient] updated FormData path:", newPath);
-              }
-            }
-          }
+          console.log(
+            "[apiClient] final params:",
+            axiosConfig.params,
+            "final data:",
+            axiosConfig.data,
+          );
         }
-        console.log(
-          "[apiClient] final params:",
-          axiosConfig.params,
-          "final data:",
-          axiosConfig.data,
-        );
       } else {
         console.log(
           "[apiClient] baseURL:",
@@ -194,22 +201,6 @@ const createApiClient = (baseURL) => {
         );
       }
 
-      // 处理 FormData 的 Content-Type，防止 charset 参数导致 415 错误
-      // if (axiosConfig.data instanceof FormData) {
-      //     console.log('[apiClient] Data is FormData, removing any Content-Type header to let browser set it correctly');
-      //     // 删除可能存在的 Content-Type 头部，让浏览器自动设置
-      //     if (axiosConfig.headers) {
-      //         let contentTypeKey = Object.keys(axiosConfig.headers).find(
-      //             key => key.toLowerCase() === 'content-type'
-      //         );
-      //         if (contentTypeKey) {
-      //             delete axiosConfig.headers[contentTypeKey];
-      //             console.log('[apiClient] Removed Content-Type header for FormData');
-      //         }
-      //     }
-      // }
-
-      // return axiosConfig;
       if (axiosConfig.data instanceof FormData) {
         // 这里设置为 false 是 Axios 的一种技巧，告知它不要手动设置任何 Content-Type
         axiosConfig.headers["Content-Type"] = false;

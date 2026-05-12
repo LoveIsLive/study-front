@@ -99,6 +99,7 @@ const CourseHomeworkView = ({ courseId }) => {
   };
 
   // --- 视图渲染分发 ---
+  // --- 视图渲染分发 ---
   const renderContent = () => {
     if (!user) return <Spinner />;
     if (!isAdmin && !detailInfo) return <Spinner />;
@@ -124,7 +125,11 @@ const CourseHomeworkView = ({ courseId }) => {
       );
     }
 
-    if (view.name === "submissionList" && (isTeacher || isAdmin)) {
+    // 【修改点】：允许管理员和校长也能进入提交列表查看
+    if (
+      view.name === "submissionList" &&
+      (isTeacher || isAdmin || isPrincipal)
+    ) {
       return (
         <SubmissionList
           homeworkId={view.data}
@@ -137,19 +142,10 @@ const CourseHomeworkView = ({ courseId }) => {
       );
     }
 
-    if (isAdmin || isPrincipal) {
-      return (
-        <AdminDashboard
-          view={view}
-          navigateTo={navigateTo}
-          onEditHomework={handleOpenEdit}
-          onOpenDiscussion={handleOpenDiscussion}
-          refreshTrigger={refreshTrigger}
-        />
-      );
-    }
-    // 修改这里：使用全新的专属组件
-    if (isTeacher) {
+    // 【删除点】：删除了原先包裹 AdminDashboard 的 if (isAdmin || isPrincipal) 拦截
+
+    // 【修改点】：将管理员和校长并入，让他们拥有和老师一样的“课程作业内部视角”，去掉下拉框且自带筛选功能
+    if (isTeacher || isAdmin || isPrincipal) {
       return (
         <CourseTeacherDashboard
           courseId={courseId}
@@ -162,7 +158,9 @@ const CourseHomeworkView = ({ courseId }) => {
         />
       );
     }
-    if (isStudent || isGuest) { // 👈 2. 核心修改：允许访客和学生一样进入仪表盘查看列表
+
+    // 学生和访客逻辑不变
+    if (isStudent || isGuest) {
       return (
         <StudentDashboard
           context="course"

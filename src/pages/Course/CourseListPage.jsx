@@ -26,7 +26,13 @@ import {
   updateCourse,
   getCoursesByClassId,
 } from "../../services/courseService";
-import { wareApi, discussionApi, courseApi, classesApi, schoolApi } from "../../services/api";
+import {
+  wareApi,
+  discussionApi,
+  courseApi,
+  classesApi,
+  schoolApi,
+} from "../../services/api";
 import styles from "./CourseListPage.module.css";
 
 /**
@@ -489,11 +495,54 @@ const CourseListPage = () => {
   }, [isAdmin, isPrincipal, selectedSchoolId, detailInfo]);
 
   // 监听下拉框改变，校长和管理员选择班级后自动加载课程
+  // 监听下拉框改变，校长和管理员选择班级后自动加载课程
   useEffect(() => {
     if ((isAdmin || isPrincipal) && selectedAdminClassId) {
       loadCourses(true);
+
+      // 【新增逻辑】：不仅获取ID，还从列表中匹配出对应的名字
+      let schoolName = "未知学校";
+      let className = "未知班级";
+
+      if (isAdmin) {
+        const school = adminSchoolList.find(
+          (s) => String(s.id) === String(selectedSchoolId),
+        );
+        if (school) schoolName = school.name;
+      } else if (isPrincipal) {
+        // 校长默认从 detailInfo 中获取自己所在的学校名
+        schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
+      }
+
+      const cls = adminClassList.find(
+        (c) => String(c.id) === String(selectedAdminClassId),
+      );
+      if (cls) className = cls.name;
+
+      // 存入 localStorage，供仓库页面跨组件读取
+      if (selectedSchoolId) {
+        localStorage.setItem("adminSelectedSchoolId", selectedSchoolId);
+      } else if (isPrincipal && detailInfo?.schoolMembers?.[0]?.schoolId) {
+        localStorage.setItem(
+          "adminSelectedSchoolId",
+          detailInfo.schoolMembers[0].schoolId,
+        );
+      }
+      localStorage.setItem("adminSelectedClassId", selectedAdminClassId);
+
+      // 【核心修复1】：将名字也存入 localStorage
+      localStorage.setItem("adminSelectedSchoolName", schoolName);
+      localStorage.setItem("adminSelectedClassName", className);
     }
-  }, [selectedAdminClassId, isAdmin, isPrincipal]);
+  }, [
+    selectedAdminClassId,
+    selectedSchoolId,
+    isAdmin,
+    isPrincipal,
+    detailInfo,
+    adminSchoolList, // 记得在依赖数组中加上这两个列表
+    adminClassList,
+  ]);
 
   // 1. 修改拦截器：增加 detailInfo 存在性判断，防止刷新时误拦截
   useEffect(() => {
@@ -760,7 +809,11 @@ const CourseListPage = () => {
                 value={selectedSchoolId}
                 onChange={(e) => setSelectedSchoolId(e.target.value)}
               >
-                {adminSchoolList.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+                {adminSchoolList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
               </select>
             )}
             {(isAdmin || isPrincipal) && (
@@ -770,8 +823,12 @@ const CourseListPage = () => {
                 value={selectedAdminClassId}
                 onChange={(e) => setSelectedAdminClassId(e.target.value)}
               >
-                <option value="">请选择班级</option>
-                {adminClassList.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                {/* 【核心修复 2】：删除了多余的 <option value="">请选择班级</option>，直接遍历实际班级即可 */}
+                {adminClassList.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             )}
             <div className={styles.searchContainer}>
