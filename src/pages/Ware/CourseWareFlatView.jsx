@@ -1,7 +1,6 @@
 // src/pages/Ware/CourseWareFlatView.jsx
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// 修复：将 faFileAlt 替换为 faClipboardList 确保图标正常渲染
 import {
   faTrashAlt,
   faEllipsisH,
@@ -10,6 +9,18 @@ import {
   faEdit,
   faRobot,
   faClipboardList,
+  faFolder,
+  faFile,
+  faFilePdf,
+  faFileWord,
+  faFileExcel,
+  faFilePowerpoint,
+  faFileImage,
+  faFileVideo,
+  faFileAudio,
+  faFileCode,
+  faFileArchive,
+  faFileLines,
 } from "@fortawesome/free-solid-svg-icons";
 import { wareApi } from "../../services/api";
 import { isPreviewable } from "../../utils/helpers";
@@ -19,7 +30,6 @@ import Swal from "sweetalert2";
 import NewItemModal from "./components/NewItemModal";
 import styles from "./CourseWareFlatView.module.css";
 
-// 【新增】：根据身份重写完整后端实际仓库路径的包装器
 // 【新增】：根据身份重写完整后端实际仓库路径的包装器（基于名称拼接）
 const getWareApiPath = (path, courseId) => {
   if (!courseId) return path;
@@ -41,8 +51,10 @@ const getWareApiPath = (path, courseId) => {
   // 仅针对管理视角的绝对路径重写
   if (isAdmin || isPrincipal) {
     // 【核心修复2】：从 localStorage 中提取在 CourseListPage 中选定的真实【名称】而不是ID
-    let schoolName = localStorage.getItem("adminSelectedSchoolName") || "未知学校";
-    let className = localStorage.getItem("adminSelectedClassName") || "未知班级";
+    let schoolName =
+      localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+    let className =
+      localStorage.getItem("adminSelectedClassName") || "未知班级";
 
     // 强制转换为带前缀的绝对路径 (按照要求的 {学校名}/{班级名}/{courseid} 结构)
     if (isAdmin) {
@@ -51,41 +63,72 @@ const getWareApiPath = (path, courseId) => {
       return `/${className}/${courseId}${cleanPath}`;
     }
   }
-  
+
   // 普通用户保持原样
   return path;
 };
-// --- 自定义 SVG 图标 ---
-const FolderIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-  </svg>
-);
 
-const FileIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-    <polyline points="13 2 13 9 20 9"></polyline>
-  </svg>
-);
+// 【新增】：根据文件名和是否为目录，返回对应的图标和颜色
+const getFileIconConfig = (fileName, isDir) => {
+  if (isDir) {
+    return { icon: faFolder, color: "#ffd43b" }; // 文件夹默认黄色
+  }
+
+  const ext = fileName.split(".").pop().toLowerCase();
+
+  switch (ext) {
+    case "pdf":
+      return { icon: faFilePdf, color: "#e2574c" }; // 红色
+    case "doc":
+    case "docx":
+      return { icon: faFileWord, color: "#2b579a" }; // 蓝色
+    case "xls":
+    case "xlsx":
+      return { icon: faFileExcel, color: "#217346" }; // 绿色
+    case "ppt":
+    case "pptx":
+      return { icon: faFilePowerpoint, color: "#d24726" }; // 橙红色
+    case "jpg":
+    case "jpeg":
+    case "png":
+    case "gif":
+    case "svg":
+    case "webp":
+      return { icon: faFileImage, color: "#17a2b8" }; // 青色
+    case "mp4":
+    case "mov":
+    case "avi":
+    case "mkv":
+      return { icon: faFileVideo, color: "#6f42c1" }; // 紫色
+    case "mp3":
+    case "wav":
+    case "flac":
+      return { icon: faFileAudio, color: "#17a2b8" }; // 青色
+    case "zip":
+    case "rar":
+    case "7z":
+    case "tar":
+    case "gz":
+      return { icon: faFileArchive, color: "#6c757d" }; // 灰色
+    case "js":
+    case "jsx":
+    case "ts":
+    case "tsx":
+    case "html":
+    case "css":
+    case "json":
+    case "java":
+    case "py":
+    case "cpp":
+      return { icon: faFileCode, color: "#fd7e14" }; // 橙色
+    case "txt":
+    case "md":
+    case "csv":
+      return { icon: faFileLines, color: "#495057" }; // 深灰色
+    default:
+      return { icon: faFile, color: "#adb5bd" }; // 未知文件默认浅灰色
+  }
+};
 
 const ChevronRight = () => (
   <svg
@@ -129,9 +172,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
   const fetchChildren = async () => {
     try {
-      const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
+      const reqPath = getWareApiPath(fullPath, currentCourseId);
       const response = await wareApi.get("/get/dir", {
-        params: { path: reqPath }, // 【修改】
+        params: { path: reqPath },
       });
       setChildren(response.data.data.fileObjectDescs || []);
       setHasFetched(true);
@@ -167,13 +210,13 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   const handleRename = async () => {
     if (newName && newName !== node.name) {
       try {
-        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
         if (isDir) {
           await wareApi.post("/update/dir", null, {
-            params: { path: reqPath, newName }, // 【修改】
+            params: { path: reqPath, newName },
           });
         } else {
-          await wareApi.post("/update/file", { path: reqPath, newName }); // 【修改】
+          await wareApi.post("/update/file", { path: reqPath, newName });
         }
         Swal.fire({
           toast: true,
@@ -209,9 +252,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
     if (result.isConfirmed) {
       try {
-        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
         const url = isDir ? "/delete/dir" : "/delete/file";
-        await wareApi.delete(url, { params: { path: reqPath } }); // 【修改】
+        await wareApi.delete(url, { params: { path: reqPath } });
         Swal.fire({
           toast: true,
           position: "top-end",
@@ -231,9 +274,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     e.stopPropagation();
     try {
       if (action === "preview" || action === "download") {
-        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
         const res = await wareApi.get("/get/downloadId", {
-          params: { path: reqPath }, // 【修改】
+          params: { path: reqPath },
         });
         const token = res.data.data;
         const baseUrl = wareApi.defaults.baseURL;
@@ -252,7 +295,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             }
           }
         }
-        apiPath = getWareApiPath(apiPath, currentCourseId); // 【新增：再次拦截确保拼接】
+        apiPath = getWareApiPath(apiPath, currentCourseId);
         const url = `${baseUrl}/download?path=${encodeURIComponent(apiPath)}&token=${token}`;
 
         if (action === "preview") {
@@ -307,14 +350,14 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
       // --- 修改点：查看并修改AI总结，对接 /get/summary 接口 ---
       if (action === "view-summary") {
-        const reqPath = getWareApiPath(fullPath, currentCourseId); // 【新增】
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
         const response = await wareApi.get("/get/summary", {
-          params: { path: reqPath }, // 【修改】
+          params: { path: reqPath },
         });
 
         const currentSummary = response.data.data?.aiSummary || "";
 
-        // 【新增修改 1】：根据是否有管理权限来决定是“可编辑”还是“只读”
+        // 根据是否有管理权限来决定是“可编辑”还是“只读”
         if (hasFullAccess) {
           // 教师、管理员、校长的可编辑视图
           const { value: newSummary, isConfirmed } = await Swal.fire({
@@ -334,7 +377,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           if (isConfirmed && newSummary !== currentSummary) {
             await wareApi.post("/update/summary", null, {
               params: {
-                path: reqPath, // 【修改】
+                path: reqPath,
                 summary: newSummary,
               },
             });
@@ -351,9 +394,8 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           // 学生和访客的只读视图
           await Swal.fire({
             title: "AI 文件总结",
-            // 使用 html 进行友好的文本排版，支持换行且不可编辑
             html: `<div style="text-align: left; white-space: pre-wrap; line-height: 1.6; font-size: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; max-height: 400px; overflow-y: auto;">${currentSummary || "暂无AI总结内容"}</div>`,
-            showConfirmButton: false, // 隐藏确认按钮（即保存按钮）
+            showConfirmButton: false,
             showCancelButton: true,
             cancelButtonText: "关闭",
             cancelButtonColor: "#6c757d",
@@ -368,8 +410,20 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   return (
     <li className={styles.nodeItem}>
       <div className={styles.nodeContent} onClick={handleItemClick}>
+        {/* 【修改点】：动态渲染 FontAwesome 图标及颜色 */}
         <div className={styles.iconCircle}>
-          {isDir ? <FolderIcon /> : <FileIcon />}
+          {(() => {
+            const { icon, color } = getFileIconConfig(node.name, isDir);
+            return (
+              <FontAwesomeIcon
+                icon={icon}
+                style={{
+                  color: color,
+                  fontSize: "1.2rem",
+                }}
+              />
+            );
+          })()}
         </div>
 
         <div className={styles.nodeNameWrapper}>
@@ -433,8 +487,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             />
           )}
 
-          {/* 【新增修改 2】：完全隐藏非管理员角色的 '...' 更多菜单 */}
-          {/* 之前是 (!isDir || hasFullAccess)，这会导致学生在文件节点上也能看到空的 "..." 按钮。现在改为必须具备管理权限才渲染 */}
+          {/* 完全隐藏非管理员角色的 '...' 更多菜单 */}
           {hasFullAccess && (
             <div
               className={styles.moreMenuWrapper}
@@ -539,9 +592,9 @@ const CourseWareFlatView = ({ courseId }) => {
   const fetchRoot = async () => {
     setIsLoading(true);
     try {
-      const reqPath = getWareApiPath("/", courseId); // 【新增】
+      const reqPath = getWareApiPath("/", courseId);
       const response = await wareApi.get("/get/dir", {
-        params: { path: reqPath }, // 【修改】
+        params: { path: reqPath },
       });
       setRootNodes(response.data.data.fileObjectDescs || []);
     } catch (error) {
@@ -589,11 +642,10 @@ const CourseWareFlatView = ({ courseId }) => {
       </ul>
 
       {/* 复用新建/上传弹窗组件 */}
-      {/* 复用新建/上传弹窗组件 */}
       <NewItemModal
         isOpen={modalConfig.isOpen}
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
-        currentPath={getWareApiPath(modalConfig.path, courseId)} // 【修改点】
+        currentPath={getWareApiPath(modalConfig.path, courseId)}
         onSuccess={() => {
           if (modalConfig.onRefresh) {
             modalConfig.onRefresh();

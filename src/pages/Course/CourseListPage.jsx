@@ -428,16 +428,21 @@ const CourseListPage = () => {
     fetchCourseList,
   } = useAuthStore();
   const [loading, setLoading] = useState(false);
-  const [adminSchoolList, setAdminSchoolList] = useState([]); // 新增学校状态
-  const [selectedSchoolId, setSelectedSchoolId] = useState("");
-  const [adminClassList, setAdminClassList] = useState([]);
-  const [selectedAdminClassId, setSelectedAdminClassId] = useState("");
+  const [adminSchoolList, setAdminSchoolList] = useState([]);
 
-  // 【修复点 2】：引入权限判断，防止学生和访客看到管理按钮
+  // 【修复点】：优先读取缓存中的选择
+  const [selectedSchoolId, setSelectedSchoolId] = useState(
+    () => localStorage.getItem("adminSelectedSchoolId") || "",
+  );
+  const [adminClassList, setAdminClassList] = useState([]);
+  const [selectedAdminClassId, setSelectedAdminClassId] = useState(
+    () => localStorage.getItem("adminSelectedClassId") || "",
+  );
+
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
-  const canManageCourse = isTeacher || isAdmin || isPrincipal; // 除了老师外，管理员和校长也有管理权限，学生和访客不会匹配
+  const canManageCourse = isTeacher || isAdmin || isPrincipal;
   const detailInfo = useAuthStore((state) => state.detailInfo);
 
   // 搜索和分页状态
@@ -449,43 +454,60 @@ const CourseListPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
 
-  // 【核心修改点】获取学校（仅管理员）
+  // 【获取学校】（仅管理员）
   useEffect(() => {
     if (isAdmin) {
       schoolApi.get("/all").then((res) => {
         if (res.data?.code === 200 && res.data.data.length > 0) {
           setAdminSchoolList(res.data.data);
-          setSelectedSchoolId(res.data.data[0].id);
+          // 验证缓存有效性
+          const cachedSchoolId = localStorage.getItem("adminSelectedSchoolId");
+          const isValidCache = res.data.data.some(
+            (s) => String(s.id) === String(cachedSchoolId),
+          );
+          if (!isValidCache) {
+            setSelectedSchoolId(res.data.data[0].id);
+          }
         }
       });
     }
   }, [isAdmin]);
 
-  // 在获取班级的 useEffect 中
+  // 【获取班级】
   useEffect(() => {
     if (isAdmin && selectedSchoolId) {
-      // 管理员逻辑保持不变...
       classesApi
         .get("/all", { params: { schoolId: selectedSchoolId } })
         .then((res) => {
           if (res.data?.code === 200) {
-            setAdminClassList(res.data.data || []);
-            if (res.data.data.length > 0)
-              setSelectedAdminClassId(res.data.data[0].id);
+            const classes = res.data.data || [];
+            setAdminClassList(classes);
+            // 验证缓存的班级ID是否在当前拉取的学校班级列表中
+            const cachedClassId = localStorage.getItem("adminSelectedClassId");
+            const isValidCache = classes.some(
+              (c) => String(c.id) === String(cachedClassId),
+            );
+            if (classes.length > 0 && !isValidCache) {
+              setSelectedAdminClassId(classes[0].id);
+            } else if (classes.length === 0) {
+              setSelectedAdminClassId("");
+            }
           }
         });
     } else if (isPrincipal) {
-      // 【优化】校长逻辑：获取所属学校的所有班级
       const schoolId = detailInfo?.schoolMembers?.[0]?.schoolId;
       if (schoolId) {
         classesApi.get("/all", { params: { schoolId } }).then((res) => {
           if (res.data?.code === 200) {
             const classes = res.data.data || [];
             setAdminClassList(classes);
-            // 默认选中第一个班级，从而触发 loadCourses
-            if (classes.length > 0) {
+            const cachedClassId = localStorage.getItem("adminSelectedClassId");
+            const isValidCache = classes.some(
+              (c) => String(c.id) === String(cachedClassId),
+            );
+            if (classes.length > 0 && !isValidCache) {
               setSelectedAdminClassId(classes[0].id);
-            } else {
+            } else if (classes.length === 0) {
               setSelectedAdminClassId("");
             }
           }
@@ -494,13 +516,11 @@ const CourseListPage = () => {
     }
   }, [isAdmin, isPrincipal, selectedSchoolId, detailInfo]);
 
-  // 监听下拉框改变，校长和管理员选择班级后自动加载课程
-  // 监听下拉框改变，校长和管理员选择班级后自动加载课程
+  // 【监听缓存更新与课程拉取】
   useEffect(() => {
     if ((isAdmin || isPrincipal) && selectedAdminClassId) {
       loadCourses(true);
 
-      // 【新增逻辑】：不仅获取ID，还从列表中匹配出对应的名字
       let schoolName = "未知学校";
       let className = "未知班级";
 
@@ -510,7 +530,6 @@ const CourseListPage = () => {
         );
         if (school) schoolName = school.name;
       } else if (isPrincipal) {
-        // 校长默认从 detailInfo 中获取自己所在的学校名
         schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
       }
 
@@ -519,7 +538,7 @@ const CourseListPage = () => {
       );
       if (cls) className = cls.name;
 
-      // 存入 localStorage，供仓库页面跨组件读取
+      // 存入 localStorage
       if (selectedSchoolId) {
         localStorage.setItem("adminSelectedSchoolId", selectedSchoolId);
       } else if (isPrincipal && detailInfo?.schoolMembers?.[0]?.schoolId) {
@@ -529,8 +548,6 @@ const CourseListPage = () => {
         );
       }
       localStorage.setItem("adminSelectedClassId", selectedAdminClassId);
-
-      // 【核心修复1】：将名字也存入 localStorage
       localStorage.setItem("adminSelectedSchoolName", schoolName);
       localStorage.setItem("adminSelectedClassName", className);
     }
@@ -540,13 +557,11 @@ const CourseListPage = () => {
     isAdmin,
     isPrincipal,
     detailInfo,
-    adminSchoolList, // 记得在依赖数组中加上这两个列表
+    adminSchoolList,
     adminClassList,
   ]);
 
-  // 1. 修改拦截器：增加 detailInfo 存在性判断，防止刷新时误拦截
   useEffect(() => {
-    // 只有在用户信息已加载，且确定既不是管理员也不是校长，且不在班级上下文时才拦截
     if (detailInfo && !isAdmin && !isPrincipal && activeType !== "class") {
       Swal.fire({
         icon: "warning",
@@ -563,7 +578,6 @@ const CourseListPage = () => {
     }
   }, [activeId, activeType]);
 
-  // 【核心修改点】加载课程后“默认选中第一项”防止详情报错
   const loadCourses = async (force = false) => {
     setLoading(true);
     try {
@@ -575,14 +589,19 @@ const CourseListPage = () => {
         const res = await courseApi.get(`/class/${selectedAdminClassId}`);
         const courses = res.data.data || [];
         useAuthStore.getState().setCourseList(courses);
-        // 如果有课且当前没选中，默认选第一个
-        if (courses.length > 0 && !currentCourseId) {
+
+        // 【修复点】：只有在没有已选课程，或者已选课程不在当前列表中时，才选第一个
+        const currentId = useAuthStore.getState().currentCourseId;
+        const isCurrentStillValid = courses.some((c) => c.id === currentId);
+        if (courses.length > 0 && (!currentId || !isCurrentStillValid)) {
           useAuthStore.getState().setCurrentCourse(courses[0].id, courses[0]);
         }
       } else {
         await fetchCourseList(force);
         const courses = useAuthStore.getState().courseList || [];
-        if (courses.length > 0 && !useAuthStore.getState().currentCourseId) {
+        const currentId = useAuthStore.getState().currentCourseId;
+        const isCurrentStillValid = courses.some((c) => c.id === currentId);
+        if (courses.length > 0 && (!currentId || !isCurrentStillValid)) {
           useAuthStore.getState().setCurrentCourse(courses[0].id, courses[0]);
         }
       }
@@ -779,7 +798,6 @@ const CourseListPage = () => {
     }
   };
 
-  // 2. 修改组件末尾的渲染守卫：允许管理员和校长在非 class 模式下渲染
   if (!isAdmin && !isPrincipal && activeType !== "class") {
     return null;
   }
@@ -789,7 +807,6 @@ const CourseListPage = () => {
       <div className={styles.fileManager}>
         <header className={styles.fileManagerHeader}>
           <div className={styles.headerLeft}>
-            {/* 权限判断：学生、访客隐藏新增按钮 */}
             {canManageCourse && (
               <button
                 className={styles.topCreateButton}
@@ -801,11 +818,10 @@ const CourseListPage = () => {
           </div>
 
           <div className={styles.headerRight}>
-            {/* 新增的下拉筛选框 */}
             {isAdmin && (
               <select
                 className={styles.pageSizeSelect}
-                style={{ marginRight: "10px", width: "160px" }} // 【修改】：固定学校下拉框宽度
+                style={{ marginRight: "10px", width: "160px" }}
                 value={selectedSchoolId}
                 onChange={(e) => setSelectedSchoolId(e.target.value)}
               >
@@ -819,11 +835,10 @@ const CourseListPage = () => {
             {(isAdmin || isPrincipal) && (
               <select
                 className={styles.pageSizeSelect}
-                style={{ marginRight: "10px", width: "160px" }} // 【修改】：固定班级下拉框宽度
+                style={{ marginRight: "10px", width: "160px" }}
                 value={selectedAdminClassId}
                 onChange={(e) => setSelectedAdminClassId(e.target.value)}
               >
-                {/* 【核心修复 2】：删除了多余的 <option value="">请选择班级</option>，直接遍历实际班级即可 */}
                 {adminClassList.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -896,7 +911,6 @@ const CourseListPage = () => {
                         <div className={styles.courseHeader}>
                           <h3 className={styles.courseTitle}>{course.name}</h3>
                           <div className={styles.courseListItemActions}>
-                            {/* 权限判断：学生、访客隐藏编辑和删除按钮 */}
                             {canManageCourse && (
                               <>
                                 <button

@@ -10,11 +10,10 @@ import Spinner from "../../../components/common/Spinner/Spinner";
 import styles from "../HomeworkPage.module.css";
 import Swal from "sweetalert2";
 
-// 【修复点 1】：引入缺失的 FontAwesomeIcon 和 faFilter
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
-// 智能提取课程ID，兼容平铺或嵌套的实体类
+// 智能提取课程ID
 const extractCourseId = (obj) => {
   if (!obj) return null;
   if (obj.courseId !== undefined && obj.courseId !== null)
@@ -34,13 +33,16 @@ const extractCourseId = (obj) => {
   return null;
 };
 
-// 状态归一化，兼容后端的数字枚举或中文字符串
+// 【修复点】：增加并完善作业状态解析
 const normalizeStatus = (statusVal) => {
   if (statusVal === null || statusVal === undefined) return "UNSUBMITTED";
   const s = String(statusVal).toUpperCase();
   if (s === "0" || s === "未提交" || s === "UNSUBMITTED") return "UNSUBMITTED";
   if (s === "1" || s === "已提交" || s === "提交" || s === "SUBMITTED")
     return "SUBMITTED";
+  if (s === "RETURNED" || s === "被退回") return "RETURNED";
+  if (s === "HAVE_UPDATED" || s === "作业有更新") return "HAVE_UPDATED";
+  if (s === "RE_SUBMITTED" || s === "重新提交") return "RE_SUBMITTED";
   if (s === "2" || s === "已批改" || s === "批改" || s === "GRADED")
     return "GRADED";
   return s;
@@ -63,24 +65,23 @@ const StudentDashboard = ({
   const [editingSubmission, setEditingSubmission] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // 包含发布者姓名的筛选条件
+  // 【修复点】：将单一 scoreRange 拆分成 minScore 和 maxScore
   const [filters, setFilters] = useState({
-    status: "", // 保持为空字符串，默认展示全集
+    status: "",
     courseId: context === "course" ? contextId : "",
-    scoreRange: "",
+    minScore: "",
+    maxScore: "",
     creatorName: "",
     date: "",
   });
   const { courseList } = useAuthStore();
 
-  // 当切换到"所有作业"时，清空状态筛选，防止隐形过滤
   useEffect(() => {
     if (activeTab === "all-homework" && filters.status !== "") {
       setFilters((prev) => ({ ...prev, status: "" }));
     }
   }, [activeTab]);
 
-  // 加载作业列表
   const fetchAllHomeworks = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -141,13 +142,19 @@ const StudentDashboard = ({
     }
   }, [context, contextId, isGuest, courseList]);
 
-  // 加载我的提交记录
+  // 【修复点】：修改我的提交 API 接口请求路径
   const loadSubmissions = useCallback(async () => {
     if (isGuest) return;
 
     setIsLoading(true);
     try {
-      const res = await submissionApi.get("/student/all");
+      // 判断如果是当前在特定课程详情页内，则使用特化接口
+      let url = "/student/all";
+      if (context === "course" && contextId) {
+        url = `/student/${contextId}/all`;
+      }
+
+      const res = await submissionApi.get(url);
       if (res.data.code === 200) {
         setRawSubmissions(res.data.data || []);
       } else {
@@ -158,7 +165,7 @@ const StudentDashboard = ({
     } finally {
       setIsLoading(false);
     }
-  }, [isGuest]);
+  }, [isGuest, context, contextId]);
 
   useEffect(() => {
     if (view.name === "list") {
@@ -177,9 +184,11 @@ const StudentDashboard = ({
     refreshTrigger,
   ]);
 
-  // 使用安全提取器过滤所有作业，并加入发布者筛选
   const filteredHomeworks = useMemo(() => {
     return rawHomeworks.filter((item) => {
+      // 【关键修复行】：防空保护
+      if (!item) return false;
+
       const itemCourseId = extractCourseId(item);
       const matchCourse =
         !filters.courseId || itemCourseId === String(filters.courseId);
@@ -189,12 +198,10 @@ const StudentDashboard = ({
       const matchStatus =
         !filters.status || normalizedStatus === filters.status;
 
-      // 匹配发布教师 teacherName
       const matchCreator =
         !filters.creatorName ||
         (item.teacherName && item.teacherName.includes(filters.creatorName));
 
-      // 使用 substring 截取 "YYYY-MM-DD" 进行发布时间精准匹配
       const matchDate =
         !filters.date ||
         (item.createTime && item.createTime.substring(0, 10) === filters.date);
@@ -203,37 +210,36 @@ const StudentDashboard = ({
     });
   }, [rawHomeworks, filters]);
 
-  // 使用安全提取器过滤提交记录
+  // 【修复点】：使用双输入框（最大值最小值）拦截分数过滤
+  // 【修复】：加入 !sub 空值拦截
   const filteredSubmissions = useMemo(() => {
     return rawSubmissions.filter((sub) => {
+      // 【关键修复行】：防御性检查，如果数组里混入了 null 元素则直接过滤掉，防止崩溃
+      if (!sub) return false;
+
       const normalizedStatus = normalizeStatus(sub.status);
       const matchStatus =
         !filters.status || normalizedStatus === filters.status;
 
-      // 支持分数区间 (例如输入 "80-100" 或 "90")
+      // 双输入分数区间判定
       let matchScore = true;
-      if (filters.scoreRange && sub.score !== null && sub.score !== undefined) {
-        if (filters.scoreRange.includes("-")) {
-          const [min, max] = filters.scoreRange.split("-").map(Number);
-          if (!isNaN(min) && !isNaN(max)) {
-            matchScore = sub.score >= min && sub.score <= max;
-          }
-        } else {
-          matchScore = String(sub.score).includes(filters.scoreRange);
-        }
+      const hasMin = filters.minScore !== "";
+      const hasMax = filters.maxScore !== "";
+      if ((hasMin || hasMax) && sub.score !== null && sub.score !== undefined) {
+        const min = hasMin ? Number(filters.minScore) : -Infinity;
+        const max = hasMax ? Number(filters.maxScore) : Infinity;
+        matchScore = sub.score >= min && sub.score <= max;
       } else if (
-        filters.scoreRange &&
+        (hasMin || hasMax) &&
         (sub.score === null || sub.score === undefined)
       ) {
         matchScore = false;
       }
 
-      // 提交时间匹配 updateTime，并且提取 "YYYY-MM-DD"
       const matchDate =
         !filters.date ||
         (sub.updateTime && sub.updateTime.substring(0, 10) === filters.date);
 
-      // 匹配发布教师（从 sub.homework.teacherName 中提取）
       const matchCreator =
         !filters.creatorName ||
         (sub.homework &&
@@ -304,7 +310,6 @@ const StudentDashboard = ({
               <FontAwesomeIcon icon={faFilter} />
             </div>
 
-            {/* 课程筛选（仅在“所有作业”选项卡且非单课程环境下显示） */}
             {context !== "course" && activeTab === "all-homework" && (
               <select
                 value={filters.courseId}
@@ -322,7 +327,7 @@ const StudentDashboard = ({
               </select>
             )}
 
-            {/* 【修改点】：提交状态下拉框仅在“我的提交”下完整显示 */}
+            {/* 【修复点】：扩展作业状态枚举 */}
             {activeTab === "my-submissions" && (
               <select
                 value={filters.status}
@@ -332,13 +337,15 @@ const StudentDashboard = ({
                 className={styles.filterInput}
               >
                 <option value="">全部状态</option>
-                <option value="UNSUBMITTED">未提交</option>
+                {/* <option value="UNSUBMITTED">未提交</option> */}
                 <option value="SUBMITTED">已提交</option>
+                <option value="RETURNED">被退回</option>
+                <option value="HAVE_UPDATED">作业有更新</option>
+                <option value="RE_SUBMITTED">重新提交</option>
                 <option value="GRADED">已批改</option>
               </select>
             )}
 
-            {/* 发布教师（共有） */}
             <input
               type="text"
               placeholder="发布教师"
@@ -349,20 +356,53 @@ const StudentDashboard = ({
               className={styles.filterInput}
             />
 
-            {/* 分数筛选 (仅在“我的提交”下显示) */}
+            {/* 【修复点】：双输入框的分数区间 */}
             {activeTab === "my-submissions" && !isGuest && (
-              <input
-                type="text"
-                placeholder="分数区间 (如: 80-100)"
-                value={filters.scoreRange}
-                onChange={(e) =>
-                  setFilters({ ...filters, scoreRange: e.target.value })
-                }
-                className={styles.filterInput}
-              />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  background: "#fff",
+                  border: "1px solid #ced4da",
+                  padding: "0 8px",
+                  borderRadius: "6px",
+                }}
+              >
+                <input
+                  type="number"
+                  placeholder="最低分"
+                  value={filters.minScore}
+                  onChange={(e) =>
+                    setFilters({ ...filters, minScore: e.target.value })
+                  }
+                  style={{
+                    border: "none",
+                    outline: "none",
+                    width: "60px",
+                    background: "transparent",
+                    padding: "8px 0",
+                  }}
+                />
+                <span style={{ color: "#6c757d" }}>-</span>
+                <input
+                  type="number"
+                  placeholder="最高分"
+                  value={filters.maxScore}
+                  onChange={(e) =>
+                    setFilters({ ...filters, maxScore: e.target.value })
+                  }
+                  style={{
+                    border: "none",
+                    outline: "none",
+                    width: "60px",
+                    background: "transparent",
+                    padding: "8px 0",
+                  }}
+                />
+              </div>
             )}
 
-            {/* 日期过滤 (显式标记发布时间和提交时间) */}
             <div
               style={{
                 display: "flex",
