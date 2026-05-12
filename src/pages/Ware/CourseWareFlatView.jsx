@@ -230,7 +230,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         const aiStore = useAIStore.getState();
         const authStore = useAuthStore.getState();
 
-        // 【核心修复】：手动模拟 apiClient 的行为，把课程 ID 拼接到路径最前面
         let apiPath = fullPath;
         if (authStore.currentCourseId) {
           const courseIdStr = String(authStore.currentCourseId);
@@ -246,7 +245,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           }
         }
 
-        // 此时的 apiPath 必定是类似 "/12/main.jsx" 的绝对路径
         aiStore.setContext("file-summary", {
           path: apiPath,
           autoSendMsg: `请帮我总结一下这个文件：${node.name}`,
@@ -267,45 +265,55 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 
       // --- 修改点：查看并修改AI总结，对接 /get/summary 接口 ---
       if (action === "view-summary") {
-        // 调用获取总结接口
         const response = await wareApi.get("/get/summary", {
           params: { path: fullPath },
         });
 
-        // 【核心修复】：后端返回的字段名是 aiSummary 而不是 summary
-        // 增加 response.data.data 的存在性检查以防万一
         const currentSummary = response.data.data?.aiSummary || "";
 
-        const { value: newSummary, isConfirmed } = await Swal.fire({
-          title: "AI 文件总结",
-          input: "textarea",
-          inputValue: currentSummary, // 此时 "hello" 就能正确填入这里了
-          inputPlaceholder:
-            "暂无AI总结内容，您可以使用【AI一键总结】生成，也可以直接在此编辑...",
-          showCancelButton: true,
-          confirmButtonText: "保存修改",
-          cancelButtonText: "关闭",
-          customClass: {
-            input: "custom-swal-textarea",
-          },
-        });
-
-        if (isConfirmed && newSummary !== currentSummary) {
-          // 保存修改后的总结。注意：请确认后端 /update/summary 接口接收的参数名
-          // 如果后端接收的也是 aiSummary，请把下面的 summary: newSummary 改为 aiSummary: newSummary
-          await wareApi.post("/update/summary", null, {
-            params: {
-              path: fullPath,
-              summary: newSummary,
+        // 【新增修改 1】：根据是否有管理权限来决定是“可编辑”还是“只读”
+        if (hasFullAccess) {
+          // 教师、管理员、校长的可编辑视图
+          const { value: newSummary, isConfirmed } = await Swal.fire({
+            title: "AI 文件总结",
+            input: "textarea",
+            inputValue: currentSummary,
+            inputPlaceholder:
+              "暂无AI总结内容，您可以使用【AI一键总结】生成，也可以直接在此编辑...",
+            showCancelButton: true,
+            confirmButtonText: "保存修改",
+            cancelButtonText: "关闭",
+            customClass: {
+              input: "custom-swal-textarea",
             },
           });
-          Swal.fire({
-            toast: true,
-            position: "top-end",
-            icon: "success",
-            title: "总结已保存",
-            showConfirmButton: false,
-            timer: 2000,
+
+          if (isConfirmed && newSummary !== currentSummary) {
+            await wareApi.post("/update/summary", null, {
+              params: {
+                path: fullPath,
+                summary: newSummary,
+              },
+            });
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "总结已保存",
+              showConfirmButton: false,
+              timer: 2000,
+            });
+          }
+        } else {
+          // 学生和访客的只读视图
+          await Swal.fire({
+            title: "AI 文件总结",
+            // 使用 html 进行友好的文本排版，支持换行且不可编辑
+            html: `<div style="text-align: left; white-space: pre-wrap; line-height: 1.6; font-size: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; max-height: 400px; overflow-y: auto;">${currentSummary || "暂无AI总结内容"}</div>`,
+            showConfirmButton: false, // 隐藏确认按钮（即保存按钮）
+            showCancelButton: true,
+            cancelButtonText: "关闭",
+            cancelButtonColor: "#6c757d",
           });
         }
       }
@@ -382,8 +390,9 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             />
           )}
 
-          {/* 更多菜单 '...'：逻辑保护 - 如果是文件夹且没有管理权限（比如学生），则完全不渲染 '...' 按钮 */}
-          {(!isDir || hasFullAccess) && (
+          {/* 【新增修改 2】：完全隐藏非管理员角色的 '...' 更多菜单 */}
+          {/* 之前是 (!isDir || hasFullAccess)，这会导致学生在文件节点上也能看到空的 "..." 按钮。现在改为必须具备管理权限才渲染 */}
+          {hasFullAccess && (
             <div
               className={styles.moreMenuWrapper}
               onMouseLeave={() => setShowMenu(false)}
