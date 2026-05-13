@@ -65,20 +65,62 @@ const NewItemModal = ({ isOpen, onClose, currentPath, onSuccess }) => {
   };
 
   // 生成传递给 AI 的格式化路径（课程ID/路径）
+  // 生成传递给 AI 的格式化路径（按照角色进行前缀拼接：学校/班级/课程）
   const getFormatAiPath = (destPath) => {
-    const courseIdStr = currentCourseId ? String(currentCourseId) : "";
-    let finalPath = destPath;
-    if (courseIdStr) {
-      const cleanDest = destPath.startsWith("/") ? destPath.slice(1) : destPath;
-      if (!cleanDest.startsWith(`${courseIdStr}/`)) {
-        finalPath = `${courseIdStr}/${cleanDest}`;
-      } else {
-        finalPath = cleanDest;
+    if (!currentCourseId) return destPath;
+
+    const state = useAuthStore.getState();
+    const isAdmin = state.isAdmin();
+    const isPrincipal = state.isPrincipal();
+    const courseIdStr = String(currentCourseId);
+
+    let cleanPath = destPath || "/";
+
+    // 1. 如果是从外层传进来的路径，可能已经带有正确的管理员或校长前缀，直接返回即可
+    if (isAdmin) {
+      const schoolName =
+        localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+      const className =
+        localStorage.getItem("adminSelectedClassName") || "未知班级";
+      const adminPrefix = `/${schoolName}/${className}/${courseIdStr}`;
+      if (cleanPath.startsWith(adminPrefix)) {
+        return cleanPath;
       }
-    } else {
-      finalPath = destPath.startsWith("/") ? destPath.slice(1) : destPath;
+    } else if (isPrincipal) {
+      const className =
+        localStorage.getItem("adminSelectedClassName") || "未知班级";
+      const principalPrefix = `/${className}/${courseIdStr}`;
+      if (cleanPath.startsWith(principalPrefix)) {
+        return cleanPath;
+      }
     }
-    return finalPath;
+
+    // 2. 如果是没有前缀的干净路径，则执行清理和重新拼接逻辑
+    const prefix = `/${courseIdStr}`;
+    if (cleanPath === prefix) {
+      cleanPath = "";
+    } else if (cleanPath.startsWith(prefix + "/")) {
+      cleanPath = cleanPath.slice(prefix.length);
+    }
+
+    if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+    if (cleanPath === "/") cleanPath = "";
+
+    // 3. 按照角色返回正确的路径格式
+    if (isAdmin) {
+      const schoolName =
+        localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+      const className =
+        localStorage.getItem("adminSelectedClassName") || "未知班级";
+      return `/${schoolName}/${className}/${courseIdStr}${cleanPath}`;
+    } else if (isPrincipal) {
+      const className =
+        localStorage.getItem("adminSelectedClassName") || "未知班级";
+      return `/${className}/${courseIdStr}${cleanPath}`;
+    }
+
+    // 老师默认：/课程id/path
+    return `/${courseIdStr}${cleanPath}`;
   };
 
   const uploadSmallFile = async (file, destPath) => {
