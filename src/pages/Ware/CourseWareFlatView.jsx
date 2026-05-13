@@ -449,6 +449,22 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         </div>
 
         <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+          {/* 上传到此文件夹：必须是目录且有管理权限 */}
+          {hasFullAccess && isDir && (
+            <FontAwesomeIcon
+              icon={faPlus}
+              className={styles.actionBtn}
+              title="新建"
+              onClick={(e) => {
+                e.stopPropagation();
+                openModal(fullPath, fetchChildren);
+                setShowMenu(false);
+              }}
+            >
+              上传到此文件夹
+            </FontAwesomeIcon>
+          )}
+
           {/* 所有人可见的高频按钮：下载 */}
           {!isDir && (
             <FontAwesomeIcon
@@ -459,8 +475,8 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             />
           )}
 
-          {/* 所有人可见的功能：针对可预览文件开放的 AI 处理按钮 */}
-          {!isDir && isPreviewable(node.mimeTypeName || node.name) && (
+          {/* 所有人可见的功能 */}
+          {!isDir && (
             <>
               <FontAwesomeIcon
                 icon={faRobot}
@@ -477,15 +493,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             </>
           )}
 
-          {/* 仅教师及管理员可见的操作 */}
-          {hasFullAccess && (
-            <FontAwesomeIcon
-              icon={faTrashAlt}
-              className={`${styles.actionBtn} ${styles.deleteBtn}`}
-              title="删除"
-              onClick={handleDelete}
-            />
-          )}
 
           {/* 完全隐藏非管理员角色的 '...' 更多菜单 */}
           {hasFullAccess && (
@@ -517,16 +524,10 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
                     </div>
                   )}
 
-                  {/* 上传到此文件夹：必须是目录且有管理权限 */}
-                  {hasFullAccess && isDir && (
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openModal(fullPath, fetchChildren);
-                        setShowMenu(false);
-                      }}
-                    >
-                      上传到此文件夹
+                  {/* 仅教师及管理员可见的操作 */}
+                  {hasFullAccess && (
+                    <div onClick={handleDelete}>
+                      删除
                     </div>
                   )}
                 </div>
