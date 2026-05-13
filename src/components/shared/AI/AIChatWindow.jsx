@@ -176,7 +176,8 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
 
   // 核心锁
   const isProcessingAutoSendRef = useRef(false);
-  const skipHistoryLoadRef = useRef(false);
+  // 【修改点 1】：将 boolean ref 改为记录具体的 SessionID，避免误伤
+  const skipHistorySessionIdRef = useRef(null);
 
   const llmApiClient = useMemo(
     () => ({
@@ -268,10 +269,18 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     }
   }, []);
 
+  // 【修改点 2】：增强对严格模式双次调用的防御
   useEffect(() => {
     if (currentSessionId) {
-      if (skipHistoryLoadRef.current) {
-        skipHistoryLoadRef.current = false;
+      if (skipHistorySessionIdRef.current === currentSessionId) {
+        // 如果是刚刚一键总结新建的对话，跳过历史加载
+        // 使用 setTimeout 清除标记，防止严格模式下第二次执行时标记丢失导致错误拉取
+        const timer = setTimeout(() => {
+          if (skipHistorySessionIdRef.current === currentSessionId) {
+            skipHistorySessionIdRef.current = null;
+          }
+        }, 1000);
+        return () => clearTimeout(timer);
       } else {
         loadHistory(currentSessionId);
       }
@@ -333,11 +342,15 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
       type: "text",
     };
 
-    if (overrideSessionId) {
-      setMessages([newUserMsg, newAiMsg]);
-    } else {
-      setMessages((prev) => [...prev, newUserMsg, newAiMsg]);
-    }
+    // 【修改点 3】：无论是否传入 overrideSessionId，都统一使用函数式更新防止覆盖
+    setMessages((prev) => {
+      // 极端兜底：如果明确传入了不同 sessionId，且当前页面还没来得及切换，直接覆盖
+      if (overrideSessionId && overrideSessionId !== currentSessionId) {
+        return [newUserMsg, newAiMsg];
+      }
+      // 正常追加
+      return [...prev, newUserMsg, newAiMsg];
+    });
 
     try {
       const { smallFiles, largeFileAttachmentIds } =
@@ -380,7 +393,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           ),
         );
       } else {
-        // 【关键恢复点】：添加鉴权 Header 以支持管理员 / 校长权限下的后端物理路径操作
         const authState = useAuthStore.getState();
         const fetchHeaders = { Authorization: `Bearer ${token}` };
 
@@ -467,13 +479,11 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
         const msg = params.autoSendMsg;
         const requireNew = params.requireNewChat;
 
-        useAIStore
-          .getState()
-          .setContext("file-summary", {
-            ...params,
-            autoSendMsg: null,
-            requireNewChat: false,
-          });
+        useAIStore.getState().setContext("file-summary", {
+          ...params,
+          autoSendMsg: null,
+          requireNewChat: false,
+        });
 
         let targetId = currentSessionId;
         if (requireNew) {
@@ -481,7 +491,8 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             const res = await baseApi.get("/llm/session/new");
             if (res.data.code === 200) {
               targetId = res.data.data;
-              skipHistoryLoadRef.current = true;
+              // 【修改点 4】：记录需要跳过历史加载的具体的 ID
+              skipHistorySessionIdRef.current = targetId;
               setMessages([]);
               await fetchSessions();
               setCurrentSessionId(targetId);
