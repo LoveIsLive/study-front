@@ -21,7 +21,8 @@ import {
   faFileCode,
   faFileArchive,
   faFileLines,
-  faEyeSlash, // 引入隐藏图标
+  faEyeSlash,
+  faBoxOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import { wareApi } from "../../services/api";
 import { isPreviewable, formatFileSize } from "../../utils/helpers";
@@ -30,6 +31,9 @@ import useAIStore from "../../store/aiStore";
 import Swal from "sweetalert2";
 import NewItemModal from "./components/NewItemModal";
 import styles from "./CourseWareFlatView.module.css";
+// 【新增】引入 STOMP 客户端
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client"; // 【新增这行】
 
 /**
  * 根据身份重写完整后端实际仓库路径的包装器 (基于名称拼接)
@@ -147,7 +151,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(node.name);
 
-  // 菜单状态与引用（用于处理点击外部关闭）
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
 
@@ -162,10 +165,8 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   const fullPath =
     currentPath === "/" ? `/${node.name}` : `${currentPath}/${node.name}`;
 
-  // 【新增】：获取当前节点的隐藏状态
   const isNodeHidden = node.isHidden === 1;
 
-  // 【新增】：监听点击外部区域以关闭下拉菜单，彻底解决抖动问题
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -278,9 +279,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     }
   };
 
-  /**
-   * 【更新】：处理 显示/隐藏 动态逻辑
-   */
   const handleToggleHidden = async (e) => {
     e.stopPropagation();
 
@@ -294,7 +292,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         : "隐藏后，学生和访客将无法看到此内容。",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: isNodeHidden ? "#28a745" : "#f39c12", // 绿色表示显示，橙色表示隐藏
+      confirmButtonColor: isNodeHidden ? "#28a745" : "#f39c12",
       cancelButtonText: "取消",
       confirmButtonText: `是的，${actionText}`,
     });
@@ -305,7 +303,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         await wareApi.post("/update/hidden", null, {
           params: {
             path: reqPath,
-            isHidden: targetStatus, // 动态传递 0 或 1
+            isHidden: targetStatus,
           },
         });
         Swal.fire({
@@ -321,6 +319,83 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         Swal.fire({
           icon: "error",
           title: `${actionText}失败`,
+          text: error.response?.data?.message || "接口调用失败",
+        });
+      }
+    }
+  };
+
+  const handleArchive = async (e) => {
+    e.stopPropagation();
+    const result = await Swal.fire({
+      title: `确定要压缩目录 "${node.name}" 吗?`,
+      text: "打包任务将在后台执行，执行完成后会自动刷新。",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonText: "确定压缩",
+      cancelButtonText: "取消",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
+        await wareApi.post("/archive", {
+          sourceDirPath: reqPath,
+          zipFileName: `${node.name}.zip`,
+        });
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "打包任务已提交",
+          text: "完成后将自动通知并刷新列表",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "提交打包失败",
+          text: error.response?.data?.message || "接口调用失败",
+        });
+      }
+    }
+  };
+
+  const handleUnarchive = async (e) => {
+    e.stopPropagation();
+    const result = await Swal.fire({
+      title: `确定要解压 "${node.name}" 吗?`,
+      text: "解压将释放文件到当前目录层级，并在后台执行。",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonText: "确定解压",
+      cancelButtonText: "取消",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const zipFilePath = getWareApiPath(fullPath, currentCourseId);
+        const parentPath = currentPath === "/" ? "/" : currentPath;
+        const targetDirPath = getWareApiPath(parentPath, currentCourseId);
+
+        await wareApi.post("/unarchive", {
+          zipFilePath: zipFilePath,
+          targetDirPath: targetDirPath,
+        });
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "解压任务已提交",
+          text: "完成后将自动通知并刷新列表",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "提交解压失败",
           text: error.response?.data?.message || "接口调用失败",
         });
       }
@@ -367,14 +442,10 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           link.click();
           document.body.removeChild(link);
         }
-        // --- 终极修改点：AI一键总结 ---
-        // --- 找到 handleAction 函数中的 action === "ai-summary" 分支 ---
       } else if (action === "ai-summary") {
-        // --- 终极修改点：AI一键总结 ---
         const aiStore = useAIStore.getState();
         const authStore = useAuthStore.getState();
 
-        // 1. 构造带有 /课程id 前缀的基础路径
         let apiPath = fullPath;
         if (authStore.currentCourseId) {
           const courseIdStr = String(authStore.currentCourseId);
@@ -390,13 +461,8 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           }
         }
 
-        // 2. 通过 getWareApiPath 统一包装，生成各个角色对应的完整载荷 path
-        // 老师/学生: 返回 /课程id/文件的path
-        // 校长: 返回 /班级name/课程id/文件的path
-        // 管理员: 返回 /学校name/班级name/课程id/文件的path
         const finalPath = getWareApiPath(apiPath, authStore.currentCourseId);
-
-        console.log("最终发送给AI后端的路径:", finalPath); // 方便你 F12 核对路径是否完美匹配
+        console.log("最终发送给AI后端的路径:", finalPath);
 
         aiStore.setContext("file-summary", {
           path: finalPath,
@@ -404,9 +470,8 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           requireNewChat: true,
         });
 
-        // 3. 强制唤醒聊天窗口
         if (typeof aiStore.toggleChat === "function") {
-          aiStore.toggleChat(true); // 【关键】：这里一定要传 true，强制设置为打开状态！
+          aiStore.toggleChat(true);
         }
         window.dispatchEvent(new CustomEvent("open-ai-chat"));
 
@@ -496,7 +561,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
               >
                 {node.name}
               </span>
-              {/* 【新增】：如果被隐藏，显示标识图标 */}
               {isNodeHidden && (
                 <FontAwesomeIcon
                   icon={faEyeSlash}
@@ -533,6 +597,18 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
               onClick={(e) => handleAction("download", e)}
             />
           )}
+
+          {!isDir &&
+            node.name.toLowerCase().endsWith(".zip") &&
+            hasFullAccess && (
+              <FontAwesomeIcon
+                icon={faBoxOpen}
+                className={styles.actionBtn}
+                title="解压到当前目录"
+                onClick={handleUnarchive}
+              />
+            )}
+
           {!isDir && (
             <>
               <FontAwesomeIcon
@@ -550,7 +626,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             </>
           )}
 
-          {/* 【修复】：移除 onMouseLeave，并绑定 ref 用于点击外部检测 */}
           <div className={styles.moreMenuWrapper} ref={menuRef}>
             <FontAwesomeIcon
               icon={faEllipsisH}
@@ -574,7 +649,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
                 </div>
                 {hasFullAccess && (
                   <>
-                    {/* 【更新】：根据 isHidden 的值动态渲染文字，调用同一个逻辑方法 */}
                     <div
                       onClick={(e) => {
                         handleToggleHidden(e);
@@ -583,6 +657,18 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
                     >
                       {isNodeHidden ? "显示" : "隐藏"}
                     </div>
+
+                    {isDir && (
+                      <div
+                        onClick={(e) => {
+                          handleArchive(e);
+                          setShowMenu(false);
+                        }}
+                      >
+                        压缩为ZIP
+                      </div>
+                    )}
+
                     <div
                       onClick={(e) => {
                         e.stopPropagation();
@@ -646,6 +732,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
 };
 
 // --- 主组件 ---
+// --- 主组件 ---
 const CourseWareFlatView = ({ courseId }) => {
   const [rootNodes, setRootNodes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -654,6 +741,9 @@ const CourseWareFlatView = ({ courseId }) => {
     path: "/",
     onRefresh: null,
   });
+
+  // 【新增】：用于强制刷新整个文件树的 Key
+  const [treeVersion, setTreeVersion] = useState(0);
 
   const { isAdmin, isTeacher, isPrincipal } = useAuthStore();
   const hasFullAccess = isTeacher() || isAdmin() || isPrincipal();
@@ -675,6 +765,64 @@ const CourseWareFlatView = ({ courseId }) => {
 
   useEffect(() => {
     if (courseId) fetchRoot();
+
+    const token = useAuthStore.getState().token || "";
+
+    const stompClient = new Client({
+      // 【修改点 1】：删掉或注释掉 brokerURL
+      // brokerURL: `ws://localhost:8080/ws/search?token=${token}`,
+
+      // 【修改点 2】：改用 webSocketFactory，并且使用 http:// 协议
+      webSocketFactory: () =>
+        new SockJS(`http://localhost:8080/ws/search?token=${token}`),
+
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+      debug: (str) => console.log("[STOMP] " + str),
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("仓库 WebSocket 已连接，正在监听后台解压/压缩任务...");
+
+        stompClient.subscribe("/user/queue/task-notifications", (message) => {
+          if (message.body) {
+            const payload = JSON.parse(message.body);
+
+            if (payload.type === "FILE_TASK") {
+              if (payload.status === "SUCCESS") {
+                Swal.fire({
+                  toast: true,
+                  position: "top-end",
+                  icon: "success",
+                  title: payload.message,
+                  showConfirmButton: false,
+                  timer: 3000,
+                });
+
+                // 刷新页面数据
+                fetchRoot();
+                setTreeVersion((prev) => prev + 1);
+              } else if (payload.status === "ERROR") {
+                Swal.fire({
+                  icon: "error",
+                  title: "任务执行失败",
+                  text: payload.message,
+                });
+              }
+            }
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error("STOMP 连接错误:", frame.headers["message"]);
+      },
+    });
+
+    stompClient.activate();
+
+    return () => {
+      stompClient.deactivate();
+    };
   }, [courseId]);
 
   const openModal = (path, onRefresh) =>
@@ -695,7 +843,9 @@ const CourseWareFlatView = ({ courseId }) => {
           </button>
         </div>
       )}
-      <ul className={styles.nodeList}>
+
+      {/* 【修改点 3】：给外层 ul 加上 key={treeVersion}，一旦 version 改变，内部所有展开的文件夹会全部刷新 */}
+      <ul className={styles.nodeList} key={treeVersion}>
         {rootNodes.map((node, index) => (
           <TreeNode
             key={index}
@@ -706,6 +856,7 @@ const CourseWareFlatView = ({ courseId }) => {
           />
         ))}
       </ul>
+
       <NewItemModal
         isOpen={modalConfig.isOpen}
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}

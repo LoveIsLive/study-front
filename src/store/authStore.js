@@ -158,7 +158,12 @@ const useAuthStore = create(
   fetchCourseList: async (force = false) => {
     const { activeId, activeType, courseListFetched } = get();
     // 只有在班级上下文才能获取课程列表
-    if (activeType !== "class" || !activeId) {
+    if (
+      activeType !== "class" || 
+      !activeId || 
+      activeId === "null" || 
+      activeId === "undefined"
+    ) {
       set({ courseList: [] });
       return;
     }
@@ -167,7 +172,6 @@ const useAuthStore = create(
     if (courseListFetched && !force) {
       return;
     }
-
     try {
       const response = await courseApi.get(`/class/${activeId}`);
       const courses = response.data.data || [];
