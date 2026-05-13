@@ -212,6 +212,56 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     if (isDir) {
       handleToggle(e);
     } else if (isPreviewable(node.mimeTypeName || node.name)) {
+      // --- 【新增】文本文件大小拦截逻辑 开始 ---
+
+      // 1. 提取后缀名
+      const ext = node.name.includes(".")
+        ? node.name.split(".").pop().toLowerCase()
+        : "";
+
+      // 2. 定义常见的文本/代码类文件后缀
+      const textExtensions = [
+        "txt",
+        "md",
+        "csv",
+        "js",
+        "jsx",
+        "ts",
+        "tsx",
+        "html",
+        "css",
+        "json",
+        "java",
+        "py",
+        "cpp",
+        "c",
+        "h",
+        "xml",
+        "yml",
+        "yaml",
+      ];
+
+      // 3. 判断是否为文本文件（匹配后缀或 mimeType 包含 text/）
+      const isTextFile =
+        textExtensions.includes(ext) ||
+        (node.mimeTypeName && node.mimeTypeName.startsWith("text/"));
+
+      // 4. 定义 10MB 的字节数阈值
+      const MAX_TEXT_SIZE = 10 * 1024 * 1024; // 10MB
+
+      // 5. 判断条件：是文本文件 且 文件大小存在 且 大于10MB
+      if (isTextFile && node.size !== undefined && node.size > MAX_TEXT_SIZE) {
+        Swal.fire({
+          icon: "warning",
+          title: "无法预览",
+          text: "文本文件过大，不支持在线预览，请直接下载",
+          confirmButtonText: "我知道了",
+        });
+        return; // 拦截执行，阻止下方触发 preview
+      }
+
+      // --- 【新增】文本文件大小拦截逻辑 结束 ---
+
       handleAction("preview", e);
     }
   };
