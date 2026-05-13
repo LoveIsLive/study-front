@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { NavLink, useNavigate, Link } from "react-router-dom";
+import { NavLink, useNavigate, Link, useLocation } from "react-router-dom"; // 新增 useLocation
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -64,6 +64,7 @@ const Header = () => {
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
 
   const navigate = useNavigate();
+  const location = useLocation(); // 新增 useLocation
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [isSwitcherOpen, setSwitcherOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -214,16 +215,6 @@ const Header = () => {
                 )}
               </div>
             )}
-
-            {/* 当前课程显示 - 只在班级上下文中显示 */}
-            {/* {activeType === 'class' && (
-              <div className={styles.courseDisplay}>
-                <FontAwesomeIcon icon={faBookOpen} className={styles.courseIcon} fixedWidth />
-                <span className={styles.courseName}>
-                  {currentCourse ? currentCourse.name : '当前没有课程'}
-                </span>
-              </div>
-            )} */}
           </div>
 
           <div className={styles.headerRight} ref={dropdownRef}>
@@ -306,35 +297,23 @@ const Header = () => {
             <span>首页</span>
           </NavLink>
 
-          {/* 课程选择按钮 - 班级上下文显示，学校上下文隐藏或禁用 */}
-          {/* {activeType === "class" ? (
-            <NavLink
-              to="/courses"
-              className={({ isActive }) =>
-                isActive ? styles.sidebarActive : ""
-              }
-            >
-              <FontAwesomeIcon icon={faList} fixedWidth />
-              <span>课程</span>
-            </NavLink>
-          ) : (
-            <div
-              className={styles.sidebarItemDisabled}
-              title="课程选择仅适用于班级上下文"
-            >
-              <FontAwesomeIcon icon={faList} fixedWidth />
-              <span>课程</span>
-            </div>
-          )} */}
+          {/* 课程选择按钮 - 修改高亮逻辑 */}
           <NavLink
             to="/courses"
-            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+            className={({ isActive }) =>
+              isActive || location.pathname.startsWith("/course/")
+                ? styles.sidebarActive
+                : ""
+            }
           >
             <FontAwesomeIcon icon={faList} fixedWidth />
             <span>课程</span>
           </NavLink>
-          {/* 【新增】课程详情按钮，通过 window.location.pathname 判定高亮 */}
-          <NavLink
+
+          {/* ========================================================= 
+              【已注释】课程详情按钮 
+              ========================================================= */}
+          {/* <NavLink
             to={currentCourseId ? `/course/${currentCourseId}` : "/courses"}
             className={({ isActive }) =>
               window.location.pathname.includes("/course/") &&
@@ -362,22 +341,7 @@ const Header = () => {
             <FontAwesomeIcon icon={faBookOpen} fixedWidth />
             <span>课程详情</span>
           </NavLink>
-
-          {/* 课程仓库按钮 - 始终显示，但根据上下文处理链接 */}
-          {/* {activeType === 'class' && currentCourseId ? (
-            <NavLink
-              to={`/ware/home/${currentCourseId}`}
-              className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
-            >
-              <FontAwesomeIcon icon={faBook} fixedWidth />
-              <span>课程仓库</span>
-            </NavLink>
-          ) : (
-            <div className={styles.sidebarItemDisabled} title={activeType === 'class' ? "请先选择课程" : "课程仓库仅适用于班级上下文"}>
-              <FontAwesomeIcon icon={faBook} fixedWidth />
-              <span>课程仓库</span>
-            </div>
-          )} */}
+          */}
 
           {/* 作业区按钮 - 始终显示 */}
           <NavLink

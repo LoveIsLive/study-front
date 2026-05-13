@@ -19,9 +19,12 @@ const SubmissionList = ({
   const [submissions, setSubmissions] = useState([]);
   const [homeworkTitle, setHomeworkTitle] = useState("");
   const [isLoading, setIsLoading] = useState(!isStudentView);
+
+  // 1. 将 scoreRange 拆分为 minScore 和 maxScore
   const [filters, setFilters] = useState({
     status: "",
-    scoreRange: "",
+    minScore: "",
+    maxScore: "",
     date: "",
   });
 
@@ -46,6 +49,7 @@ const SubmissionList = ({
     }
   }, [homeworkId, isStudentView, studentSubmissions]);
 
+  // 2. 补全与学生视角一致的全部状态解析
   const normalizeStatus = (statusVal) => {
     if (statusVal === null || statusVal === undefined) return "UNSUBMITTED";
     const s = String(statusVal).toUpperCase();
@@ -53,6 +57,9 @@ const SubmissionList = ({
       return "UNSUBMITTED";
     if (s === "1" || s === "已提交" || s === "提交" || s === "SUBMITTED")
       return "SUBMITTED";
+    if (s === "RETURNED" || s === "被退回") return "RETURNED";
+    if (s === "HAVE_UPDATED" || s === "作业有更新") return "HAVE_UPDATED";
+    if (s === "RE_SUBMITTED" || s === "重新提交") return "RE_SUBMITTED";
     if (s === "2" || s === "已批改" || s === "批改" || s === "GRADED")
       return "GRADED";
     return s;
@@ -60,26 +67,30 @@ const SubmissionList = ({
 
   const filteredSubmissions = React.useMemo(() => {
     return submissions.filter((sub) => {
+      // 防空保护
+      if (!sub) return false;
+
       // 状态过滤修复
       const normalizedStatus = normalizeStatus(sub.status);
       const matchStatus =
         !filters.status || normalizedStatus === filters.status;
 
-      // 分数范围支持 (例: 80-100)
+      // 3. 双输入框分数范围支持
       let matchScore = true;
-      if (filters.scoreRange && sub.score !== null) {
-        if (filters.scoreRange.includes("-")) {
-          const [min, max] = filters.scoreRange.split("-").map(Number);
-          if (!isNaN(min) && !isNaN(max))
-            matchScore = sub.score >= min && sub.score <= max;
-        } else {
-          matchScore = String(sub.score).includes(filters.scoreRange);
-        }
-      } else if (filters.scoreRange && sub.score === null) {
+      const hasMin = filters.minScore !== "";
+      const hasMax = filters.maxScore !== "";
+      if ((hasMin || hasMax) && sub.score !== null && sub.score !== undefined) {
+        const min = hasMin ? Number(filters.minScore) : -Infinity;
+        const max = hasMax ? Number(filters.maxScore) : Infinity;
+        matchScore = sub.score >= min && sub.score <= max;
+      } else if (
+        (hasMin || hasMax) &&
+        (sub.score === null || sub.score === undefined)
+      ) {
         matchScore = false;
       }
 
-      // 【修复】：使用 updateTime 替代不存在的 submitTime
+      // 使用 updateTime 替代不存在的 submitTime
       const matchDate =
         !filters.date ||
         (sub.updateTime && sub.updateTime.substring(0, 10) === filters.date);
@@ -105,7 +116,6 @@ const SubmissionList = ({
 
     if (result.isConfirmed) {
       try {
-        // 根据后端代码，这个API在HomeworkController里
         await homeworkApi.post(`/returnSubmission/${submissionId}`);
         Swal.fire({
           icon: "success",
@@ -142,7 +152,11 @@ const SubmissionList = ({
       {!isStudentView && (
         <div className={styles.toolbar} style={{ margin: "0 0 20px 0" }}>
           <div className={styles.filterGroup}>
-            <FontAwesomeIcon icon={faFilter} className={styles.filterIcon} />
+            <div className={styles.filterIcon}>
+              <FontAwesomeIcon icon={faFilter} />
+            </div>
+
+            {/* 同步状态枚举列表 */}
             <select
               value={filters.status}
               onChange={(e) =>
@@ -151,25 +165,95 @@ const SubmissionList = ({
               className={styles.filterInput}
             >
               <option value="">全部状态</option>
-              <option value="UNSUBMITTED">未提交</option>
+              {/* <option value="UNSUBMITTED">未提交</option> */}
               <option value="SUBMITTED">已提交</option>
+              <option value="RETURNED">被退回</option>
+              <option value="HAVE_UPDATED">作业有更新</option>
+              <option value="RE_SUBMITTED">重新提交</option>
               <option value="GRADED">已批改</option>
             </select>
-            <input
-              type="text"
-              placeholder="分数筛选 (例: 80-100)"
-              value={filters.scoreRange}
-              onChange={(e) =>
-                setFilters({ ...filters, scoreRange: e.target.value })
-              }
-              className={styles.filterInput}
-            />
-            <input
-              type="date"
-              value={filters.date}
-              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-              className={styles.filterInput}
-            />
+
+            {/* 同步学生视角的双输入框成绩筛选 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                background: "#fff",
+                border: "1px solid #ced4da",
+                padding: "0 8px",
+                borderRadius: "6px",
+              }}
+            >
+              <input
+                type="number"
+                placeholder="最低分"
+                value={filters.minScore}
+                onChange={(e) =>
+                  setFilters({ ...filters, minScore: e.target.value })
+                }
+                style={{
+                  border: "none",
+                  outline: "none",
+                  width: "60px",
+                  background: "transparent",
+                  padding: "8px 0",
+                }}
+              />
+              <span style={{ color: "#6c757d" }}>-</span>
+              <input
+                type="number"
+                placeholder="最高分"
+                value={filters.maxScore}
+                onChange={(e) =>
+                  setFilters({ ...filters, maxScore: e.target.value })
+                }
+                style={{
+                  border: "none",
+                  outline: "none",
+                  width: "60px",
+                  background: "transparent",
+                  padding: "8px 0",
+                }}
+              />
+            </div>
+
+            {/* 优化并同步日期筛选框UI */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#fff",
+                border: "1px solid #ced4da",
+                padding: "0 12px",
+                borderRadius: "6px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "14px",
+                  color: "#6c757d",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                提交时间
+              </span>
+              <input
+                type="date"
+                value={filters.date}
+                onChange={(e) =>
+                  setFilters({ ...filters, date: e.target.value })
+                }
+                style={{
+                  border: "none",
+                  padding: "8px 0",
+                  outline: "none",
+                  background: "transparent",
+                  color: "#495057",
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
