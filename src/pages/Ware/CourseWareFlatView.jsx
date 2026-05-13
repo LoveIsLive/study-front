@@ -1,5 +1,5 @@
 // src/pages/Ware/CourseWareFlatView.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrashAlt,
@@ -21,23 +21,25 @@ import {
   faFileCode,
   faFileArchive,
   faFileLines,
+  faEyeSlash, // 引入隐藏图标
 } from "@fortawesome/free-solid-svg-icons";
 import { wareApi } from "../../services/api";
-import { isPreviewable } from "../../utils/helpers";
+import { isPreviewable, formatFileSize } from "../../utils/helpers";
 import useAuthStore from "../../store/authStore";
 import useAIStore from "../../store/aiStore";
 import Swal from "sweetalert2";
 import NewItemModal from "./components/NewItemModal";
 import styles from "./CourseWareFlatView.module.css";
 
-// 【新增】：根据身份重写完整后端实际仓库路径的包装器（基于名称拼接）
+/**
+ * 根据身份重写完整后端实际仓库路径的包装器 (基于名称拼接)
+ */
 const getWareApiPath = (path, courseId) => {
   if (!courseId) return path;
   const state = useAuthStore.getState();
   const isAdmin = state.isAdmin();
   const isPrincipal = state.isPrincipal();
 
-  // 剥离可能存在的原有 /courseId 前缀，获取干净的相对路径
   let cleanPath = path || "/";
   const prefix = `/${courseId}`;
   if (cleanPath === prefix) {
@@ -48,15 +50,12 @@ const getWareApiPath = (path, courseId) => {
   if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
   if (cleanPath === "/") cleanPath = "";
 
-  // 仅针对管理视角的绝对路径重写
   if (isAdmin || isPrincipal) {
-    // 【核心修复2】：从 localStorage 中提取在 CourseListPage 中选定的真实【名称】而不是ID
     let schoolName =
       localStorage.getItem("adminSelectedSchoolName") || "未知学校";
     let className =
       localStorage.getItem("adminSelectedClassName") || "未知班级";
 
-    // 强制转换为带前缀的绝对路径 (按照要求的 {学校名}/{班级名}/{courseid} 结构)
     if (isAdmin) {
       return `/${schoolName}/${className}/${courseId}${cleanPath}`;
     } else if (isPrincipal) {
@@ -64,52 +63,46 @@ const getWareApiPath = (path, courseId) => {
     }
   }
 
-  // 普通用户保持原样
   return path;
 };
 
-// 【新增】：根据文件名和是否为目录，返回对应的图标和颜色
 const getFileIconConfig = (fileName, isDir) => {
-  if (isDir) {
-    return { icon: faFolder, color: "#ffd43b" }; // 文件夹默认黄色
-  }
-
+  if (isDir) return { icon: faFolder, color: "#ffd43b" };
   const ext = fileName.split(".").pop().toLowerCase();
-
   switch (ext) {
     case "pdf":
-      return { icon: faFilePdf, color: "#e2574c" }; // 红色
+      return { icon: faFilePdf, color: "#e2574c" };
     case "doc":
     case "docx":
-      return { icon: faFileWord, color: "#2b579a" }; // 蓝色
+      return { icon: faFileWord, color: "#2b579a" };
     case "xls":
     case "xlsx":
-      return { icon: faFileExcel, color: "#217346" }; // 绿色
+      return { icon: faFileExcel, color: "#217346" };
     case "ppt":
     case "pptx":
-      return { icon: faFilePowerpoint, color: "#d24726" }; // 橙红色
+      return { icon: faFilePowerpoint, color: "#d24726" };
     case "jpg":
     case "jpeg":
     case "png":
     case "gif":
     case "svg":
     case "webp":
-      return { icon: faFileImage, color: "#17a2b8" }; // 青色
+      return { icon: faFileImage, color: "#17a2b8" };
     case "mp4":
     case "mov":
     case "avi":
     case "mkv":
-      return { icon: faFileVideo, color: "#6f42c1" }; // 紫色
+      return { icon: faFileVideo, color: "#6f42c1" };
     case "mp3":
     case "wav":
     case "flac":
-      return { icon: faFileAudio, color: "#17a2b8" }; // 青色
+      return { icon: faFileAudio, color: "#17a2b8" };
     case "zip":
     case "rar":
     case "7z":
     case "tar":
     case "gz":
-      return { icon: faFileArchive, color: "#6c757d" }; // 灰色
+      return { icon: faFileArchive, color: "#6c757d" };
     case "js":
     case "jsx":
     case "ts":
@@ -120,13 +113,13 @@ const getFileIconConfig = (fileName, isDir) => {
     case "java":
     case "py":
     case "cpp":
-      return { icon: faFileCode, color: "#fd7e14" }; // 橙色
+      return { icon: faFileCode, color: "#fd7e14" };
     case "txt":
     case "md":
     case "csv":
-      return { icon: faFileLines, color: "#495057" }; // 深灰色
+      return { icon: faFileLines, color: "#495057" };
     default:
-      return { icon: faFile, color: "#adb5bd" }; // 未知文件默认浅灰色
+      return { icon: faFile, color: "#adb5bd" };
   }
 };
 
@@ -151,24 +144,43 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
   const [children, setChildren] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
-
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(node.name);
-  const [showMenu, setShowMenu] = useState(false);
 
-  // 权限控制：严格区分师生权限
+  // 菜单状态与引用（用于处理点击外部关闭）
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+
   const { currentCourseId } = useAuthStore();
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
-
-  // 仅教师、管理员、校长拥有上传、重命名、删除权限
   const hasFullAccess = isTeacher || isAdmin || isPrincipal;
 
   const isDir =
     node.isDir !== undefined ? node.isDir : !node.name.includes(".");
   const fullPath =
     currentPath === "/" ? `/${node.name}` : `${currentPath}/${node.name}`;
+
+  // 【新增】：获取当前节点的隐藏状态
+  const isNodeHidden = node.isHidden === 1;
+
+  // 【新增】：监听点击外部区域以关闭下拉菜单，彻底解决抖动问题
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
 
   const fetchChildren = async () => {
     try {
@@ -195,15 +207,11 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     }
   };
 
-  // 双击触发预览功能
   const handleItemClick = (e) => {
     if (isDir) {
-      handleToggle(e); // 文件夹则展开/收起
-    } else {
-      // 文件则进行预览判定（单击预览）
-      if (isPreviewable(node.mimeTypeName || node.name)) {
-        handleAction("preview", e);
-      }
+      handleToggle(e);
+    } else if (isPreviewable(node.mimeTypeName || node.name)) {
+      handleAction("preview", e);
     }
   };
 
@@ -270,33 +278,84 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
     }
   };
 
+  /**
+   * 【更新】：处理 显示/隐藏 动态逻辑
+   */
+  const handleToggleHidden = async (e) => {
+    e.stopPropagation();
+
+    const actionText = isNodeHidden ? "显示" : "隐藏";
+    const targetStatus = isNodeHidden ? 0 : 1;
+
+    const result = await Swal.fire({
+      title: `确定要${actionText} "${node.name}" 吗?`,
+      text: isNodeHidden
+        ? "显示后，学生和访客将可以看到此内容。"
+        : "隐藏后，学生和访客将无法看到此内容。",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: isNodeHidden ? "#28a745" : "#f39c12", // 绿色表示显示，橙色表示隐藏
+      cancelButtonText: "取消",
+      confirmButtonText: `是的，${actionText}`,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const reqPath = getWareApiPath(fullPath, currentCourseId);
+        await wareApi.post("/update/hidden", null, {
+          params: {
+            path: reqPath,
+            isHidden: targetStatus, // 动态传递 0 或 1
+          },
+        });
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: `已成功${actionText}`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
+        if (onRefresh) onRefresh();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: `${actionText}失败`,
+          text: error.response?.data?.message || "接口调用失败",
+        });
+      }
+    }
+  };
+
   const handleAction = async (action, e) => {
     e.stopPropagation();
+    const reqPath = getWareApiPath(fullPath, currentCourseId);
+
     try {
-      if (action === "preview" || action === "download") {
-        const reqPath = getWareApiPath(fullPath, currentCourseId);
+      if (action === "details") {
+        const response = await wareApi.get("/get/node", {
+          params: { path: reqPath },
+        });
+        const details = response.data.data;
+        Swal.fire({
+          title: `<strong>属性: ${details.name}</strong>`,
+          html: `<div style="text-align: left; margin-left: 2rem;">
+                     <p><strong>类型:</strong> ${details.type === 0 ? "目录" : "文件"}</p>
+                     <p><strong>大小:</strong> ${details.type === 1 ? formatFileSize(details.size) : "--"}</p>
+                     <p><strong>路径:</strong> ${fullPath}</p>
+                     <p><strong>状态:</strong> <span style="color: ${details.isHidden === 1 ? "#e74c3c" : "#2ecc71"}; font-weight: bold;">${details.isHidden === 1 ? "已隐藏" : "公开"}</span></p>
+                     <p><strong>创建时间:</strong> ${new Date(details.createTime).toLocaleString()}</p>
+                     <p><strong>修改时间:</strong> ${new Date(details.modifyTime).toLocaleString()}</p>
+                 </div>`,
+          showCloseButton: true,
+        });
+      } else if (action === "preview" || action === "download") {
         const res = await wareApi.get("/get/downloadId", {
           params: { path: reqPath },
         });
         const token = res.data.data;
         const baseUrl = wareApi.defaults.baseURL;
-
-        let apiPath = fullPath;
-        if (currentCourseId) {
-          const courseIdStr = String(currentCourseId);
-          if (!apiPath.startsWith(`/${courseIdStr}`)) {
-            if (apiPath === "/" || apiPath === "") {
-              apiPath = `/${courseIdStr}`;
-            } else {
-              const normalizedPath = apiPath.startsWith("/")
-                ? apiPath
-                : "/" + apiPath;
-              apiPath = `/${courseIdStr}${normalizedPath}`;
-            }
-          }
-        }
-        apiPath = getWareApiPath(apiPath, currentCourseId);
-        const url = `${baseUrl}/download?path=${encodeURIComponent(apiPath)}&token=${token}`;
+        const url = `${baseUrl}/download?path=${encodeURIComponent(reqPath)}&token=${token}`;
 
         if (action === "preview") {
           window.open(`${url}&mode=inline`, "_blank");
@@ -308,13 +367,14 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           link.click();
           document.body.removeChild(link);
         }
-      }
-
-      // --- 终极修改点：AI一键总结 ---
-      if (action === "ai-summary") {
+        // --- 终极修改点：AI一键总结 ---
+        // --- 找到 handleAction 函数中的 action === "ai-summary" 分支 ---
+      } else if (action === "ai-summary") {
+        // --- 终极修改点：AI一键总结 ---
         const aiStore = useAIStore.getState();
         const authStore = useAuthStore.getState();
 
+        // 1. 构造带有 /课程id 前缀的基础路径
         let apiPath = fullPath;
         if (authStore.currentCourseId) {
           const courseIdStr = String(authStore.currentCourseId);
@@ -330,11 +390,24 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           }
         }
 
+        // 2. 通过 getWareApiPath 统一包装，生成各个角色对应的完整载荷 path
+        // 老师/学生: 返回 /课程id/文件的path
+        // 校长: 返回 /班级name/课程id/文件的path
+        // 管理员: 返回 /学校name/班级name/课程id/文件的path
+        const finalPath = getWareApiPath(apiPath, authStore.currentCourseId);
+
+        console.log("最终发送给AI后端的路径:", finalPath); // 方便你 F12 核对路径是否完美匹配
+
         aiStore.setContext("file-summary", {
-          path: apiPath,
+          path: finalPath,
           autoSendMsg: `请帮我总结一下这个文件：${node.name}`,
+          requireNewChat: true,
         });
 
+        // 3. 强制唤醒聊天窗口
+        if (typeof aiStore.toggleChat === "function") {
+          aiStore.toggleChat(true); // 【关键】：这里一定要传 true，强制设置为打开状态！
+        }
         window.dispatchEvent(new CustomEvent("open-ai-chat"));
 
         Swal.fire({
@@ -342,44 +415,29 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           position: "top-end",
           icon: "success",
           title: "已唤醒AI",
-          text: "正在生成总结，请在对话框中查看...",
+          text: "正在新建对话并生成总结...",
           showConfirmButton: false,
           timer: 2000,
         });
-      }
-
-      // --- 修改点：查看并修改AI总结，对接 /get/summary 接口 ---
-      if (action === "view-summary") {
-        const reqPath = getWareApiPath(fullPath, currentCourseId);
+      } else if (action === "view-summary") {
         const response = await wareApi.get("/get/summary", {
           params: { path: reqPath },
         });
-
         const currentSummary = response.data.data?.aiSummary || "";
 
-        // 根据是否有管理权限来决定是“可编辑”还是“只读”
         if (hasFullAccess) {
-          // 教师、管理员、校长的可编辑视图
           const { value: newSummary, isConfirmed } = await Swal.fire({
             title: "AI 文件总结",
             input: "textarea",
             inputValue: currentSummary,
-            inputPlaceholder:
-              "暂无AI总结内容，您可以使用【AI一键总结】生成，也可以直接在此编辑...",
+            inputPlaceholder: "暂无AI总结内容...",
             showCancelButton: true,
             confirmButtonText: "保存修改",
             cancelButtonText: "关闭",
-            customClass: {
-              input: "custom-swal-textarea",
-            },
           });
-
           if (isConfirmed && newSummary !== currentSummary) {
             await wareApi.post("/update/summary", null, {
-              params: {
-                path: reqPath,
-                summary: newSummary,
-              },
+              params: { path: reqPath, summary: newSummary },
             });
             Swal.fire({
               toast: true,
@@ -391,14 +449,11 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             });
           }
         } else {
-          // 学生和访客的只读视图
           await Swal.fire({
             title: "AI 文件总结",
-            html: `<div style="text-align: left; white-space: pre-wrap; line-height: 1.6; font-size: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; max-height: 400px; overflow-y: auto;">${currentSummary || "暂无AI总结内容"}</div>`,
-            showConfirmButton: false,
+            html: `<div style="text-align: left; white-space: pre-wrap; line-height: 1.6;">${currentSummary || "暂无AI总结内容"}</div>`,
             showCancelButton: true,
             cancelButtonText: "关闭",
-            cancelButtonColor: "#6c757d",
           });
         }
       }
@@ -406,21 +461,16 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
       Swal.fire({ icon: "error", title: "操作失败" });
     }
   };
-
   return (
     <li className={styles.nodeItem}>
       <div className={styles.nodeContent} onClick={handleItemClick}>
-        {/* 【修改点】：动态渲染 FontAwesome 图标及颜色 */}
         <div className={styles.iconCircle}>
           {(() => {
             const { icon, color } = getFileIconConfig(node.name, isDir);
             return (
               <FontAwesomeIcon
                 icon={icon}
-                style={{
-                  color: color,
-                  fontSize: "1.2rem",
-                }}
+                style={{ color, fontSize: "1.2rem" }}
               />
             );
           })()}
@@ -433,39 +483,48 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onBlur={() => handleRename()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.stopPropagation();
-                  handleRename();
-                }
-              }}
+              onKeyDown={(e) => e.key === "Enter" && handleRename()}
               onClick={(e) => e.stopPropagation()}
               autoFocus
               className={styles.renameInput}
             />
           ) : (
-            <span className={styles.nodeName}>{node.name}</span>
+            <>
+              <span
+                className={styles.nodeName}
+                style={{ color: isNodeHidden ? "#999" : "#333" }}
+              >
+                {node.name}
+              </span>
+              {/* 【新增】：如果被隐藏，显示标识图标 */}
+              {isNodeHidden && (
+                <FontAwesomeIcon
+                  icon={faEyeSlash}
+                  style={{
+                    color: "#f39c12",
+                    marginLeft: "8px",
+                    fontSize: "0.9rem",
+                    opacity: 0.8,
+                  }}
+                  title="已对学生和访客隐藏"
+                />
+              )}
+            </>
           )}
         </div>
 
         <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-          {/* 上传到此文件夹：必须是目录且有管理权限 */}
           {hasFullAccess && isDir && (
             <FontAwesomeIcon
               icon={faPlus}
               className={styles.actionBtn}
-              title="新建"
+              title="上传到此文件夹"
               onClick={(e) => {
                 e.stopPropagation();
                 openModal(fullPath, fetchChildren);
-                setShowMenu(false);
               }}
-            >
-              上传到此文件夹
-            </FontAwesomeIcon>
+            />
           )}
-
-          {/* 所有人可见的高频按钮：下载 */}
           {!isDir && (
             <FontAwesomeIcon
               icon={faDownload}
@@ -474,8 +533,6 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
               onClick={(e) => handleAction("download", e)}
             />
           )}
-
-          {/* 所有人可见的功能 */}
           {!isDir && (
             <>
               <FontAwesomeIcon
@@ -493,26 +550,39 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
             </>
           )}
 
-
-          {/* 完全隐藏非管理员角色的 '...' 更多菜单 */}
-          {hasFullAccess && (
-            <div
-              className={styles.moreMenuWrapper}
-              onMouseLeave={() => setShowMenu(false)}
-            >
-              <FontAwesomeIcon
-                icon={faEllipsisH}
-                className={styles.actionBtn}
-                title="更多"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMenu(!showMenu);
-                }}
-              />
-              {showMenu && (
-                <div className={styles.dropdownMenu}>
-                  {/* 重命名：必须有管理权限 */}
-                  {hasFullAccess && (
+          {/* 【修复】：移除 onMouseLeave，并绑定 ref 用于点击外部检测 */}
+          <div className={styles.moreMenuWrapper} ref={menuRef}>
+            <FontAwesomeIcon
+              icon={faEllipsisH}
+              className={styles.actionBtn}
+              title="更多"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu(!showMenu);
+              }}
+            />
+            {showMenu && (
+              <div className={styles.dropdownMenu}>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAction("details", e);
+                    setShowMenu(false);
+                  }}
+                >
+                  查看属性
+                </div>
+                {hasFullAccess && (
+                  <>
+                    {/* 【更新】：根据 isHidden 的值动态渲染文字，调用同一个逻辑方法 */}
+                    <div
+                      onClick={(e) => {
+                        handleToggleHidden(e);
+                        setShowMenu(false);
+                      }}
+                    >
+                      {isNodeHidden ? "显示" : "隐藏"}
+                    </div>
                     <div
                       onClick={(e) => {
                         e.stopPropagation();
@@ -522,18 +592,19 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
                     >
                       重命名
                     </div>
-                  )}
-
-                  {/* 仅教师及管理员可见的操作 */}
-                  {hasFullAccess && (
-                    <div onClick={handleDelete}>
+                    <div
+                      onClick={(e) => {
+                        handleDelete(e);
+                        setShowMenu(false);
+                      }}
+                    >
                       删除
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {isDir && (
@@ -552,7 +623,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
           <div className={styles.childrenInner}>
             <div className={styles.childrenContainer}>
               {isLoading ? (
-                <div className={styles.loading}>数据加载中...</div>
+                <div className={styles.loading}>加载中...</div>
               ) : (
                 <ul className={styles.nodeList}>
                   {children.map((child, index) => (
@@ -584,11 +655,8 @@ const CourseWareFlatView = ({ courseId }) => {
     onRefresh: null,
   });
 
-  // 确保只有特定角色的教师及管理员才会显示全局“上传到根目录”按钮
-  const isAdmin = useAuthStore((state) => state.isAdmin());
-  const isTeacher = useAuthStore((state) => state.isTeacher());
-  const isPrincipal = useAuthStore((state) => state.isPrincipal());
-  const hasFullAccess = isTeacher || isAdmin || isPrincipal;
+  const { isAdmin, isTeacher, isPrincipal } = useAuthStore();
+  const hasFullAccess = isTeacher() || isAdmin() || isPrincipal();
 
   const fetchRoot = async () => {
     setIsLoading(true);
@@ -609,15 +677,13 @@ const CourseWareFlatView = ({ courseId }) => {
     if (courseId) fetchRoot();
   }, [courseId]);
 
-  const openModal = (path, onRefresh) => {
+  const openModal = (path, onRefresh) =>
     setModalConfig({ isOpen: true, path, onRefresh });
-  };
 
   if (isLoading) return <div className={styles.loadingMain}>仓库加载中...</div>;
 
   return (
     <div className={styles.container}>
-      {/* 根目录新建/上传，严格保护 */}
       {hasFullAccess && (
         <div className={styles.header}>
           <span className={styles.headerTitle}>课程资料</span>
@@ -629,7 +695,6 @@ const CourseWareFlatView = ({ courseId }) => {
           </button>
         </div>
       )}
-
       <ul className={styles.nodeList}>
         {rootNodes.map((node, index) => (
           <TreeNode
@@ -641,17 +706,11 @@ const CourseWareFlatView = ({ courseId }) => {
           />
         ))}
       </ul>
-
-      {/* 复用新建/上传弹窗组件 */}
       <NewItemModal
         isOpen={modalConfig.isOpen}
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
         currentPath={getWareApiPath(modalConfig.path, courseId)}
-        onSuccess={() => {
-          if (modalConfig.onRefresh) {
-            modalConfig.onRefresh();
-          }
-        }}
+        onSuccess={() => modalConfig.onRefresh && modalConfig.onRefresh()}
       />
     </div>
   );

@@ -9,18 +9,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTimes,
   faPaperPlane,
-  faBrain,
   faSpinner,
   faBars,
   faPlus,
-  faCommentDots,
-  faExclamationCircle,
-  faTools,
   faTrashAlt,
   faPaperclip,
   faFileAlt,
   faCodeBranch,
   faBuilding,
+  faExclamationCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import ReactMarkdown from "react-markdown";
 import Swal from "sweetalert2";
@@ -49,30 +46,26 @@ const ThinkingBubble = () => (
 const RemoteFileCard = ({ fileItem }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const isImage = fileItem.mimeTypeName?.startsWith("image/");
-
   const handleClick = async () => {
     try {
       const res = await baseApi.get("/llm/get/downloadId", {
         params: { path: fileItem.path, fileName: fileItem.fileName },
       });
-      if (res.data.code === 200) {
-        const token = res.data.data;
-        const url = `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`;
-        window.open(url, "_blank");
-      }
+      if (res.data.code === 200)
+        window.open(
+          `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${res.data.data}`,
+          "_blank",
+        );
     } catch (e) {
       Swal.fire({
         toast: true,
         icon: "error",
         title: "无法预览文件",
         position: "top",
-        customClass: {
-          container: styles.swalHighZIndex,
-        },
+        customClass: { container: styles.swalHighZIndex },
       });
     }
   };
-
   useEffect(() => {
     if (!isImage || !fileItem.path) return;
     let isMounted = true;
@@ -81,32 +74,23 @@ const RemoteFileCard = ({ fileItem }) => {
         const res = await baseApi.get("/llm/get/downloadId", {
           params: { path: fileItem.path, fileName: fileItem.fileName },
         });
-        if (res.data.code === 200 && isMounted) {
-          const token = res.data.data;
+        if (res.data.code === 200 && isMounted)
           setPreviewUrl(
-            `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${token}`,
+            `${config.back_base_url}/llm/download?path=${encodeURIComponent(fileItem.path)}&mode=inline&token=${res.data.data}`,
           );
-        }
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
     };
     loadImg();
     return () => {
       isMounted = false;
     };
   }, [fileItem, isImage]);
-
   return (
     <div className={styles.fileChip} onClick={handleClick} title="点击预览">
       {isImage ? (
         <div className={styles.imageWrapper}>
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="thumb"
-              className={styles.fileThumbnail}
-            />
+            <img src={previewUrl} className={styles.fileThumbnail} />
           ) : (
             <div className={styles.fileIconPlaceholder}>
               <FontAwesomeIcon icon={faSpinner} spin />
@@ -129,31 +113,17 @@ const RemoteFileCard = ({ fileItem }) => {
 };
 
 const LocalFileCard = ({ file, onRemove, onPreview }) => {
-  // 增加容错判断，有些文件对象的 type 可能是空的
   const isImage = file.type?.startsWith("image/") || false;
   const [fileUrl, setFileUrl] = useState("");
-
-  // 使用 useEffect 创建和释放 Blob URL，防止内存泄漏
   useEffect(() => {
     const url = URL.createObjectURL(file);
     setFileUrl(url);
-    return () => {
-      URL.revokeObjectURL(url);
-    };
+    return () => URL.revokeObjectURL(url);
   }, [file]);
-
   const handleCardClick = () => {
     if (!fileUrl) return;
-
-    if (isImage) {
-      // 是图片，触发相册 Lightbox 预览
-      onPreview(fileUrl);
-    } else {
-      // 是 PDF、TXT、代码文件等，直接在浏览器新标签页打开原生预览
-      window.open(fileUrl, "_blank");
-    }
+    isImage ? onPreview(fileUrl) : window.open(fileUrl, "_blank");
   };
-
   return (
     <div className={styles.fileChip} onClick={handleCardClick} title="点击预览">
       {onRemove && (
@@ -169,7 +139,7 @@ const LocalFileCard = ({ file, onRemove, onPreview }) => {
       )}
       {isImage ? (
         <div className={styles.imageWrapper}>
-          <img src={fileUrl} alt="thumb" className={styles.fileThumbnail} />
+          <img src={fileUrl} className={styles.fileThumbnail} />
         </div>
       ) : (
         <div className={styles.fileIconPlaceholder}>
@@ -185,21 +155,16 @@ const LocalFileCard = ({ file, onRemove, onPreview }) => {
 };
 
 const AIChatWindow = ({ onClose, initialSessionId }) => {
-  const { token, currentCourseId, currentOrgId } = useAuthStore();
-  // 获取 AI Store 中的状态和方法
+  const { token } = useAuthStore();
   const { context, availableScene, isSceneActive, toggleSceneActive } =
     useAIStore();
 
-  // --- State ---
   const [currentSessionId, setCurrentSessionId] = useState(initialSessionId);
   const [sessions, setSessions] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
-
-  // Lightbox State
   const [previewImage, setPreviewImage] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [useAgent, setUseAgent] = useState(false);
@@ -209,28 +174,25 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
   const textAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // 新增：构建专属于 LLM 模块的上传ApiClient
+  // 核心锁
+  const isProcessingAutoSendRef = useRef(false);
+  const skipHistoryLoadRef = useRef(false);
+
   const llmApiClient = useMemo(
     () => ({
       post: (url, data, config) => baseApi.post(`/llm${url}`, data, config),
     }),
     [],
   );
-
-  // 新增：引入 hook 并拿到其控制变量和方法
-  const { uploadProgress, isUploading, startUpload } =
-    useUploader(llmApiClient);
-
+  const { isUploading, startUpload } = useUploader(llmApiClient);
   const { position, dragRef, handleMouseDown } = useDraggable({
     x: Math.max(0, window.innerWidth - 1000),
     y: Math.max(0, window.innerHeight - 800),
   });
 
-  // --- Effects ---
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSending, selectedFiles]);
-
+  }, [messages, isSending]);
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
@@ -249,17 +211,11 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
-
-  // 【核心修复：添加这段防御性代码】
-  // 当外层异步获取到 sessionId 传递进组件时，确保组件内部的状态能够成功接收它
   useEffect(() => {
-    if (initialSessionId && !currentSessionId) {
+    if (initialSessionId && !currentSessionId)
       setCurrentSessionId(initialSessionId);
-    }
   }, [initialSessionId, currentSessionId]);
-  // ===================================
 
-  // --- History Loading ---
   const loadHistory = useCallback(async (sessionId) => {
     if (!sessionId) {
       setMessages([]);
@@ -286,16 +242,14 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           if (m.type === "tool" && m.role === "assistant") {
             try {
               const messageObj = JSON.parse(m.content);
-              // 检查是否有 EChartsTool 调用
-              const isChart = messageObj.tool_calls?.some(
-                (t) => t.function.name === "EChartsTool",
-              );
               return {
                 ...m,
                 type: "agent_result",
                 content: messageObj.content,
                 toolCalls: messageObj.tool_calls,
-                isChart, // 标记图表
+                isChart: messageObj.tool_calls?.some(
+                  (t) => t.function.name === "EChartsTool",
+                ),
               };
             } catch (e) {
               return { ...m, type: "text", content: m.content };
@@ -315,22 +269,26 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
   }, []);
 
   useEffect(() => {
-    if (currentSessionId) loadHistory(currentSessionId);
-    else setMessages([]);
+    if (currentSessionId) {
+      if (skipHistoryLoadRef.current) {
+        skipHistoryLoadRef.current = false;
+      } else {
+        loadHistory(currentSessionId);
+      }
+    } else {
+      setMessages([]);
+    }
   }, [currentSessionId, loadHistory]);
 
-  // --- Interaction ---
   const handleFileSelect = (e) => {
     const newFiles = Array.from(e.target.files).filter((file) => {
-      // 修改点：根据需求放宽单文件大小限制为 1GB（支持分片）
       if (file.size > 1024 * 1024 * 1024) {
         Swal.fire({
           toast: true,
           icon: "warning",
-          title: `${file.name} 超过 1GB限制`,
-          customClass: {
-            container: styles.swalHighZIndex,
-          },
+          title: "超过 1GB限制",
+          position: "top",
+          customClass: { container: styles.swalHighZIndex },
         });
         return false;
       }
@@ -340,78 +298,62 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     e.target.value = "";
   };
 
-  const removeSelectedFile = (index) => {
+  const removeSelectedFile = (index) =>
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
 
-  // 修改点：重构 handleSend 函数以支持大文件分片
-  // ====== 修改点：重构 handleSend 函数，支持外部强行传入文本发送 ======
-  const handleSend = async (overrideMsg = null) => {
-    // 判断参数是否是事件(点击按钮时产生)，如果是事件说明没有强制输入
+  const handleSend = async (overrideMsg = null, overrideSessionId = null) => {
     const isEvent =
       overrideMsg && typeof overrideMsg.preventDefault === "function";
     const userText = typeof overrideMsg === "string" ? overrideMsg : inputValue;
-    const currentFiles = [...selectedFiles];
-
-    if ((!userText.trim() && currentFiles.length === 0) || !currentSessionId)
+    const activeSessionId = overrideSessionId || currentSessionId;
+    if ((!userText.trim() && selectedFiles.length === 0) || !activeSessionId)
       return;
 
-    // 清空输入框
     if (!isEvent && typeof overrideMsg === "string") {
-      // 是自动派发的文本，无需额外操作
     } else {
       setInputValue("");
     }
-
+    const currentFiles = [...selectedFiles];
     setSelectedFiles([]);
     if (textAreaRef.current) textAreaRef.current.style.height = "auto";
     setIsSending(true);
 
-    const tempId = Date.now();
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "user",
-        content: userText,
-        localFiles: currentFiles,
-        id: tempId,
-        type: currentFiles.length > 0 ? "file" : "text",
-      },
-    ]);
+    const newUserMsg = {
+      role: "user",
+      content: userText,
+      localFiles: currentFiles,
+      id: Date.now(),
+      type: currentFiles.length > 0 ? "file" : "text",
+    };
+    const newAiMsg = {
+      role: "assistant",
+      content: "",
+      id: Date.now() + 1,
+      isWaitingFirstResponse: true,
+      type: "text",
+    };
 
-    const aiMsgId = Date.now() + 1;
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: "",
-        id: aiMsgId,
-        isWaitingFirstResponse: true,
-        type: "text",
-      },
-    ]);
+    if (overrideSessionId) {
+      setMessages([newUserMsg, newAiMsg]);
+    } else {
+      setMessages((prev) => [...prev, newUserMsg, newAiMsg]);
+    }
 
     try {
       const { smallFiles, largeFileAttachmentIds } =
         await startUpload(currentFiles);
-
-      const uploadFilesList = largeFileAttachmentIds.map((item) => ({
-        fileName: item.fileName,
-        filePath: item.filePath,
-      }));
-
       const formData = new FormData();
       const requestDTO = {
-        sessionId: currentSessionId,
+        sessionId: activeSessionId,
         message: userText || " ",
         scene: context.scene,
-        sceneParams: context.sceneParams, // 这里会携带文件 path
+        sceneParams: context.sceneParams,
       };
-
-      if (uploadFilesList.length > 0) {
-        requestDTO.uploadFiles = uploadFilesList;
-      }
-
+      if (largeFileAttachmentIds.length > 0)
+        requestDTO.uploadFiles = largeFileAttachmentIds.map((i) => ({
+          fileName: i.fileName,
+          filePath: i.filePath,
+        }));
       formData.append(
         "request",
         new Blob([JSON.stringify(requestDTO)], { type: "application/json" }),
@@ -421,123 +363,71 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
       if (useAgent) {
         const response = await baseApi.post("/llm/chat/agent", formData);
         const messageObj = response.data.data;
-        const isChart = messageObj.tool_calls?.some(
-          (t) => t.function.name === "EChartsTool",
-        );
-
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === aiMsgId
+            msg.id === newAiMsg.id
               ? {
                   ...msg,
                   isWaitingFirstResponse: false,
                   type: "agent_result",
                   content: messageObj.content,
                   toolCalls: messageObj.tool_calls,
-                  isChart,
+                  isChart: messageObj.tool_calls?.some(
+                    (t) => t.function.name === "EChartsTool",
+                  ),
                 }
               : msg,
           ),
         );
       } else {
+        // 【关键恢复点】：添加鉴权 Header 以支持管理员 / 校长权限下的后端物理路径操作
         const authState = useAuthStore.getState();
-        const fetchHeaders = {
-          Authorization: `Bearer ${token}`,
-        };
+        const fetchHeaders = { Authorization: `Bearer ${token}` };
 
-        // 必须使用 X-Active-Class-Id 或 X-Active-School-Id，后端 ContextConflictFilter 只认这个
         if (authState.activeType === "class" && authState.activeId) {
           fetchHeaders["X-Active-Class-Id"] = String(authState.activeId);
         } else if (authState.activeType === "school" && authState.activeId) {
           fetchHeaders["X-Active-School-Id"] = String(authState.activeId);
         }
 
-        // 发送原生 fetch 请求
         const response = await fetch(
           `${config.back_base_url}/llm/chat/stream`,
           {
             method: "POST",
-            headers: fetchHeaders, // 此时带上了完全正确的 Header
-            body: formData, // 保持 FormData 不变，后端可正常解析
+            headers: fetchHeaders,
+            body: formData,
           },
         );
-
-        if (!response.ok) throw new Error("Stream Failed");
-
-        if (!response.ok) throw new Error("Stream Failed");
+        if (!response.ok) throw new Error("网络错误");
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let aiContent = "";
-        let buffer = "";
-        let hasReceivedFirstToken = false;
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
-          if (!hasReceivedFirstToken) {
-            hasReceivedFirstToken = true;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === aiMsgId
-                  ? {
-                      ...m,
-                      isWaitingFirstResponse: false,
-                      isStreaming: true,
-                    }
-                  : m,
-              ),
-            );
-          }
-
-          // 解码最新的二进制块并拼接到 buffer 中
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          // 弹出最后一行（可能是不完整的被截断的 JSON），留到下一个 chunk 再拼合
-          buffer = lines.pop();
-
+          const lines = decoder.decode(value).split("\n");
           for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed) continue;
-
-            // 【核心修复点】：智能格式兼容
-            let dataStr = trimmed;
-
-            // 1. 如果后端使用的是标准的 SSE 格式 (data: {...})
-            if (trimmed.startsWith("data:")) {
-              dataStr = trimmed.slice(5).trim();
-            }
-            // 2. 忽略 SSE 的控制字符，防止 JSON.parse 报错
-            else if (
-              trimmed.startsWith("event:") ||
-              trimmed.startsWith("id:") ||
-              trimmed.startsWith("retry:")
-            ) {
-              continue;
-            }
-
-            // 3. 此时 dataStr 应该是纯 JSON 字符串了。尝试解析并提取 "c" 字段
-            if (dataStr.startsWith("{") && dataStr.endsWith("}")) {
-              try {
-                const json = JSON.parse(dataStr);
-                // 提取内容并拼接到总回复中 (兼容不同格式)
-                const chunkText = json.c !== undefined ? json.c : json.content;
-
-                if (chunkText) {
-                  aiContent += chunkText;
-
-                  // 驱动 React 实时重绘，实现“打字机”效果
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === aiMsgId ? { ...m, content: aiContent } : m,
-                    ),
-                  );
-                }
-              } catch (e) {
-                console.warn("Failed to parse chunk:", dataStr);
+            if (!line.startsWith("data:")) continue;
+            try {
+              const json = JSON.parse(line.slice(5));
+              const chunk = json.c || json.content;
+              if (chunk) {
+                aiContent += chunk;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === newAiMsg.id
+                      ? {
+                          ...m,
+                          content: aiContent,
+                          isWaitingFirstResponse: false,
+                          isStreaming: true,
+                        }
+                      : m,
+                  ),
+                );
               }
-            }
+            } catch (e) {}
           }
         }
       }
@@ -545,11 +435,11 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     } catch (error) {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === aiMsgId
+          m.id === newAiMsg.id
             ? {
                 role: "assistant",
                 type: "error",
-                content: `请求失败: ${error.message}`,
+                content: "请求失败",
                 isWaitingFirstResponse: false,
               }
             : m,
@@ -559,7 +449,7 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
       setIsSending(false);
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === aiMsgId
+          m.id === newAiMsg.id
             ? { ...m, isStreaming: false, isWaitingFirstResponse: false }
             : m,
         ),
@@ -567,61 +457,82 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     }
   };
 
-  // ====== 修改点：新增副作用，监听并执行自动消息派发 ======
   useEffect(() => {
-    if (
-      context.scene === "file-summary" &&
-      context.sceneParams?.autoSendMsg &&
-      currentSessionId
-    ) {
-      const msgToAutoSend = context.sceneParams.autoSendMsg;
-      // 为了防止死循环或被反复触发，消费该变量后立即清除它
-      useAIStore.getState().setContext("file-summary", {
-        ...context.sceneParams,
-        autoSendMsg: null,
-      });
+    const processAutoSend = async () => {
+      const params = context.sceneParams;
+      if (context.scene === "file-summary" && params?.autoSendMsg) {
+        if (isProcessingAutoSendRef.current) return;
+        isProcessingAutoSendRef.current = true;
 
-      // 稍作延迟以确保滚动条和界面反应顺滑，随后触发自动发送
-      setTimeout(() => {
-        handleSend(msgToAutoSend);
-      }, 100);
-    }
-    // 我们只需监听 autoSendMsg 与 currentSessionId 的就绪状态
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [context.sceneParams?.autoSendMsg, currentSessionId]);
+        const msg = params.autoSendMsg;
+        const requireNew = params.requireNewChat;
+
+        useAIStore
+          .getState()
+          .setContext("file-summary", {
+            ...params,
+            autoSendMsg: null,
+            requireNewChat: false,
+          });
+
+        let targetId = currentSessionId;
+        if (requireNew) {
+          try {
+            const res = await baseApi.get("/llm/session/new");
+            if (res.data.code === 200) {
+              targetId = res.data.data;
+              skipHistoryLoadRef.current = true;
+              setMessages([]);
+              await fetchSessions();
+              setCurrentSessionId(targetId);
+              if (window.innerWidth < 800) setIsSidebarOpen(false);
+            }
+          } catch (e) {}
+        }
+
+        if (targetId) {
+          setTimeout(() => {
+            handleSend(msg, targetId);
+            setTimeout(() => {
+              isProcessingAutoSendRef.current = false;
+            }, 500);
+          }, 50);
+        } else {
+          isProcessingAutoSendRef.current = false;
+        }
+      }
+    };
+    processAutoSend();
+  }, [context.sceneParams?.autoSendMsg, fetchSessions, currentSessionId]);
 
   const handleNewChat = async () => {
     try {
       const res = await baseApi.get("/llm/session/new");
       if (res.data.code === 200) {
+        setMessages([]);
         setCurrentSessionId(res.data.data);
+        fetchSessions();
         if (window.innerWidth < 800) setIsSidebarOpen(false);
       }
     } catch (e) {}
   };
 
-  const handleDeleteSession = async (e, targetSessionId) => {
+  const handleDeleteSession = async (e, id) => {
     e.stopPropagation();
-    const result = await Swal.fire({
+    const res = await Swal.fire({
       title: "删除会话?",
-      text: "无法恢复",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#ff7675",
-      confirmButtonText: "删除",
-      width: "320px",
-      customClass: {
-        container: styles.swalHighZIndex,
-      },
+      customClass: { container: styles.swalHighZIndex },
     });
-    if (!result.isConfirmed) return;
-    try {
-      await baseApi.delete(`/llm/session/${targetSessionId}`);
-      setSessions((prev) =>
-        prev.filter((s) => s.sessionId !== targetSessionId),
-      );
-      if (targetSessionId === currentSessionId) setCurrentSessionId(null);
-    } catch (error) {}
+    if (res.isConfirmed) {
+      await baseApi.delete(`/llm/session/${id}`);
+      setSessions((prev) => prev.filter((s) => s.sessionId !== id));
+      if (id === currentSessionId) {
+        setCurrentSessionId(null);
+        setMessages([]);
+      }
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -632,9 +543,8 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
     }
   };
 
-  // --- Render Content ---
   const renderMessageContent = (msg) => {
-    if (msg.type === "error") {
+    if (msg.type === "error")
       return (
         <div
           style={{
@@ -647,22 +557,14 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           <FontAwesomeIcon icon={faExclamationCircle} /> {msg.content}
         </div>
       );
-    }
-
-    if (msg.isWaitingFirstResponse) {
-      return <ThinkingBubble />;
-    }
+    if (msg.isWaitingFirstResponse) return <ThinkingBubble />;
 
     const renderFiles = () => (
       <>
         {msg.localFiles && msg.localFiles.length > 0 && (
           <div className={styles.filePreviewArea}>
             {msg.localFiles.map((f, i) => (
-              <LocalFileCard
-                key={i}
-                file={f}
-                onPreview={(url) => setPreviewImage(url)}
-              />
+              <LocalFileCard key={i} file={f} onPreview={setPreviewImage} />
             ))}
           </div>
         )}
@@ -693,27 +595,21 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             } catch (e) {
               args = func.arguments;
             }
-
-            // 1. ReplayTool
-            if (func.name === "ReplayTool") {
+            if (func.name === "ReplayTool")
               return (
                 <div key={idx} style={{ marginTop: "10px" }}>
                   <ReactMarkdown>{args.message || args}</ReactMarkdown>
                 </div>
               );
-            }
-
-            // 2. EChartsTool
-            if (func.name === "EChartsTool") {
-              const option = JSON.parse(args.option);
+            if (func.name === "EChartsTool")
               return (
                 <div key={idx} className={styles.chartContainer}>
-                  <AIChart option={option} title={args.explanation} />
+                  <AIChart
+                    option={JSON.parse(args.option)}
+                    title={args.explanation}
+                  />
                 </div>
               );
-            }
-
-            // 3. Other Tools
             return (
               <div key={idx} className={styles.toolContainer}>
                 <div className={styles.toolHeader}>
@@ -728,7 +624,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
         </>
       );
     }
-
     return (
       <>
         {renderFiles()}
@@ -766,14 +661,13 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             </button>
             <div className={styles.titleText}>
               <h3>AI 教学助手</h3>
-              <span>{useAgent ? "Agent 深度模式" : "极速对话模式"}</span>
+              <span>{useAgent ? "Agent 模式" : "对话模式"}</span>
             </div>
           </div>
           <button className={`${styles.closeButton} no-drag`} onClick={onClose}>
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
-
         <div className={styles.contentContainer}>
           <div
             className={`${styles.sidebar} ${!isSidebarOpen ? styles.collapsed : ""}`}
@@ -784,7 +678,7 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
             <div className={styles.sessionList}>
               {sessions.map((s) => (
                 <div
-                  key={s.id}
+                  key={s.sessionId}
                   className={`${styles.sessionItem} ${s.sessionId === currentSessionId ? styles.active : ""}`}
                   onClick={() => setCurrentSessionId(s.sessionId)}
                 >
@@ -808,15 +702,12 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
               ))}
             </div>
           </div>
-
           <div className={styles.mainArea}>
             <div className={styles.messageList}>
               {messages.length === 0 && !isLoading && (
                 <div className={styles.emptyState}>
-                  <h1 className={styles.emptyTitle}>ASK ME</h1>
-                  <span className={styles.emptySubtitle}>
-                    我能为您做些什么？
-                  </span>
+                  <h1>ASK ME</h1>
+                  <span>我能为您做些什么？</span>
                 </div>
               )}
               {messages.map((msg, index) => (
@@ -831,7 +722,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
               ))}
               <div ref={messagesEndRef} />
             </div>
-
             <div className={styles.footer}>
               <div className={styles.toolbar}>
                 <div
@@ -845,8 +735,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                   </div>
                   <span>Agent 模式</span>
                 </div>
-
-                {/* 场景感知开关 */}
                 {availableScene && (
                   <div
                     className={styles.agentSwitch}
@@ -873,7 +761,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                   </div>
                 )}
               </div>
-
               {selectedFiles.length > 0 && (
                 <div className={styles.filePreviewArea}>
                   {selectedFiles.map((f, i) => (
@@ -881,12 +768,11 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                       key={i}
                       file={f}
                       onRemove={() => removeSelectedFile(i)}
-                      onPreview={(url) => setPreviewImage(url)}
+                      onPreview={setPreviewImage}
                     />
                   ))}
                 </div>
               )}
-
               <div className={styles.inputWrapper}>
                 <input
                   type="file"
@@ -907,14 +793,13 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
                   ref={textAreaRef}
                   className={styles.textInput}
                   placeholder="输入消息..."
-                  rows={1}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                 />
                 <button
                   className={`${styles.iconBtn} ${styles.primary}`}
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={
                     isSending ||
                     isUploading ||
@@ -932,8 +817,6 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           </div>
         </div>
       </div>
-
-      {/* 图片预览 Lightbox */}
       {previewImage && (
         <div
           className={styles.imageLightbox}
@@ -942,7 +825,7 @@ const AIChatWindow = ({ onClose, initialSessionId }) => {
           <div className={styles.closeLightbox}>&times;</div>
           <img
             src={previewImage}
-            alt="Full Preview"
+            alt="Preview"
             className={styles.lightboxImg}
             onClick={(e) => e.stopPropagation()}
           />
