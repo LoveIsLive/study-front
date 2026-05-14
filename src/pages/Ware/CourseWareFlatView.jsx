@@ -247,7 +247,7 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         (node.mimeTypeName && node.mimeTypeName.startsWith("text/"));
 
       // 4. 定义 10MB 的字节数阈值
-      const MAX_TEXT_SIZE = 10 * 1024 * 1024; // 10MB
+      const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 10MB
 
       // 5. 判断条件：是文本文件 且 文件大小存在 且 大于10MB
       if (isTextFile && node.size !== undefined && node.size > MAX_TEXT_SIZE) {
