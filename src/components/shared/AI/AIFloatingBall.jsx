@@ -7,6 +7,7 @@ import { baseApi } from "../../../services/api";
 import { useDraggable } from "../../../hooks/useDraggable";
 import useAIStore from "../../../store/aiStore";
 import styles from "./AIFloatingBall.module.css";
+import robotIcon from '../../../assets/科牛.png';
 
 const AIFloatingBall = () => {
   const [sessionId, setSessionId] = useState(null);
@@ -73,7 +74,7 @@ const AIFloatingBall = () => {
         title="Ask AI"
       >
         <div className={styles.ballContent}>
-          <FontAwesomeIcon icon={faRobot} className={styles.icon} />
+          <img src={robotIcon} alt="Robot Icon" className={styles.icon} />
         </div>
         <div className={styles.pulseRing}></div>
       </div>

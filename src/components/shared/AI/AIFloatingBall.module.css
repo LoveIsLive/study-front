@@ -3,9 +3,6 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    /* 渐变色 */
-    background: linear-gradient(135deg, #FF7B54 0%, #FFB26B 100%);
-    box-shadow: 0 4px 15px rgba(255, 123, 84, 0.4);
     cursor: move;
     z-index: 1999;
     display: flex;
@@ -77,4 +74,9 @@
 
 .floatingBall:hover .tooltip {
     opacity: 1;
+}
+
+.icon {
+    width: 5rem;
+    height: 5rem;
 }
