@@ -289,20 +289,20 @@ const Header = () => {
       <aside className={styles.sidebar}>
         <div className={styles.sidebarMenu}>
           {/* 首页按钮 - 始终显示 */}
-          <NavLink
+          {/* <NavLink
             to="/"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faHome} fixedWidth />
             <span>首页</span>
-          </NavLink>
+          </NavLink> */}
           {/* 新增：班级主页按钮 */}
           <NavLink
             to="/class-home"
             className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
           >
             <FontAwesomeIcon icon={faSchool} fixedWidth />
-            <span>班级主页</span>
+            <span>主页</span>
           </NavLink>
 
           {/* 课程选择按钮 - 修改高亮逻辑 */}

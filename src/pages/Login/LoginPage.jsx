@@ -41,7 +41,7 @@ const LoginPage = () => {
           timer: 1500,
           position: "center",
         });
-        navigate(config.front_HOME_PAGE_URL);
+        navigate("/class-home");
       } else {
         throw new Error(response.data.message || "登录失败");
       }

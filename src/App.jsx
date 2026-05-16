@@ -1,6 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
-import HomePage from "./pages/Home/HomePage";
 import ClassHomePage from "./pages/ClassHome/ClassHomePage";
 import HomeworkPage from "./pages/Homework/HomeworkPage";
 import WarePage from "./pages/Ware/WarePage";
@@ -22,8 +21,10 @@ function App() {
       {/* 受保护的路由组 */}
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/class-home" element={<ClassHomePage />} />{" "}
+          {/* 将根目录重定向到新的主页 */}
+          <Route path="/" element={<Navigate to="/class-home" replace />} />
+          <Route path="/class-home" element={<ClassHomePage />} />
+
           <Route path="/homework" element={<HomeworkPage />} />
           <Route path="/courses" element={<CourseListPage />} />
           <Route path="/course/:courseId/*" element={<CourseDetailPage />} />
@@ -32,7 +33,6 @@ function App() {
           <Route path="/discussion" element={<DiscussionPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/mind" element={<MindPage />} />
-          {/* <Route path="/course/:courseId" element={<CourseDetailPage />} /> */}
         </Route>
       </Route>
 

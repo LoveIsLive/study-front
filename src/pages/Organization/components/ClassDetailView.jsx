@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import useAuthStore from "../../../store/authStore";
 // 【补充】引入 classesApi 来获取班级详细信息
 import { classMemberApi, classesApi } from "../../../services/api";
@@ -27,6 +27,9 @@ const ClassDetailView = ({ classId, className, onBack }) => {
 
   // 【新增状态】存储班级详细信息
   const [classDetail, setClassDetail] = useState(null);
+
+  // 【新增】文件上传 ref
+  const fileInputRef = useRef(null);
 
   const canManageMembers = user && (isAdmin || isTeacher || isPrincipal);
 
@@ -218,12 +221,91 @@ const ClassDetailView = ({ classId, className, onBack }) => {
     }
   };
 
+  // 【新增】处理 Excel 文件导入
+  const handleImportExcel = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      Swal.fire({
+        title: "导入中...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const res = await classMemberApi.post(`/${classId}/import`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (res.data && res.data.code === 200) {
+        Swal.fire("成功", "导入成功", "success");
+        fetchMembers(); // 刷新列表
+      } else {
+        Swal.fire(
+          "导入异常",
+          res.data?.message || "请检查数据格式是否正确",
+          "warning",
+        );
+      }
+    } catch (error) {
+      console.error("导入报错", error);
+      Swal.fire(
+        "导入失败",
+        error.response?.data?.message || "服务器发生错误",
+        "error",
+      );
+    } finally {
+      // 清空 input 允许重复选择同名文件
+      if (e.target) {
+        e.target.value = null;
+      }
+    }
+  };
+
+  // 【新增】展示导入规则模态框
+  const showImportRules = () => {
+    Swal.fire({
+      title: "导入成员规则",
+      html: `
+        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+          <p>请上传 Excel 文件 (<b>.xls</b> 或 <b>.xlsx</b>)，表头需严格匹配：</p>
+          <table border="1" style="width:100%; text-align:center; border-collapse: collapse; margin-bottom: 10px;">
+            <tr style="background:#f2f2f2;"><th>用户名</th><th>密码</th><th>角色</th></tr>
+            <tr><td>张三</td><td>888888</td><td>教师</td></tr>
+            <tr><td>李四</td><td></td><td></td></tr>
+            <tr><td>王五</td><td>111111</td><td>访客</td></tr>
+          </table>
+          <ul style="padding-left: 20px; margin: 0;">
+            <li><b>用户名：</b>必填（若整行读取为空会自动忽略）</li>
+            <li><b>密码：</b>选填（如果不填，默认设为 123456）</li>
+            <li><b>角色：</b>选填（仅支持填写 <b>教师/学生/访客</b>。不填或错填将默认设为学生）</li>
+          </ul>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "选择文件并导入",
+      cancelButtonText: "取消",
+      width: "500px",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 触发隐藏的 file input 点击事件
+        fileInputRef.current.click();
+      }
+    });
+  };
+
   const teachers = members.filter((m) => m.role === "ROLE_TEACHER");
   const students = members.filter((m) => m.role === "ROLE_STUDENT");
 
   return (
     <div className={styles.detailContainer}>
-      {/* ...下方渲染结构完全保持原样不变... */}
       <div className={styles.header}>
         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
           {onBack && (
@@ -253,12 +335,26 @@ const ClassDetailView = ({ classId, className, onBack }) => {
         </div>
 
         {canManageMembers && (
-          <button
-            className="btn btn-primary"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <FontAwesomeIcon icon={faUserPlus} /> 添加成员
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            {/* 【新增】隐藏的文件上传域 */}
+            <input
+              type="file"
+              accept=".xls,.xlsx"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleImportExcel}
+            />
+            {/* 【新增】批量导入按钮 */}
+            <button className="btn btn-secondary" onClick={showImportRules}>
+              批量导入
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <FontAwesomeIcon icon={faUserPlus} /> 添加成员
+            </button>
+          </div>
         )}
       </div>
 

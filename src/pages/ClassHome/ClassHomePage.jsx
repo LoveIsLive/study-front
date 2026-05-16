@@ -283,7 +283,7 @@ const ClassHomePage = () => {
     <div className={styles.classHomePage}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h2>班级主页</h2>
+          {/* <h2>班级主页</h2> */}
         </div>
         <div className={styles.headerRight}>
           {isAdmin && (
@@ -341,7 +341,7 @@ const ClassHomePage = () => {
               />
             </div>
             <div className={styles.descSection}>
-              <h3>班级介绍</h3>
+              {/* <h3>班级介绍</h3> */}
               {/* description 中可能包含HTML标签所以用 dangerouslySetInnerHTML 渲染 */}
               <div
                 className={styles.richText}
@@ -381,7 +381,7 @@ const ClassHomePage = () => {
                   )}
                 </div>
                 <div className={styles.formGroup}>
-                  <label>班级描述 (支持HTML标签)</label>
+                  <label>班级描述</label>
                   <textarea
                     rows={6}
                     value={editDesc}
