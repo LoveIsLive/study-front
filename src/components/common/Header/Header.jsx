@@ -296,6 +296,14 @@ const Header = () => {
             <FontAwesomeIcon icon={faHome} fixedWidth />
             <span>首页</span>
           </NavLink>
+          {/* 新增：班级主页按钮 */}
+          <NavLink
+            to="/class-home"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faSchool} fixedWidth />
+            <span>班级主页</span>
+          </NavLink>
 
           {/* 课程选择按钮 - 修改高亮逻辑 */}
           <NavLink

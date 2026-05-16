@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import HomePage from "./pages/Home/HomePage";
+import ClassHomePage from "./pages/ClassHome/ClassHomePage";
 import HomeworkPage from "./pages/Homework/HomeworkPage";
 import WarePage from "./pages/Ware/WarePage";
 import CourseListPage from "./pages/Course/CourseListPage";
@@ -22,6 +23,7 @@ function App() {
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/class-home" element={<ClassHomePage />} />{" "}
           <Route path="/homework" element={<HomeworkPage />} />
           <Route path="/courses" element={<CourseListPage />} />
           <Route path="/course/:courseId/*" element={<CourseDetailPage />} />
