@@ -84,7 +84,14 @@ const TeacherDashboard = ({
           timer: 1500,
           showConfirmButton: false,
         });
-        const res = await homeworkApi.get("/teacher/all"); // 简单刷新示例
+
+        // 【修复 Bug 2】：根据当前上下文调用正确的刷新接口
+        let url;
+        if (context === "course" && contextId) url = `/course/${contextId}`;
+        else if (context === "class" && contextId) url = `/class/${contextId}`;
+        else url = "/teacher/all";
+
+        const res = await homeworkApi.get(url);
         if (res.data.code === 200) setRawHomeworks(res.data.data || []);
       } catch (error) {
         MySwal.fire({ icon: "error", title: "删除失败" });

@@ -723,7 +723,11 @@ const CourseListPage = () => {
 
   const handleCreateCourse = async (courseData) => {
     try {
-      await createCourse(courseData);
+      // 【修复 Bug 1】：自动注入当前的 classId
+      const targetClassId =
+        isAdmin || isPrincipal ? selectedAdminClassId : activeId;
+      await createCourse({ ...courseData, classId: targetClassId });
+
       Swal.fire({ icon: "success", title: "创建成功", text: "课程已创建。" });
       await loadCourses(true);
       return true;

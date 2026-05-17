@@ -101,6 +101,14 @@ const useAuthStore = create(
       // 统一更新，避免 React 多次重绘导致的中间态
       localStorage.setItem("activeType", finalType);
       localStorage.setItem("activeId", finalId);
+
+      // 【修复 Bug 3】：在加载用户数据确立上下文时，同步管理端缓存
+      if (finalType === "class") {
+        localStorage.setItem("adminSelectedClassId", finalId);
+      } else if (finalType === "school") {
+        localStorage.setItem("adminSelectedSchoolId", finalId);
+      }
+
       set({
         detailInfo: info,
         activeType: finalType,
@@ -114,6 +122,14 @@ const useAuthStore = create(
   setContext: (type, id) => {
     localStorage.setItem("activeType", type);
     localStorage.setItem("activeId", id);
+
+    // 【修复 Bug 3】：用户主动在顶部 Header 切换班级/学校时，同步管理端缓存
+    if (type === "class") {
+      localStorage.setItem("adminSelectedClassId", id);
+    } else if (type === "school") {
+      localStorage.setItem("adminSelectedSchoolId", id);
+    }
+
     set({ activeType: type, activeId: id });
     // 切换上下文时清空课程选择
     set({
