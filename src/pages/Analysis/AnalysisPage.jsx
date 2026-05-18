@@ -348,7 +348,8 @@ const ScoreDistribution = ({ distribution }) => {
 // --- 7. 主页面组件 ---
 const AnalysisPage = () => {
   const navigate = useNavigate();
-  const { detailInfo, courseList } = useAuthStore();
+  // 【修复1】：引入 activeId
+  const { detailInfo, courseList, activeId } = useAuthStore();
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
   const isTeacher = useAuthStore((state) => state.isTeacher());
@@ -359,8 +360,13 @@ const AnalysisPage = () => {
   const [classList, setClassList] = useState([]);
   const [availableCourses, setAvailableCourses] = useState([]);
 
-  const [selectedSchoolId, setSelectedSchoolId] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState("");
+  // 【修复2】：初始化优先从缓存或全局 activeId 读取
+  const [selectedSchoolId, setSelectedSchoolId] = useState(
+    () => localStorage.getItem("adminSelectedSchoolId") || ""
+  );
+  const [selectedClassId, setSelectedClassId] = useState(
+    () => localStorage.getItem("adminSelectedClassId") || activeId || ""
+  );
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
   // 数据分析状态管理
@@ -373,12 +379,14 @@ const AnalysisPage = () => {
   // 1. 初始化学校 (仅管理员可见)
   useEffect(() => {
     if (isAdmin) {
-      schoolApi
-        .get("/all")
-        .then((res) => {
+      schoolApi.get("/all").then((res) => {
           if (res.data?.code === 200 && res.data.data.length > 0) {
             setSchoolList(res.data.data);
-            setSelectedSchoolId(res.data.data[0].id);
+            const cachedSchoolId = localStorage.getItem("adminSelectedSchoolId");
+            const isValidCache = res.data.data.some(s => String(s.id) === String(cachedSchoolId));
+            if (!isValidCache) {
+              setSelectedSchoolId(res.data.data[0].id);
+            }
           }
         })
         .catch((err) => console.error("获取学校列表失败", err));
@@ -388,17 +396,21 @@ const AnalysisPage = () => {
   // 2. 初始化班级
   useEffect(() => {
     if (isAdmin) {
-      // 管理员：通过 /all 接口和学校ID筛选
       if (selectedSchoolId) {
-        classesApi
-          .get("/all", { params: { schoolId: selectedSchoolId } })
-          .then((res) => {
+        classesApi.get("/all", { params: { schoolId: selectedSchoolId } }).then((res) => {
             if (res.data?.code === 200) {
               const data = res.data.data;
               const classes = Array.isArray(data) ? data : data ? [data] : [];
               setClassList(classes);
-              if (classes.length > 0) setSelectedClassId(classes[0].id);
-              else setSelectedClassId("");
+
+              // 【修复3】：验证缓存的ID是否存在于列表中
+              const cachedClassId = localStorage.getItem("adminSelectedClassId");
+              const isValidCache = classes.some((c) => String(c.id) === String(cachedClassId));
+              if (classes.length > 0 && !isValidCache) {
+                setSelectedClassId(classes[0].id);
+              } else if (classes.length === 0) {
+                setSelectedClassId("");
+              }
             }
           })
           .catch((err) => console.error("初始化班级选择失败", err));
@@ -406,22 +418,50 @@ const AnalysisPage = () => {
         setClassList([]);
         setSelectedClassId("");
       }
-    } else if (isPrincipal || isTeacher) {
-      // 【修改点】校长和教师复用原逻辑：从 detailInfo.classMembers 解析
+    } else if (isPrincipal) {
       if (detailInfo?.classMembers) {
-        const classes = detailInfo.classMembers
-          .flatMap((member) => member.classes || [])
-          .filter((cls) => cls !== null);
-
+        const classes = detailInfo.classMembers.flatMap((member) => member.classes || []).filter((cls) => cls !== null);
         setClassList(classes);
-        if (classes.length > 0) {
+
+        const cachedClassId = localStorage.getItem("adminSelectedClassId");
+        const isValidCache = classes.some((c) => String(c.id) === String(cachedClassId));
+        if (classes.length > 0 && !isValidCache) {
           setSelectedClassId(classes[0].id);
-        } else {
+        } else if (classes.length === 0) {
           setSelectedClassId("");
         }
       }
+    } else if (isTeacher) {
+      // 教师没有下拉框，强绑定全局切换的 activeId
+      setSelectedClassId(activeId);
     }
-  }, [isAdmin, isPrincipal, isTeacher, selectedSchoolId, detailInfo]);
+  }, [isAdmin, isPrincipal, isTeacher, selectedSchoolId, detailInfo, activeId]);
+
+  // 【新增】：同步缓存数据（与CourseListPage保持一致，确保联动及路由安全）
+  useEffect(() => {
+    if ((isAdmin || isPrincipal) && selectedClassId) {
+      if (selectedSchoolId) {
+        localStorage.setItem("adminSelectedSchoolId", selectedSchoolId);
+      }
+      localStorage.setItem("adminSelectedClassId", selectedClassId);
+
+      let schoolName = "未知学校";
+      let className = "未知班级";
+
+      if (isAdmin) {
+        const school = schoolList.find((s) => String(s.id) === String(selectedSchoolId));
+        if (school) schoolName = school.name;
+      } else if (isPrincipal) {
+        schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
+      }
+
+      const cls = classList.find((c) => String(c.id) === String(selectedClassId));
+      if (cls) className = cls.name;
+
+      localStorage.setItem("adminSelectedSchoolName", schoolName);
+      localStorage.setItem("adminSelectedClassName", className);
+    }
+  }, [selectedClassId, selectedSchoolId, isAdmin, isPrincipal, schoolList, classList, detailInfo]);
 
   // 3. 初始化/更新课程
   useEffect(() => {

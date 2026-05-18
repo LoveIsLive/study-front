@@ -14,14 +14,7 @@ import styles from "../HomeworkPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
-const AdminDashboard = ({
-  view,
-  navigateTo,
-  onEditHomework,
-  onOpenDiscussion,
-  refreshTrigger,
-}) => {
-  // 引入 detailInfo 获取内部关联的班级
+const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
   const { detailInfo } = useAuthStore();
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
@@ -31,69 +24,98 @@ const AdminDashboard = ({
   const [availableCourses, setAvailableCourses] = useState([]);
   const [homeworks, setHomeworks] = useState([]);
 
-  // 下拉框状态记录
-  const [selectedSchoolId, setSelectedSchoolId] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState(""); // 支持根据课程过滤
+  // 【修复1】：从 localStorage 读取初始值
+  const [selectedSchoolId, setSelectedSchoolId] = useState(
+    () => localStorage.getItem("adminSelectedSchoolId") || ""
+  );
+  const [selectedClassId, setSelectedClassId] = useState(
+    () => localStorage.getItem("adminSelectedClassId") || ""
+  );
+  const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- 1. 获取学校列表 (仅管理员可见) ---
+  // --- 1. 获取学校列表 ---
   useEffect(() => {
     if (isAdmin) {
-      schoolApi
-        .get("/all")
-        .then((res) => {
+      schoolApi.get("/all").then((res) => {
           if (res.data?.code === 200 && res.data.data.length > 0) {
             setSchools(res.data.data);
-            setSelectedSchoolId(res.data.data[0].id); // 默认选中第一个学校
+            const cachedSchoolId = localStorage.getItem("adminSelectedSchoolId");
+            const isValidCache = res.data.data.some((s) => String(s.id) === String(cachedSchoolId));
+            if (!isValidCache) {
+              setSelectedSchoolId(res.data.data[0].id);
+            }
           }
-        })
-        .catch((err) => console.error("获取学校列表失败", err));
+        }).catch((err) => console.error("获取学校列表失败", err));
     }
   }, [isAdmin]);
 
-  // --- 2. 联动获取班级列表 (管理员及校长可见) ---
+  // --- 2. 联动获取班级列表 ---
   useEffect(() => {
     if (isAdmin) {
-      // 管理员调用 /all 接口过滤
       if (selectedSchoolId) {
-        classesApi
-          .get("/all", { params: { schoolId: selectedSchoolId } })
-          .then((res) => {
+        classesApi.get("/all", { params: { schoolId: selectedSchoolId } }).then((res) => {
             if (res.data?.code === 200) {
               const data = res.data.data;
               const classArr = Array.isArray(data) ? data : data ? [data] : [];
               setClasses(classArr);
 
-              if (classArr.length > 0) {
+              // 【修复2】：验证缓存的ID
+              const cachedClassId = localStorage.getItem("adminSelectedClassId");
+              const isValidCache = classArr.some((c) => String(c.id) === String(cachedClassId));
+              if (classArr.length > 0 && !isValidCache) {
                 setSelectedClassId(classArr[0].id);
-              } else {
+              } else if (classArr.length === 0) {
                 setSelectedClassId("");
               }
             }
-          })
-          .catch((err) => console.error("初始化班级选择失败", err));
+          }).catch((err) => console.error("初始化班级选择失败", err));
       } else {
         setClasses([]);
         setSelectedClassId("");
       }
     } else if (isPrincipal) {
-      // 【修改点】校长复用原逻辑：从自身 detailInfo 解析班级
       if (detailInfo?.classMembers) {
-        const classArr = detailInfo.classMembers
-          .flatMap((member) => member.classes || [])
-          .filter((cls) => cls !== null);
-
+        const classArr = detailInfo.classMembers.flatMap((member) => member.classes || []).filter((cls) => cls !== null);
         setClasses(classArr);
-        if (classArr.length > 0) {
+
+        const cachedClassId = localStorage.getItem("adminSelectedClassId");
+        const isValidCache = classArr.some((c) => String(c.id) === String(cachedClassId));
+        if (classArr.length > 0 && !isValidCache) {
           setSelectedClassId(classArr[0].id);
-        } else {
+        } else if (classArr.length === 0) {
           setSelectedClassId("");
         }
       }
     }
   }, [isAdmin, isPrincipal, selectedSchoolId, detailInfo]);
+
+  // 【新增】：同步数据到 localStorage，保证 WarePage / 仓库路由不受影响
+  useEffect(() => {
+    if ((isAdmin || isPrincipal) && selectedClassId) {
+      if (selectedSchoolId) {
+        localStorage.setItem("adminSelectedSchoolId", selectedSchoolId);
+      }
+      localStorage.setItem("adminSelectedClassId", selectedClassId);
+
+      let schoolName = "未知学校";
+      let className = "未知班级";
+
+      if (isAdmin) {
+        const school = schools.find((s) => String(s.id) === String(selectedSchoolId));
+        if (school) schoolName = school.name;
+      } else if (isPrincipal) {
+        schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
+      }
+
+      const cls = classes.find((c) => String(c.id) === String(selectedClassId));
+      if (cls) className = cls.name;
+
+      localStorage.setItem("adminSelectedSchoolName", schoolName);
+      localStorage.setItem("adminSelectedClassName", className);
+    }
+  }, [selectedClassId, selectedSchoolId, isAdmin, isPrincipal, schools, classes, detailInfo]);
 
   // --- 3. 联动获取该班级的课程列表 ---
   useEffect(() => {
