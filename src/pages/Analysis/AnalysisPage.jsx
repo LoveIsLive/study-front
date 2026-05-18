@@ -362,10 +362,10 @@ const AnalysisPage = () => {
 
   // 【修复2】：初始化优先从缓存或全局 activeId 读取
   const [selectedSchoolId, setSelectedSchoolId] = useState(
-    () => localStorage.getItem("adminSelectedSchoolId") || ""
+    () => localStorage.getItem("adminSelectedSchoolId") || "",
   );
   const [selectedClassId, setSelectedClassId] = useState(
-    () => localStorage.getItem("adminSelectedClassId") || activeId || ""
+    () => localStorage.getItem("adminSelectedClassId") || activeId || "",
   );
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
@@ -379,11 +379,17 @@ const AnalysisPage = () => {
   // 1. 初始化学校 (仅管理员可见)
   useEffect(() => {
     if (isAdmin) {
-      schoolApi.get("/all").then((res) => {
+      schoolApi
+        .get("/all")
+        .then((res) => {
           if (res.data?.code === 200 && res.data.data.length > 0) {
             setSchoolList(res.data.data);
-            const cachedSchoolId = localStorage.getItem("adminSelectedSchoolId");
-            const isValidCache = res.data.data.some(s => String(s.id) === String(cachedSchoolId));
+            const cachedSchoolId = localStorage.getItem(
+              "adminSelectedSchoolId",
+            );
+            const isValidCache = res.data.data.some(
+              (s) => String(s.id) === String(cachedSchoolId),
+            );
             if (!isValidCache) {
               setSelectedSchoolId(res.data.data[0].id);
             }
@@ -397,15 +403,21 @@ const AnalysisPage = () => {
   useEffect(() => {
     if (isAdmin) {
       if (selectedSchoolId) {
-        classesApi.get("/all", { params: { schoolId: selectedSchoolId } }).then((res) => {
+        classesApi
+          .get("/all", { params: { schoolId: selectedSchoolId } })
+          .then((res) => {
             if (res.data?.code === 200) {
               const data = res.data.data;
               const classes = Array.isArray(data) ? data : data ? [data] : [];
               setClassList(classes);
 
               // 【修复3】：验证缓存的ID是否存在于列表中
-              const cachedClassId = localStorage.getItem("adminSelectedClassId");
-              const isValidCache = classes.some((c) => String(c.id) === String(cachedClassId));
+              const cachedClassId = localStorage.getItem(
+                "adminSelectedClassId",
+              );
+              const isValidCache = classes.some(
+                (c) => String(c.id) === String(cachedClassId),
+              );
               if (classes.length > 0 && !isValidCache) {
                 setSelectedClassId(classes[0].id);
               } else if (classes.length === 0) {
@@ -420,11 +432,15 @@ const AnalysisPage = () => {
       }
     } else if (isPrincipal) {
       if (detailInfo?.classMembers) {
-        const classes = detailInfo.classMembers.flatMap((member) => member.classes || []).filter((cls) => cls !== null);
+        const classes = detailInfo.classMembers
+          .flatMap((member) => member.classes || [])
+          .filter((cls) => cls !== null);
         setClassList(classes);
 
         const cachedClassId = localStorage.getItem("adminSelectedClassId");
-        const isValidCache = classes.some((c) => String(c.id) === String(cachedClassId));
+        const isValidCache = classes.some(
+          (c) => String(c.id) === String(cachedClassId),
+        );
         if (classes.length > 0 && !isValidCache) {
           setSelectedClassId(classes[0].id);
         } else if (classes.length === 0) {
@@ -449,19 +465,31 @@ const AnalysisPage = () => {
       let className = "未知班级";
 
       if (isAdmin) {
-        const school = schoolList.find((s) => String(s.id) === String(selectedSchoolId));
+        const school = schoolList.find(
+          (s) => String(s.id) === String(selectedSchoolId),
+        );
         if (school) schoolName = school.name;
       } else if (isPrincipal) {
         schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
       }
 
-      const cls = classList.find((c) => String(c.id) === String(selectedClassId));
+      const cls = classList.find(
+        (c) => String(c.id) === String(selectedClassId),
+      );
       if (cls) className = cls.name;
 
       localStorage.setItem("adminSelectedSchoolName", schoolName);
       localStorage.setItem("adminSelectedClassName", className);
     }
-  }, [selectedClassId, selectedSchoolId, isAdmin, isPrincipal, schoolList, classList, detailInfo]);
+  }, [
+    selectedClassId,
+    selectedSchoolId,
+    isAdmin,
+    isPrincipal,
+    schoolList,
+    classList,
+    detailInfo,
+  ]);
 
   // 3. 初始化/更新课程
   useEffect(() => {
