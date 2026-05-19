@@ -481,24 +481,14 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         const token = res.data.data;
         const baseUrl = wareApi.defaults.baseURL;
 
-        // 手动处理实际下载的路径，确保与后端收到的 actualPath 保持一致
-        let apiPath = fullPath;
+        // 【核心修改】：无脑拼接 courseId，与 Axios 拦截器保持绝对一致
+        let finalDownloadPath = reqPath;
         if (currentCourseId) {
-          const courseIdStr = String(currentCourseId);
-          if (!apiPath.startsWith(`/${courseIdStr}`)) {
-            if (apiPath === "/" || apiPath === "") {
-              apiPath = `/${courseIdStr}`;
-            } else {
-              const normalizedPath = apiPath.startsWith("/")
-                ? apiPath
-                : "/" + apiPath;
-              apiPath = `/${courseIdStr}${normalizedPath}`;
-            }
-          }
+          const prefix = `/${currentCourseId}`;
+          finalDownloadPath = reqPath.startsWith("/")
+            ? `${prefix}${reqPath}`
+            : `${prefix}/${reqPath}`;
         }
-
-        // 调用 getWareApiPath，兼容管理员/校长的 /学校名称/班级名称 前缀逻辑
-        const finalDownloadPath = getWareApiPath(apiPath, currentCourseId);
 
         const url = `${baseUrl}/download?path=${encodeURIComponent(finalDownloadPath)}&token=${token}`;
 
