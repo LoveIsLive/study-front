@@ -476,22 +476,47 @@ const TreeNode = ({ node, currentPath, onRefresh, openModal }) => {
         });
       } else if (action === "preview" || action === "download") {
         const res = await wareApi.get("/get/downloadId", {
-          params: { path: reqPath },
+          params: { path: reqPath }, // 获取 Token 依然用 reqPath，不影响之前的逻辑
         });
         const token = res.data.data;
         const baseUrl = wareApi.defaults.baseURL;
 
-        // 【核心修改】：无脑拼接 courseId，与 Axios 拦截器保持绝对一致
-        let finalDownloadPath = reqPath;
-        if (currentCourseId) {
-          const prefix = `/${currentCourseId}`;
-          finalDownloadPath = reqPath.startsWith("/")
-            ? `${prefix}${reqPath}`
-            : `${prefix}/${reqPath}`;
+        // --- 【修复点】：使用最原始的 fullPath 而不是 reqPath 作为基准 ---
+        let cleanPath = fullPath || "/";
+        const courseIdStr = currentCourseId ? String(currentCourseId) : "";
+
+        // 1. 净化路径：先剥离可能已经存在的 /courseId，拿到纯粹的相对路径
+        if (courseIdStr) {
+          const prefix = `/${courseIdStr}`;
+          if (cleanPath === prefix) {
+            cleanPath = "";
+          } else if (cleanPath.startsWith(prefix + "/")) {
+            cleanPath = cleanPath.slice(prefix.length);
+          }
+        }
+        if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+        if (cleanPath === "/") cleanPath = "";
+
+        // 2. 根据身份精确组装绝对路径
+        let finalDownloadPath = fullPath; // 【修复点】：默认 fallback 也改成 fullPath
+        if (courseIdStr) {
+          const schoolName =
+            localStorage.getItem("adminSelectedSchoolName") || "未知学校";
+          const className =
+            localStorage.getItem("adminSelectedClassName") || "未知班级";
+
+          if (isAdmin) {
+            finalDownloadPath = `/${schoolName}/${className}/${courseIdStr}${cleanPath}`;
+          } else if (isPrincipal) {
+            finalDownloadPath = `/${className}/${courseIdStr}${cleanPath}`;
+          } else {
+            // 教师/学生：默认只拼接 /courseId
+            finalDownloadPath = `/${courseIdStr}${cleanPath}`;
+          }
         }
 
         const url = `${baseUrl}/download?path=${encodeURIComponent(finalDownloadPath)}&token=${token}`;
-
+        console.log("最终下载路径:", finalDownloadPath, url);
         if (action === "preview") {
           window.open(`${url}&mode=inline`, "_blank");
         } else {

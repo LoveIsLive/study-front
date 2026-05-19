@@ -14,7 +14,13 @@ import styles from "../HomeworkPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
-const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, refreshTrigger }) => {
+const AdminDashboard = ({
+  view,
+  navigateTo,
+  onEditHomework,
+  onOpenDiscussion,
+  refreshTrigger,
+}) => {
   const { detailInfo } = useAuthStore();
   const isAdmin = useAuthStore((state) => state.isAdmin());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
@@ -25,12 +31,15 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
   const [homeworks, setHomeworks] = useState([]);
 
   // 【修复1】：从 localStorage 读取初始值
-  const [selectedSchoolId, setSelectedSchoolId] = useState(
-    () => localStorage.getItem("adminSelectedSchoolId") || ""
-  );
-  const [selectedClassId, setSelectedClassId] = useState(
-    () => localStorage.getItem("adminSelectedClassId") || ""
-  );
+  const [selectedSchoolId, setSelectedSchoolId] = useState(() => {
+    const val = localStorage.getItem("adminSelectedSchoolId");
+    return val && val !== "null" && val !== "undefined" ? val : "";
+  });
+
+  const [selectedClassId, setSelectedClassId] = useState(() => {
+    const val = localStorage.getItem("adminSelectedClassId");
+    return val && val !== "null" && val !== "undefined" ? val : "";
+  });
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -38,16 +47,23 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
   // --- 1. 获取学校列表 ---
   useEffect(() => {
     if (isAdmin) {
-      schoolApi.get("/all").then((res) => {
+      schoolApi
+        .get("/all")
+        .then((res) => {
           if (res.data?.code === 200 && res.data.data.length > 0) {
             setSchools(res.data.data);
-            const cachedSchoolId = localStorage.getItem("adminSelectedSchoolId");
-            const isValidCache = res.data.data.some((s) => String(s.id) === String(cachedSchoolId));
+            const cachedSchoolId = localStorage.getItem(
+              "adminSelectedSchoolId",
+            );
+            const isValidCache = res.data.data.some(
+              (s) => String(s.id) === String(cachedSchoolId),
+            );
             if (!isValidCache) {
               setSelectedSchoolId(res.data.data[0].id);
             }
           }
-        }).catch((err) => console.error("获取学校列表失败", err));
+        })
+        .catch((err) => console.error("获取学校列表失败", err));
     }
   }, [isAdmin]);
 
@@ -55,33 +71,44 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
   useEffect(() => {
     if (isAdmin) {
       if (selectedSchoolId) {
-        classesApi.get("/all", { params: { schoolId: selectedSchoolId } }).then((res) => {
+        classesApi
+          .get("/all", { params: { schoolId: selectedSchoolId } })
+          .then((res) => {
             if (res.data?.code === 200) {
               const data = res.data.data;
               const classArr = Array.isArray(data) ? data : data ? [data] : [];
               setClasses(classArr);
 
               // 【修复2】：验证缓存的ID
-              const cachedClassId = localStorage.getItem("adminSelectedClassId");
-              const isValidCache = classArr.some((c) => String(c.id) === String(cachedClassId));
+              const cachedClassId = localStorage.getItem(
+                "adminSelectedClassId",
+              );
+              const isValidCache = classArr.some(
+                (c) => String(c.id) === String(cachedClassId),
+              );
               if (classArr.length > 0 && !isValidCache) {
                 setSelectedClassId(classArr[0].id);
               } else if (classArr.length === 0) {
                 setSelectedClassId("");
               }
             }
-          }).catch((err) => console.error("初始化班级选择失败", err));
+          })
+          .catch((err) => console.error("初始化班级选择失败", err));
       } else {
         setClasses([]);
         setSelectedClassId("");
       }
     } else if (isPrincipal) {
       if (detailInfo?.classMembers) {
-        const classArr = detailInfo.classMembers.flatMap((member) => member.classes || []).filter((cls) => cls !== null);
+        const classArr = detailInfo.classMembers
+          .flatMap((member) => member.classes || [])
+          .filter((cls) => cls !== null);
         setClasses(classArr);
 
         const cachedClassId = localStorage.getItem("adminSelectedClassId");
-        const isValidCache = classArr.some((c) => String(c.id) === String(cachedClassId));
+        const isValidCache = classArr.some(
+          (c) => String(c.id) === String(cachedClassId),
+        );
         if (classArr.length > 0 && !isValidCache) {
           setSelectedClassId(classArr[0].id);
         } else if (classArr.length === 0) {
@@ -103,7 +130,9 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
       let className = "未知班级";
 
       if (isAdmin) {
-        const school = schools.find((s) => String(s.id) === String(selectedSchoolId));
+        const school = schools.find(
+          (s) => String(s.id) === String(selectedSchoolId),
+        );
         if (school) schoolName = school.name;
       } else if (isPrincipal) {
         schoolName = detailInfo?.schoolMembers?.[0]?.schoolName || "未知学校";
@@ -115,7 +144,15 @@ const AdminDashboard = ({ view, navigateTo, onEditHomework, onOpenDiscussion, re
       localStorage.setItem("adminSelectedSchoolName", schoolName);
       localStorage.setItem("adminSelectedClassName", className);
     }
-  }, [selectedClassId, selectedSchoolId, isAdmin, isPrincipal, schools, classes, detailInfo]);
+  }, [
+    selectedClassId,
+    selectedSchoolId,
+    isAdmin,
+    isPrincipal,
+    schools,
+    classes,
+    detailInfo,
+  ]);
 
   // --- 3. 联动获取该班级的课程列表 ---
   useEffect(() => {
