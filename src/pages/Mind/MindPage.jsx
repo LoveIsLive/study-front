@@ -8,6 +8,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { BlocklyWorkspace } from 'react-blockly';
 import * as Blockly from 'blockly';
+// 1. 导入中文语言包
+import * as ZhHans from 'blockly/msg/zh-hans';
+
+
 import { pythonGenerator } from 'blockly/python';
 import ReactMarkdown from 'react-markdown';
 import Swal from 'sweetalert2';
@@ -15,6 +19,10 @@ import Swal from 'sweetalert2';
 import { baseApi } from '../../services/api';
 import { config } from '../../utils/config';
 import styles from './MindPage.module.css';
+
+
+// 2. 初始化语言包
+Blockly.setLocale(ZhHans);
 
 // 终极工具箱 (与系统提示词 100% 匹配)
 const INITIAL_TOOLBOX = {
