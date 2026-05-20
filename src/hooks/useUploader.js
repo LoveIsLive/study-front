@@ -133,6 +133,8 @@ export const useUploader = (apiClient) => {
       }
 
       if (largeFiles.length === 0) {
+        // 【修复点 1】：全是小文件时，重置上传状态
+        setIsUploading(false);
         return { smallFiles, largeFileAttachmentIds: [] };
       }
 
@@ -189,6 +191,8 @@ export const useUploader = (apiClient) => {
 
       try {
         const largeFileAttachmentIds = await Promise.all(uploadTasks);
+        // 【修复点 2】：大文件分片合并成功后，重置上传状态
+        setIsUploading(false);
         return { smallFiles, largeFileAttachmentIds };
       } catch (error) {
         throw error;
