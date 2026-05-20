@@ -1,5 +1,19 @@
 // src/components/shared/QuestionEngine/core/Constants.js
 
+// 生成 UUID 的兼容函数
+const generateUUID = () => {
+  // 如果处于 https 或 localhost 环境，优先使用原生方法
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // 降级方案：普通的 http 环境使用 Math.random 生成
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 // 题目类型枚举
 export const QUESTION_TYPES = {
     SINGLE_CHOICE: 'SINGLE_CHOICE',
@@ -20,7 +34,7 @@ export const QUESTION_TYPE_LABELS = {
 export const createDefaultQuestion = (type) => {
     // 基础结构
     const base = {
-        id: crypto.randomUUID(), // 生成唯一ID
+        id: generateUUID(), // 生成唯一ID
         type,
         title: '',
         score: 5, // 默认分值
@@ -34,8 +48,8 @@ export const createDefaultQuestion = (type) => {
             return {
                 ...base,
                 options: [
-                    { id: crypto.randomUUID(), label: 'A', text: '' },
-                    { id: crypto.randomUUID(), label: 'B', text: '' }
+                    { id: generateUUID(), label: 'A', text: '' },
+                    { id: generateUUID(), label: 'B', text: '' }
                 ],
                 correctAnswer: '' // 单选答案为 OptionID (String)
             };
@@ -43,10 +57,10 @@ export const createDefaultQuestion = (type) => {
             return {
                 ...base,
                 options: [
-                    { id: crypto.randomUUID(), label: 'A', text: '' },
-                    { id: crypto.randomUUID(), label: 'B', text: '' },
-                    { id: crypto.randomUUID(), label: 'C', text: '' },
-                    { id: crypto.randomUUID(), label: 'D', text: '' }
+                    { id: generateUUID(), label: 'A', text: '' },
+                    { id: generateUUID(), label: 'B', text: '' },
+                    { id: generateUUID(), label: 'C', text: '' },
+                    { id: generateUUID(), label: 'D', text: '' }
                 ],
                 correctAnswer: [] // 多选答案为 OptionID 数组
             };

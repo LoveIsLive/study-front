@@ -857,9 +857,13 @@ const CourseWareFlatView = ({ courseId }) => {
       // 【修改点 1】：删掉或注释掉 brokerURL
       // brokerURL: `ws://localhost:8080/ws/search?token=${token}`,
 
-      // 【修改点 2】：改用 webSocketFactory，并且使用 http:// 协议
-      webSocketFactory: () =>
-        new SockJS(`http://localhost:8080/ws/search?token=${token}`),
+      // 【修改点 2】：改用 webSocketFactory，动态获取当前环境的 host
+      webSocketFactory: () => {
+        // 如果是本地开发环境，指向 localhost；如果是线上环境，自动使用当前部署的 origin (即 47.x.x.x:8080)
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const wsBaseUrl = isLocal ? 'http://localhost:8080' : window.location.origin;
+        return new SockJS(`${wsBaseUrl}/ws/search?token=${token}`);
+      },
 
       connectHeaders: {
         Authorization: `Bearer ${token}`,

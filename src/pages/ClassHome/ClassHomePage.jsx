@@ -189,7 +189,8 @@ const ClassHomePage = () => {
 
   // 3. 核心：加载班级主页详情
   const loadClassHome = async () => {
-    if (!targetClassId) return;
+    // 【修改点】：增加对字符串 "null" 和 "undefined" 的拦截
+    if (!targetClassId || targetClassId === "null" || targetClassId === "undefined") return;
     setLoading(true);
     try {
       const res = await classHomeApi.get(`/detail/${targetClassId}`);
@@ -207,7 +208,12 @@ const ClassHomePage = () => {
   };
 
   useEffect(() => {
-    if (targetClassId) {
+    // 【修改点】：同步加上拦截条件
+    if (
+      targetClassId &&
+      targetClassId !== "null" &&
+      targetClassId !== "undefined"
+    ) {
       loadClassHome();
     } else {
       setClassData(null);

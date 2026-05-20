@@ -22,11 +22,18 @@ const stringToColor = (str) => {
 };
 
 const Post = ({ post, onAction }) => {
-  const { user } = useAuthStore();
-  const [isReplying, setIsReplying] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+const { user, isTeacher, isPrincipal } = useAuthStore();
+const [isReplying, setIsReplying] = useState(false);
+const [isEditing, setIsEditing] = useState(false);
 
-  const canModify = user?.name === post.username || user?.isAdmin;
+// 修改权限：只能本人修改
+const canEdit = user?.name === post.username;
+// 删除权限：本人，或者管理员、教师、校长可以删除
+const canDelete =
+  canEdit ||
+  user?.isAdmin ||
+  (isTeacher && isTeacher()) ||
+  (isPrincipal && isPrincipal());
   const authorInitial = post.username
     ? post.username.charAt(0).toUpperCase()
     : "?";
@@ -84,23 +91,24 @@ const Post = ({ post, onAction }) => {
               >
                 <FontAwesomeIcon icon={faReply} />
               </button>
-              {canModify && (
-                <>
-                  <button
-                    title="编辑"
-                    className={styles.actionButton}
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    title="删除"
-                    className={styles.actionButton}
-                    onClick={() => onAction("delete", { postId: post.id })}
-                  >
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
-                </>
+              {/* 原来的 canModify 逻辑替换为分开的权限判断 */}
+              {canEdit && (
+                <button
+                  title="编辑"
+                  className={styles.actionButton}
+                  onClick={() => setIsEditing(true)}
+                >
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+              )}
+              {canDelete && (
+                <button
+                  title="删除"
+                  className={styles.actionButton}
+                  onClick={() => onAction("delete", { postId: post.id })}
+                >
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
               )}
             </div>
           )}
