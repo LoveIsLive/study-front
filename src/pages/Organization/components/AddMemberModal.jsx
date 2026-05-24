@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../../../components/common/Modal/Modal";
 import styles from "./AddMemberModal.module.css";
 import useAuthStore from "../../../store/authStore"; // 【新增引入】
@@ -9,7 +9,14 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
   const [selectedCourses, setSelectedCourses] = useState([]); // 【新增】勾选的课程ID
 
   const courseList = useAuthStore((state) => state.courseList); // 【新增】获取当前班级下的课程
+  const fetchCourseList = useAuthStore((state) => state.fetchCourseList);
 
+  // 【修复逻辑】当弹窗打开并且角色切换为访客时，主动拉取课程数据
+  useEffect(() => {
+    if (isOpen && role === "ROLE_GUEST") {
+      fetchCourseList();
+    }
+  }, [isOpen, role, fetchCourseList]);
   const handleSubmit = (e) => {
     e.preventDefault();
     const namesArray = userNames.split(/[\s,，\n]+/).filter(Boolean);

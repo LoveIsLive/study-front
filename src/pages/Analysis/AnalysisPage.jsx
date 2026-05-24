@@ -355,6 +355,8 @@ const AnalysisPage = () => {
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isStudent = useAuthStore((state) => state.isStudent());
 
+  // 👇 【新增这一行】：引入全局的拉取课程方法
+  const fetchCourseList = useAuthStore((state) => state.fetchCourseList);
   // 下拉框状态管理
   const [schoolList, setSchoolList] = useState([]);
   const [classList, setClassList] = useState([]);
@@ -529,6 +531,14 @@ const AnalysisPage = () => {
     }
   }, [isAdmin, isPrincipal, isTeacher, selectedClassId]);
   // 👆 依赖项里没有 activeId 和 courseList
+
+  // 👇 【新增核心修复】：只要是学生/访客进入此页面，主动派发一次拉取课程列表的动作
+  useEffect(() => {
+    // 如果不是管理员、校长、老师，且当前有班级上下文 activeId 时，触发请求
+    if (!isAdmin && !isPrincipal && !isTeacher && activeId) {
+      fetchCourseList();
+    }
+  }, [isAdmin, isPrincipal, isTeacher, activeId, fetchCourseList]);
 
   // 4. 独立处理学生/访客的课程初始化
   // 专门监听 activeId 和全局 courseList 的变化，与管理员逻辑完全隔离
@@ -752,7 +762,9 @@ const AnalysisPage = () => {
                 icon={faTrophy}
                 color="green"
                 subtitle={
-                  isTeacherView ? "班级平均分（以满分100为基准）" : "个人平均分"
+                  isTeacherView
+                    ? "班级平均分（以满分100为基准）"
+                    : "个人平均分（以满分100为基准）"
                 }
                 trend={
                   isStudentView && courseData.diffWithClassAverage !== null

@@ -475,7 +475,11 @@ const CourseAnalysisView = ({ courseId }) => {
                 value={courseData.averageScore ?? "-"}
                 icon={faTrophy}
                 color="green"
-                subtitle={isTeacher ? "班级平均分（以满分100为基准）" : "个人平均分"}
+                subtitle={
+                  isTeacher
+                    ? "班级平均分（以满分100为基准）"
+                    : "个人平均分（以满分100为基准）"
+                }
                 trend={
                   isStudent && courseData.diffWithClassAverage !== null
                     ? getTrendIcon(courseData.diffWithClassAverage)
