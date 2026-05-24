@@ -492,9 +492,10 @@ const AnalysisPage = () => {
   ]);
 
   // 3. 初始化/更新课程
+  // 3. 初始化/更新课程 (仅针对：管理员、校长、老师)
+  // 依赖项严格限定为 selectedClassId，不监听 activeId，杜绝冗余请求
   useEffect(() => {
     if (isAdmin || isPrincipal || isTeacher) {
-      // 只要有了选中的班级，就调用班级查询课程接口
       if (selectedClassId) {
         courseApi
           .get(`/class/${selectedClassId}`)
@@ -503,7 +504,16 @@ const AnalysisPage = () => {
               const courses = res.data.data || [];
               setAvailableCourses(courses);
               if (courses.length > 0) {
-                setSelectedCourseId(courses[0].id);
+                // 防抖更新：如果当前选中的课程ID还在新列表里，就不切换
+                setSelectedCourseId((prev) => {
+                  if (
+                    !prev ||
+                    !courses.some((c) => String(c.id) === String(prev))
+                  ) {
+                    return courses[0].id;
+                  }
+                  return prev;
+                });
               } else {
                 setSelectedCourseId("");
                 setCourseData(null);
@@ -516,19 +526,38 @@ const AnalysisPage = () => {
         setSelectedCourseId("");
         setCourseData(null);
       }
-    } else {
-      // 学生或访客：直接使用全局的 courseList
+    }
+  }, [isAdmin, isPrincipal, isTeacher, selectedClassId]);
+  // 👆 依赖项里没有 activeId 和 courseList
+
+  // 4. 独立处理学生/访客的课程初始化
+  // 专门监听 activeId 和全局 courseList 的变化，与管理员逻辑完全隔离
+  useEffect(() => {
+    if (!isAdmin && !isPrincipal && !isTeacher) {
       if (courseList && courseList.length > 0) {
         setAvailableCourses(courseList);
-        setSelectedCourseId(courseList[0].id);
+        setSelectedCourseId((prev) => {
+          // 优先匹配从作业区带来的 activeId
+          const matchedActive = courseList.find(
+            (c) => String(c.id) === String(activeId),
+          );
+          if (matchedActive && String(prev) !== String(matchedActive.id)) {
+            return matchedActive.id;
+          }
+          // 兜底：如果啥都没匹配上，选第一个
+          if (!prev || !courseList.some((c) => String(c.id) === String(prev))) {
+            return courseList[0].id;
+          }
+          return prev;
+        });
       } else {
         setAvailableCourses([]);
         setSelectedCourseId("");
         setCourseData(null);
       }
     }
-  }, [isAdmin, isPrincipal, isTeacher, selectedClassId, courseList]);
-
+  }, [isAdmin, isPrincipal, isTeacher, courseList, activeId]);
+  // 👆 专门为学生引入了 activeId
   // 4. 当选中的课程ID改变时，请求该课程的成绩大盘数据
   useEffect(() => {
     if (!selectedCourseId) return;
@@ -722,7 +751,9 @@ const AnalysisPage = () => {
                 value={courseData.averageScore ?? "-"}
                 icon={faTrophy}
                 color="green"
-                subtitle={isTeacherView ? "班级平均分" : "个人平均分"}
+                subtitle={
+                  isTeacherView ? "班级平均分（以满分100为基准）" : "个人平均分"
+                }
                 trend={
                   isStudentView && courseData.diffWithClassAverage !== null
                     ? getTrendIcon(courseData.diffWithClassAverage)
