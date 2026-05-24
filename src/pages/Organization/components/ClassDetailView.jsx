@@ -156,6 +156,8 @@ const ClassDetailView = ({ classId, className, onBack }) => {
 
   // 【修复】路径恢复为 /guest/xx/courses，并传对象避免报错
   const handleModifyGuestCourses = async (guest) => {
+    await useAuthStore.getState().fetchCourseList();
+
     const courseList = useAuthStore.getState().courseList;
     if (!courseList || courseList.length === 0) {
       Swal.fire("提示", "当前班级尚无课程，无法分配", "info");
