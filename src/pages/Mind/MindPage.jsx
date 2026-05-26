@@ -20,6 +20,8 @@ import { baseApi } from '../../services/api';
 import { config } from '../../utils/config';
 import styles from './MindPage.module.css';
 
+// 【修改点 1】：引入 useAuthStore
+import useAuthStore from '../../store/authStore';
 
 // 2. 初始化语言包
 Blockly.setLocale(ZhHans);
@@ -158,6 +160,9 @@ const RemoteFileCard = ({ fileItem }) => {
 
 
 const MindPage = () => {
+    // 【修改点 2】：获取 isAdmin 状态
+    const isAdmin = useAuthStore((state) => state.isAdmin());
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState('');
@@ -572,7 +577,14 @@ const MindPage = () => {
                         toolboxConfiguration={INITIAL_TOOLBOX}
                         initialXml="<xml xmlns='https://developers.google.com/blockly/xml'></xml>"
                         className={styles.blocklyWrapper}
-                        workspaceConfiguration={{ grid: { spacing: 20, length: 3, colour: '#ccc', snap: true }, zoom: { controls: true, wheel: true } }}
+                        workspaceConfiguration={{
+                            grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
+                            zoom: { controls: true, wheel: true },
+                            // 【修改点 3】：仅为 Admin 替换静态资源 CDN 防止 appspot.com 加载超时报错，不影响其他用户
+                            ...(isAdmin
+                                ? { media: "https://cdn.jsdelivr.net/npm/blockly@9.3.3/media/" }
+                                : {}),
+                        }}
                         onWorkspaceChange={onWorkspaceChange}
                     />
                 </div>

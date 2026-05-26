@@ -1,6 +1,8 @@
 // src/pages/Course/components/CourseTeacherDashboard.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { homeworkApi } from "../../../services/api";
+// 【修改点 1】：引入权限鉴定 store
+import useAuthStore from "../../../store/authStore";
 import HomeworkList from "../../Homework/components/HomeworkList";
 import SubmissionList from "../../Homework/components/SubmissionList";
 import Spinner from "../../../components/common/Spinner/Spinner";
@@ -21,6 +23,9 @@ const CourseTeacherDashboard = ({
   onOpenDiscussion,
   refreshTrigger,
 }) => {
+  // 【修改点 2】：提取校长判断属性
+  const isPrincipal = useAuthStore((state) => state.isPrincipal());
+
   const [rawHomeworks, setRawHomeworks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -142,9 +147,11 @@ const CourseTeacherDashboard = ({
           />
         </div>
 
-        <button className={styles.publishBtn} onClick={onOpenCreateModal}>
-          <FontAwesomeIcon icon={faPlus} /> 发布新作业
-        </button>
+        {!isPrincipal && (
+          <button className={styles.publishBtn} onClick={onOpenCreateModal}>
+            <FontAwesomeIcon icon={faPlus} /> 发布新作业
+          </button>
+        )}
       </div>
 
       <HomeworkList

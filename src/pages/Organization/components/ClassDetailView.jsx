@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import useAuthStore from "../../../store/authStore";
-// 【补充】引入 classesApi 来获取班级详细信息
-import { classMemberApi, classesApi } from "../../../services/api";
+// 【修改点 1】：补充引入 courseApi
+import { classMemberApi, classesApi, courseApi } from "../../../services/api";
 import Swal from "sweetalert2";
 import MemberTable from "./MemberTable";
 import AddMemberModal from "./AddMemberModal";
@@ -154,19 +154,35 @@ const ClassDetailView = ({ classId, className, onBack }) => {
     }
   };
 
-  // 【修复】路径恢复为 /guest/xx/courses，并传对象避免报错
+  // 【修复核心】：处理分配访客课程的逻辑
   const handleModifyGuestCourses = async (guest) => {
-    await useAuthStore.getState().fetchCourseList();
+    let currentCourseList = [];
 
-    const courseList = useAuthStore.getState().courseList;
-    if (!courseList || courseList.length === 0) {
+    // 【修改点 2】：仅对管理员和校长做请求替换，避免产生副作用
+    if (isAdmin || isPrincipal) {
+      try {
+        const res = await courseApi.get(`/class/${classId}`);
+        if (res.data?.code === 200) {
+          currentCourseList = res.data.data || [];
+        }
+      } catch (e) {
+        console.error("加载班级课程失败", e);
+      }
+    } else {
+      // 保持原有逻辑给普通教师/用户
+      await useAuthStore.getState().fetchCourseList();
+      currentCourseList = useAuthStore.getState().courseList;
+    }
+
+    if (!currentCourseList || currentCourseList.length === 0) {
       Swal.fire("提示", "当前班级尚无课程，无法分配", "info");
       return;
     }
 
     let htmlContent =
       '<div style="text-align: left; max-height: 200px; overflow-y: auto;">';
-    courseList.forEach((course) => {
+    // 【修改点 3】：使用隔离后的 currentCourseList 遍历渲染
+    currentCourseList.forEach((course) => {
       const isChecked = guest.allowedCourseIds?.includes(course.id)
         ? "checked"
         : "";
@@ -413,6 +429,7 @@ const ClassDetailView = ({ classId, className, onBack }) => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onAdd={handleAddMembers}
+          classId={classId} /* 【新增】：把 classId 传给添加成员弹窗，以便内部拉取课程 */
         />
       )}
     </div>

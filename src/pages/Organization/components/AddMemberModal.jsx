@@ -1,28 +1,59 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../../../components/common/Modal/Modal";
 import styles from "./AddMemberModal.module.css";
-import useAuthStore from "../../../store/authStore"; // 【新增引入】
+import useAuthStore from "../../../store/authStore";
+import { courseApi } from "../../../services/api"; // 【新增引入 courseApi】
 
-const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
+// 【修改】接收来自父组件的 classId
+const AddMemberModal = ({ isOpen, onClose, onAdd, classId }) => {
   const [userNames, setUserNames] = useState("");
   const [role, setRole] = useState("ROLE_STUDENT");
-  const [selectedCourses, setSelectedCourses] = useState([]); // 【新增】勾选的课程ID
+  const [selectedCourses, setSelectedCourses] = useState([]);
 
-  const courseList = useAuthStore((state) => state.courseList); // 【新增】获取当前班级下的课程
+  // 【新增】本地维护用于展示的课程列表
+  const [displayCourseList, setDisplayCourseList] = useState([]);
+
+  const courseList = useAuthStore((state) => state.courseList);
   const fetchCourseList = useAuthStore((state) => state.fetchCourseList);
+
+  // 【新增】获取当前用户角色身份
+  const isAdmin = useAuthStore((state) => state.isAdmin());
+  const isPrincipal = useAuthStore((state) => state.isPrincipal());
 
   // 【修复逻辑】当弹窗打开并且角色切换为访客时，主动拉取课程数据
   useEffect(() => {
     if (isOpen && role === "ROLE_GUEST") {
-      fetchCourseList();
+      if (isAdmin || isPrincipal) {
+        // 如果是管理员或校长，直接通过 courseApi 获取当前选中班级的真实课程
+        if (classId) {
+          courseApi
+            .get(`/class/${classId}`)
+            .then((res) => {
+              if (res.data?.code === 200) {
+                setDisplayCourseList(res.data.data || []);
+              }
+            })
+            .catch((e) => console.error("加载班级课程失败", e));
+        }
+      } else {
+        // 教师等普通角色，走原有的状态管理逻辑
+        fetchCourseList();
+      }
     }
-  }, [isOpen, role, fetchCourseList]);
+  }, [isOpen, role, fetchCourseList, isAdmin, isPrincipal, classId]);
+
+  // 【新增】如果是普通教师角色，同步全局状态里的 courseList 到用于展示的列表
+  useEffect(() => {
+    if (!(isAdmin || isPrincipal)) {
+      setDisplayCourseList(courseList || []);
+    }
+  }, [courseList, isAdmin, isPrincipal]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const namesArray = userNames.split(/[\s,，\n]+/).filter(Boolean);
     if (namesArray.length === 0) return;
 
-    // 【修改】如果是访客，附带 allowedCourseIds 数组
     const payload = { userNames: namesArray, role: role };
     if (role === "ROLE_GUEST") {
       payload.allowedCourseIds = selectedCourses;
@@ -34,11 +65,10 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
   const handleClose = () => {
     setUserNames("");
     setRole("ROLE_STUDENT");
-    setSelectedCourses([]); // 【修改】重置课程勾选
+    setSelectedCourses([]);
     onClose();
   };
 
-  // 【新增】处理课程勾选切换
   const handleCourseToggle = (courseId) => {
     setSelectedCourses((prev) =>
       prev.includes(courseId)
@@ -84,7 +114,6 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
               />
               教师 (Teacher)
             </label>
-            {/* 【新增】访客选项 */}
             <label>
               <input
                 type="radio"
@@ -97,7 +126,7 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
           </div>
         </div>
 
-        {/* 【新增】仅当角色为访客时，渲染课程多选列表 */}
+        {/* 【修改】渲染时使用 displayCourseList 替代 courseList */}
         {role === "ROLE_GUEST" && (
           <div className={styles.formGroup}>
             <label>配置访客可见课程：</label>
@@ -110,8 +139,8 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
                 borderRadius: "4px",
               }}
             >
-              {courseList && courseList.length > 0 ? (
-                courseList.map((c) => (
+              {displayCourseList && displayCourseList.length > 0 ? (
+                displayCourseList.map((c) => (
                   <div key={c.id} style={{ marginBottom: "6px" }}>
                     <label style={{ cursor: "pointer", fontWeight: "normal" }}>
                       <input
