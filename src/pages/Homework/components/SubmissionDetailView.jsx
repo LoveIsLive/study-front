@@ -116,20 +116,19 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
       if (mode === "grading") {
         const subRes = await submissionApi.get(`/${viewId}`);
         subData = subRes.data.data;
-        if (subData && subData.homeworkId) {
-          const hwRes = await homeworkApi.get(`/${subData.homeworkId}`);
-          hwData = hwRes.data.data;
-        }
+        hwData = subData.homework;
       } else {
-        const hwRes = await homeworkApi.get(`/${viewId}`);
-        hwData = hwRes.data.data;
         if (isStudent) {
           try {
             const subRes = await submissionApi.get(
               `/student/${viewId}/submission`,
             );
             subData = subRes.data.data;
-          } catch (e) {}
+            hwData = subData.homework;
+          } catch (e) { }
+        } else {
+          const hwRes = await homeworkApi.get(`/${viewId}`);
+          hwData = hwRes.data.data;
         }
       }
 
@@ -142,7 +141,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                 ? JSON.parse(hwData.metaData)
                 : hwData.metaData;
             setQuestions(meta.questions || []);
-          } catch (e) {}
+          } catch (e) { }
         }
       }
 
@@ -158,7 +157,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                 ? JSON.parse(subData.answerData)
                 : subData.answerData;
             setAnswers(ans || {});
-          } catch (e) {}
+          } catch (e) { }
         }
         if (subData.gradingData) {
           try {
@@ -170,7 +169,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
               generalComment: gd.generalComment || "",
               details: gd.details || {},
             });
-          } catch (e) {}
+          } catch (e) { }
         }
       } else {
         setSubmission(null);
@@ -503,19 +502,19 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
                   {(submission.status === "已提交" ||
                     submission.status === "重新提交" ||
                     submission.status === "已批改") && (
-                    <button
-                      className={`${styles.actionBtn} ${isGrading ? styles.btnSecondary : styles.btnGrade}`}
-                      onClick={() => setIsGrading(!isGrading)}
-                      disabled={isAIGrading} // AI批改中禁用
-                    >
-                      <FontAwesomeIcon icon={isGrading ? faTimes : faPenNib} />
-                      {isGrading
-                        ? " 退出批改"
-                        : submission.status === "已批改"
-                          ? " 修改评分"
-                          : " 开始批改"}
-                    </button>
-                  )}
+                      <button
+                        className={`${styles.actionBtn} ${isGrading ? styles.btnSecondary : styles.btnGrade}`}
+                        onClick={() => setIsGrading(!isGrading)}
+                        disabled={isAIGrading} // AI批改中禁用
+                      >
+                        <FontAwesomeIcon icon={isGrading ? faTimes : faPenNib} />
+                        {isGrading
+                          ? " 退出批改"
+                          : submission.status === "已批改"
+                            ? " 修改评分"
+                            : " 开始批改"}
+                      </button>
+                    )}
 
                   {submission.status !== "已批改" && (
                     <button
