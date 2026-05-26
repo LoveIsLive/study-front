@@ -581,9 +581,10 @@ const MindPage = () => {
                             grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
                             zoom: { controls: true, wheel: true },
                             // 【修改点 3】：仅为 Admin 替换静态资源 CDN 防止 appspot.com 加载超时报错，不影响其他用户
-                            ...(isAdmin
-                                ? { media: "https://cdn.jsdelivr.net/npm/blockly@9.3.3/media/" }
-                                : {}),
+                            // ...(isAdmin
+                            //     ? { media: "https://cdn.jsdelivr.net/npm/blockly@9.3.3/media/" }
+                            //     : {}),
+                            media: "https://cdn.jsdelivr.net/npm/blockly@9.3.3/media/",
                         }}
                         onWorkspaceChange={onWorkspaceChange}
                     />
