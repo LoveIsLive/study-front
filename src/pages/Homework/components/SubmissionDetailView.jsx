@@ -118,17 +118,15 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
         subData = subRes.data.data;
         hwData = subData.homework;
       } else {
+        const hwRes = await homeworkApi.get(`/${viewId}`);
+        hwData = hwRes.data.data;
         if (isStudent) {
           try {
             const subRes = await submissionApi.get(
               `/student/${viewId}/submission`,
             );
             subData = subRes.data.data;
-            hwData = subData.homework;
           } catch (e) { }
-        } else {
-          const hwRes = await homeworkApi.get(`/${viewId}`);
-          hwData = hwRes.data.data;
         }
       }
 
