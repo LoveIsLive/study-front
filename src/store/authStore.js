@@ -1,3 +1,4 @@
+// src/store/authStore.js
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
@@ -30,7 +31,6 @@ const useAuthStore = create(
         const { detailInfo, activeType, activeId } = get();
         if (!detailInfo) return null;
         if (activeType === "school") {
-          // 使用 String() 转换，避免 '1' !== 1 的判断失败
           return detailInfo.schoolMembers?.find(
             (m) => String(m.schoolId) === String(activeId),
           );
@@ -44,11 +44,10 @@ const useAuthStore = create(
       isTeacher: () => get().getActiveIdentity()?.role === "ROLE_TEACHER",
       isStudent: () => get().getActiveIdentity()?.role === "ROLE_STUDENT",
       isPrincipal: () => get().getActiveIdentity()?.role === "ROLE_PRINCIPAL",
-      isGuest: () => get().getActiveIdentity()?.role === "ROLE_GUEST", // 【新增】判断是否为访客
+      isGuest: () => get().getActiveIdentity()?.role === "ROLE_GUEST",
 
       // --- 操作方法 ---
 
-      // 核心：解析 Token (同步)
       decodeToken: () => {
         const token = get().token;
         if (!token) return;
@@ -65,14 +64,12 @@ const useAuthStore = create(
         }
       },
 
-      // 核心：拉取组织架构 (异步)
       fetchDetailInfo: async () => {
         if (!get().token) return;
         try {
           const response = await userApi.get("/detailInfo");
           const info = response.data.data;
 
-          // --- 核心修改：先计算正确的上下文，再统一 set ---
           const { activeType, activeId } = get();
           let finalType = activeType;
           let finalId = activeId;
@@ -98,11 +95,9 @@ const useAuthStore = create(
             }
           }
 
-          // 统一更新，避免 React 多次重绘导致的中间态
           localStorage.setItem("activeType", finalType);
           localStorage.setItem("activeId", finalId);
 
-          // 【修复 Bug 3】：在加载用户数据确立上下文时，同步管理端缓存
           if (finalType === "class") {
             localStorage.setItem("adminSelectedClassId", finalId);
           } else if (finalType === "school") {
@@ -123,7 +118,6 @@ const useAuthStore = create(
         localStorage.setItem("activeType", type);
         localStorage.setItem("activeId", id);
 
-        // 【修复 Bug 3】：用户主动在顶部 Header 切换班级/学校时，同步管理端缓存
         if (type === "class") {
           localStorage.setItem("adminSelectedClassId", id);
         } else if (type === "school") {
@@ -131,7 +125,6 @@ const useAuthStore = create(
         }
 
         set({ activeType: type, activeId: id });
-        // 切换上下文时清空课程选择
         set({
           currentCourseId: null,
           currentCourse: null,
@@ -141,19 +134,15 @@ const useAuthStore = create(
       },
 
       switchContext: (type, id) => {
-        // 1. 同步底层数据源 (LocalStorage)
         localStorage.setItem("activeType", type);
         localStorage.setItem("activeId", id);
 
-        // 同步管理端缓存
         if (type === "class") {
           localStorage.setItem("adminSelectedClassId", id);
         } else if (type === "school") {
           localStorage.setItem("adminSelectedSchoolId", id);
         }
 
-        // 2. 【核心修改】：精准清理持久化状态，但不更新 activeType 和 activeId
-        // 这样做可以清除 localStorage 中的旧课程缓存，同时又不会触发旧页面发起非法的 API 请求
         set({
           currentCourseId: null,
           currentCourse: null,
@@ -161,12 +150,10 @@ const useAuthStore = create(
           courseListFetched: false,
         });
 
-        // 3. 执行硬跳转，让系统以干净的身份和状态重新启动
         const homeUrl = config.front_HOME_PAGE_URL || "/";
         window.location.href = homeUrl;
       },
 
-      // 课程相关方法
       setCurrentCourse: (courseId, course = null) => {
         set({ currentCourseId: courseId, currentCourse: course });
       },
@@ -177,10 +164,8 @@ const useAuthStore = create(
 
       setCourseList: (courses) => {
         set({ courseList: courses, courseListFetched: true });
-        // 如果有课程列表，确保有一个选中的课程
         if (courses.length > 0) {
           const { currentCourseId } = get();
-          // 如果当前没有选择课程，或者当前选择的课程不在新的课程列表中，选择第一门课程
           if (
             !currentCourseId ||
             !courses.some((course) => course.id === currentCourseId)
@@ -193,7 +178,6 @@ const useAuthStore = create(
 
       fetchCourseList: async (force = false) => {
         const { activeId, activeType, courseListFetched } = get();
-        // 只有在班级上下文才能获取课程列表
         if (
           activeType !== "class" ||
           !activeId ||
@@ -204,7 +188,6 @@ const useAuthStore = create(
           return;
         }
 
-        // 如果已经获取过且不是强制刷新，直接返回
         if (courseListFetched && !force) {
           return;
         }
@@ -218,15 +201,35 @@ const useAuthStore = create(
         }
       },
 
-      login: async (token) => {
+      // 【核心修改】：处理登录数据并判断 needPasswordChange
+      login: async (loginData) => {
+        // 兼容旧版仅返回 Token 字符串的情况，以及新版返回对象的情况
+        const token =
+          typeof loginData === "object" ? loginData.token : loginData;
+        const needPasswordChange =
+          typeof loginData === "object"
+            ? loginData.needPasswordChange === true
+            : false;
+
         localStorage.setItem(config.tokenName, token);
+
+        if (needPasswordChange) {
+          localStorage.setItem("needPasswordChange", "true");
+        } else {
+          localStorage.removeItem("needPasswordChange");
+        }
+
         set({ token });
         get().decodeToken();
-        await get().fetchDetailInfo();
+
+        // 如果需要强制改密，则不要立即拉取用户组织详情，防止触发 40301
+        if (!needPasswordChange) {
+          await get().fetchDetailInfo();
+        }
       },
 
       logout: () => {
-        localStorage.clear();
+        localStorage.clear(); // 这里会自动清除 needPasswordChange 标记
         set({
           token: null,
           user: null,
@@ -250,20 +253,16 @@ const useAuthStore = create(
   ),
 );
 
-/**
- * 【重点】自初始化逻辑
- * 当外部首次 import 此文件时，立即执行以下代码
- */
 const initStore = () => {
   const state = useAuthStore.getState();
   if (state.token) {
-    // 1. 立即同步解析 Token，这样 user 对象瞬间就有值了
     state.decodeToken();
-    // 2. 异步获取详细信息，不阻塞主线程
-    state.fetchDetailInfo().then(() => {
-      // 3. 获取课程列表
-      state.fetchCourseList();
-    });
+    // 强制改密时不自动获取信息
+    if (localStorage.getItem("needPasswordChange") !== "true") {
+      state.fetchDetailInfo().then(() => {
+        state.fetchCourseList();
+      });
+    }
   }
 };
 

@@ -1,3 +1,4 @@
+// src/pages/Login/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -32,16 +33,37 @@ const LoginPage = () => {
       const response = await authApi.post("/login", { username, password });
 
       if (response.data && response.data.code === 200) {
-        await login(response.data.data);
-        Swal.fire({
-          icon: "success",
-          title: "欢迎回来",
-          text: "正在进入智慧教学系统...",
-          showConfirmButton: false,
-          timer: 1500,
-          position: "center",
-        });
-        navigate("/class-home");
+        const loginData = response.data.data;
+        const needPasswordChange =
+          typeof loginData === "object"
+            ? loginData.needPasswordChange === true
+            : false;
+
+        await login(loginData);
+
+        // 【核心修改】：检测 needPasswordChange 标记
+        if (needPasswordChange) {
+          Swal.fire({
+            icon: "warning",
+            title: "需要修改密码",
+            text: "为了您的账号安全，请先修改初始密码。",
+            showConfirmButton: true,
+            confirmButtonText: "去修改",
+            allowOutsideClick: false,
+          }).then(() => {
+            navigate("/force-change-password");
+          });
+        } else {
+          Swal.fire({
+            icon: "success",
+            title: "欢迎回来",
+            text: "正在进入智慧教学系统...",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "center",
+          });
+          navigate("/class-home");
+        }
       } else {
         throw new Error(response.data.message || "登录失败");
       }
@@ -59,7 +81,6 @@ const LoginPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      {/* 背景装饰物 */}
       <div className={styles.bgDecoration1}></div>
       <div className={styles.bgDecoration2}></div>
 

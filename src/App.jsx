@@ -1,3 +1,4 @@
+// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import ClassHomePage from "./pages/ClassHome/ClassHomePage";
@@ -13,6 +14,9 @@ import AnalysisPage from "./pages/Analysis/AnalysisPage";
 import MindPage from "./pages/Mind/MindPage";
 import CourseDetailPage from "./pages/Course/CourseDetailPage";
 
+// 引入新增的强制修改密码页面
+import ForceChangePasswordPage from "./pages/Login/ForceChangePasswordPage";
+
 function App() {
   return (
     <Routes>
@@ -20,11 +24,15 @@ function App() {
 
       {/* 受保护的路由组 */}
       <Route element={<PrivateRoute />}>
+        {/* 【核心修改】：强制修改密码页面，不包裹在 MainLayout 中，防止用户看到侧边栏菜单 */}
+        <Route
+          path="/force-change-password"
+          element={<ForceChangePasswordPage />}
+        />
+
         <Route element={<MainLayout />}>
-          {/* 将根目录重定向到新的主页 */}
           <Route path="/" element={<Navigate to="/class-home" replace />} />
           <Route path="/class-home" element={<ClassHomePage />} />
-
           <Route path="/homework" element={<HomeworkPage />} />
           <Route path="/courses" element={<CourseListPage />} />
           <Route path="/course/:courseId/*" element={<CourseDetailPage />} />
