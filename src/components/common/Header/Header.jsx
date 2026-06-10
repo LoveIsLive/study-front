@@ -62,7 +62,7 @@ const Header = () => {
   const isTeacher = useAuthStore((state) => state.isTeacher());
   const isStudent = useAuthStore((state) => state.isStudent());
   const isPrincipal = useAuthStore((state) => state.isPrincipal());
-
+  const canSee = isTeacher || isAdmin || isPrincipal;
   const navigate = useNavigate();
   const location = useLocation(); // 新增 useLocation
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -243,14 +243,16 @@ const Header = () => {
                   </div>
                 </div>
                 <ul className={styles.dropdownMenu}>
-                  <li>
-                    <Link
-                      to="/organization"
-                      onClick={() => setDropdownVisible(false)}
-                    >
-                      <FontAwesomeIcon icon={faUsers} fixedWidth /> 组织管理
-                    </Link>
-                  </li>
+                  {canSee && (
+                    <li>
+                      <Link
+                        to="/organization"
+                        onClick={() => setDropdownVisible(false)}
+                      >
+                        <FontAwesomeIcon icon={faUsers} fixedWidth /> 组织管理
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <a
                       onClick={(e) => {
@@ -262,17 +264,19 @@ const Header = () => {
                       <FontAwesomeIcon icon={faKey} fixedWidth /> 修改密码
                     </a>
                   </li>
-                  <li>
-                    <a
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setChangeUsernameModalOpen(true);
-                        setDropdownVisible(false);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faUser} fixedWidth /> 修改用户名
-                    </a>
-                  </li>
+                  {canSee && (
+                    <li>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setChangeUsernameModalOpen(true);
+                          setDropdownVisible(false);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faUser} fixedWidth /> 修改用户名
+                      </a>
+                    </li>
+                  )}
                 </ul>
                 <div className={styles.dropdownFooter}>
                   <button onClick={logout}>
