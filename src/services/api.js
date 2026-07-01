@@ -22,5 +22,6 @@ export const schoolMemberApi = createApiClient(
 export const courseApi = createApiClient(config.back_COURSE_PREFIX);
 export const analysisApi = createApiClient(config.back_ANALYSIS_PREFIX);
 export const classHomeApi = createApiClient(config.back_CLASS_HOME_PREFIX); // [!code ++] 新增班级主页Api实例
+export const mathvisionApi = createApiClient(config.back_MATHVISION_PREFIX); // MathVision 教学动画Api实例
 // 如果有不带前缀的API，也可以创建一个基础客户端
 export const baseApi = createApiClient("");

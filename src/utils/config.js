@@ -20,6 +20,7 @@ export const config = {
   back_COURSE_PREFIX: "/course",
   back_ANALYSIS_PREFIX: "/analysis",
   back_CLASS_HOME_PREFIX: "/class-home", // [!code ++] 新增班级主页接口前缀
+  back_MATHVISION_PREFIX: "/mathvision", // MathVision 教学动画接口前缀
 
   // 前端常量配置 (用于路由)
   front_AUTH_PREFIX: "/auth",

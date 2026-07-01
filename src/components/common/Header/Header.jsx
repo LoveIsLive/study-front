@@ -4,6 +4,7 @@ import { NavLink, useNavigate, Link, useLocation } from "react-router-dom"; // �
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+import {
   faUsers,
   faSignOutAlt,
   faKey,
@@ -20,12 +21,14 @@ import {
   faList,
   faComments,
   faChartLine,
+  faRobot,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuthStore from "../../../store/authStore";
 import { config } from "../../../utils/config";
 import styles from "./Header.module.css";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ChangeUsernameModal from "./ChangeUsernameModal";
+import ModelConfigModal from "./ModelConfigModal";
 import { faBrain } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
@@ -73,6 +76,7 @@ const Header = () => {
     useState(false);
   const [isChangeUsernameModalOpen, setChangeUsernameModalOpen] =
     useState(false);
+  const [isModelConfigModalOpen, setModelConfigModalOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -277,6 +281,19 @@ const Header = () => {
                       </a>
                     </li>
                   )}
+                  {canSee && (
+                    <li>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setModelConfigModalOpen(true);
+                          setDropdownVisible(false);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faRobot} fixedWidth /> 模型配置
+                      </a>
+                    </li>
+                  )}
                 </ul>
                 <div className={styles.dropdownFooter}>
                   <button onClick={logout}>
@@ -397,6 +414,10 @@ const Header = () => {
       <ChangeUsernameModal
         isOpen={isChangeUsernameModalOpen}
         onClose={() => setChangeUsernameModalOpen(false)}
+      />
+      <ModelConfigModal
+        isOpen={isModelConfigModalOpen}
+        onClose={() => setModelConfigModalOpen(false)}
       />
     </>
   );
