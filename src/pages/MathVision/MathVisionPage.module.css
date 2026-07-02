@@ -1,0 +1,33 @@
+.page {
+    display: grid;
+    grid-template-columns: 300px 1fr 380px;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - 64px);
+    box-sizing: border-box;
+    background: var(--bg-color);
+}
+
+.left,
+.center,
+.right {
+    background: var(--bg-color-light);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px var(--shadow-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.center,
+.right {
+    overflow-y: auto;
+}
+
+@media (max-width: 1200px) {
+    .page {
+        grid-template-columns: 260px 1fr 320px;
+    }
+}

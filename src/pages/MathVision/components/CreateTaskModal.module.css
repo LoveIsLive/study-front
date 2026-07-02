@@ -1,0 +1,147 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.field label {
+    font-weight: 500;
+    color: var(--text-color-dark);
+    font-size: 0.92rem;
+}
+
+.req {
+    color: var(--danger-color);
+}
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color-light);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.18);
+}
+
+.row {
+    display: flex;
+    gap: 1rem;
+}
+
+.row .field {
+    flex: 1;
+}
+
+/* 分段单选 (模式 / 输出) */
+.segment {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.seg {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color-light);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+    transition: all 0.15s;
+}
+
+.seg:hover {
+    border-color: var(--primary-color);
+}
+
+.segActive {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    background: rgba(255, 123, 84, 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tip {
+    font-size: 0.8rem;
+    color: var(--info-color);
+    margin-top: 0.2rem;
+}
+
+.progressList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.progressItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+}
+
+.progressName {
+    color: var(--text-color-dark);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70%;
+}
+
+.progressStatus {
+    color: var(--info-color);
+}
+
+.progressErr {
+    color: var(--danger-color);
+}
+
+.emptyHint {
+    background: #fff8f0;
+    border: 1px solid #ffd8b8;
+    color: #9a5b2a;
+    padding: 0.7rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.88rem;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+}

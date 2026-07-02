@@ -230,7 +230,7 @@ const SubmissionDetailView = ({ viewId, mode, onBack, refreshTrigger }) => {
       const dto = {
         homeworkId: homework.id,
         content,
-        attachmentUploadIds: largeFileAttachmentIds,
+        attachmentUploadIds: largeFileAttachmentIds.map((f) => f.uploadId),
       };
       if (homework.type === "STRUCTURED") {
         dto.answerData = answers;

@@ -1,0 +1,141 @@
+.wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    color: var(--text-color-secondary);
+    font-size: 0.95rem;
+}
+
+.header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.headTitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 10px;
+}
+
+.headMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.headMeta span {
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-color);
+    color: var(--text-color-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.modeTag {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--bg-color-light);
+    border: 1px solid var(--border-color);
+    transition: box-shadow .2s, border-color .2s;
+}
+
+.card.current {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.cardIndex {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--bg-color);
+    color: var(--text-color-secondary);
+}
+
+.card.done .cardIndex {
+    background: var(--success-color);
+    color: #fff;
+}
+
+.card.current .cardIndex {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.cardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardTitle {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-color-dark);
+}
+
+.cardNode {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 3px;
+    font-family: monospace;
+}
+
+.cardState {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cardState.pending { color: var(--text-color-secondary); }
+.cardState.running { color: var(--info-color); }
+.cardState.waiting { color: var(--warning-color); }
+.cardState.failed { color: var(--danger-color); }
+.cardState.done { color: var(--success-color); }
+
+.errorBox {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

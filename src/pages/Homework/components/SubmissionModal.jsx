@@ -65,7 +65,7 @@ const SubmissionModal = ({ isOpen, onClose, onSuccess, editingSubmission }) => {
             const dto = {
                 homeworkId: editingSubmission.homework.id,
                 content,
-                attachmentUploadIds: largeFileAttachmentIds,
+                attachmentUploadIds: largeFileAttachmentIds.map((f) => f.uploadId),
                 attachmentIdsToDelete: attachmentIdsToDelete
             };
 

@@ -157,7 +157,7 @@ const HomeworkEditorPage = ({ onBack, editingHomework, onSuccess }) => {
         content,
         courseId,
         type: homeworkType,
-        attachmentUploadIds: largeFileAttachmentIds,
+        attachmentUploadIds: largeFileAttachmentIds.map((f) => f.uploadId),
       };
 
       if (isEditMode) {

@@ -4,7 +4,6 @@ import { NavLink, useNavigate, Link, useLocation } from "react-router-dom"; // �
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-import {
   faUsers,
   faSignOutAlt,
   faKey,
@@ -22,6 +21,7 @@ import {
   faComments,
   faChartLine,
   faRobot,
+  faFilm,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuthStore from "../../../store/authStore";
 import { config } from "../../../utils/config";
@@ -404,6 +404,15 @@ const Header = () => {
           >
             <FontAwesomeIcon icon={faComments} fixedWidth />
             <span>讨论区</span>
+          </NavLink>
+
+          {/* 教学动画按钮 - 始终显示 */}
+          <NavLink
+            to="/mathvision"
+            className={({ isActive }) => (isActive ? styles.sidebarActive : "")}
+          >
+            <FontAwesomeIcon icon={faFilm} fixedWidth />
+            <span>教学动画</span>
           </NavLink>
         </div>
       </aside>

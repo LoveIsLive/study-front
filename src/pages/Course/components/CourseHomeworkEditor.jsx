@@ -135,7 +135,7 @@ const CourseHomeworkEditor = ({ onBack, editingHomework, onSuccess }) => {
         content,
         courseId,
         type: homeworkType,
-        attachmentUploadIds: largeFileAttachmentIds,
+        attachmentUploadIds: largeFileAttachmentIds.map((f) => f.uploadId),
       };
       if (isEditMode) dto.attachmentIdsToDelete = attachmentIdsToDelete;
       if (homeworkType === "STRUCTURED") {

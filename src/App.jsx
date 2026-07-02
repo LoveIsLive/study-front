@@ -13,6 +13,7 @@ import DiscussionPage from "./pages/Discussion/DiscussionPage";
 import AnalysisPage from "./pages/Analysis/AnalysisPage";
 import MindPage from "./pages/Mind/MindPage";
 import CourseDetailPage from "./pages/Course/CourseDetailPage";
+import MathVisionPage from "./pages/MathVision/MathVisionPage";
 
 // 引入新增的强制修改密码页面
 import ForceChangePasswordPage from "./pages/Login/ForceChangePasswordPage";
@@ -37,6 +38,7 @@ function App() {
           <Route path="/courses" element={<CourseListPage />} />
           <Route path="/course/:courseId/*" element={<CourseDetailPage />} />
           <Route path="/ware/home/*" element={<WarePage />} />
+          <Route path="/mathvision/*" element={<MathVisionPage />} />
           <Route path="/organization" element={<OrganizationPage />} />
           <Route path="/discussion" element={<DiscussionPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
