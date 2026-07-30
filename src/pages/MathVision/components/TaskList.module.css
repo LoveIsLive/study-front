@@ -9,19 +9,30 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     padding: 16px;
     border-bottom: 1px solid var(--border-color);
 }
 
 .title {
+    flex-shrink: 0;
     font-weight: 600;
     font-size: 1.05rem;
     color: var(--text-color-dark);
 }
 
+.headActions {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
 .newBtn {
     display: inline-flex;
     align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
     gap: 6px;
     padding: 6px 12px;
     font-size: 0.85rem;
@@ -35,6 +46,26 @@
 
 .newBtn:hover {
     background: var(--primary-hover-color);
+}
+
+.navBtn {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    gap: 5px;
+    padding: 6px 9px;
+    font-size: 0.78rem;
+    color: var(--text-color-secondary);
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.navBtn:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .searchBar {
@@ -102,6 +133,7 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
+    position: relative;
 }
 
 .typeIcon {
@@ -110,12 +142,88 @@
 }
 
 .itemTitle {
+    flex: 1;
+    min-width: 0;
     font-weight: 500;
     font-size: 0.92rem;
     color: var(--text-color-dark);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.itemMenuWrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.moreBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 26px;
+    padding: 0;
+    color: var(--text-color-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.moreBtn:hover,
+.moreBtn[aria-expanded='true'] {
+    color: var(--primary-color);
+    background: var(--bg-color);
+    border-color: var(--border-color);
+}
+
+.itemMenu {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 132px;
+    padding: 5px;
+    background: var(--bg-color-light);
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    padding: 8px 10px;
+    color: var(--text-color-dark);
+    font-size: 0.8rem;
+    text-align: left;
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.menuItem:hover:not(:disabled) {
+    color: var(--primary-color);
+    background: rgba(255, 123, 84, 0.08);
+}
+
+.menuItem:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.menuDanger {
+    color: var(--danger-color);
+}
+
+.menuDanger:hover:not(:disabled) {
+    color: #fff;
+    background: var(--danger-color);
 }
 
 .itemMeta {
@@ -148,4 +256,54 @@
 .itemTime {
     font-size: 0.72rem;
     color: #adb5bd;
+}
+
+.recycleItem {
+    cursor: default;
+    background: rgba(108, 117, 125, 0.035);
+}
+
+.itemActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.itemActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    border-radius: 5px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.itemActionBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.deleteForeverBtn {
+    color: var(--danger-color);
+    border: 1px solid rgba(220, 53, 69, 0.35);
+}
+
+.deleteForeverBtn:hover {
+    color: #fff;
+    background: var(--danger-color);
+}
+
+.restoreBtn {
+    color: var(--success-color);
+    border: 1px solid rgba(25, 135, 84, 0.35);
+}
+
+.restoreBtn:hover {
+    color: #fff;
+    background: var(--success-color);
 }

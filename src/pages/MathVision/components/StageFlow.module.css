@@ -22,11 +22,99 @@
     border-bottom: 1px solid var(--border-color);
 }
 
+.headTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
 .headTitle {
+    min-width: 0;
+    overflow: hidden;
     font-size: 1.15rem;
     font-weight: 600;
     color: var(--text-color-dark);
-    margin-bottom: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editTitleButton {
+    flex-shrink: 0;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+}
+
+.editTitleButton:hover {
+    background: var(--bg-color);
+    color: var(--primary-color);
+}
+
+.runtimeSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-color);
+}
+
+.settingGroup {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.settingLabel {
+    flex-shrink: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.76rem;
+    font-weight: 500;
+}
+
+.modeSwitch {
+    display: inline-flex;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--bg-color-light);
+}
+
+.modeSwitch button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 9px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.modeSwitch button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.modeSwitch .modeActive {
+    color: #fff;
+    background: var(--primary-color);
+}
+
+.settingsHint {
+    color: var(--text-color-secondary);
+    font-size: 0.7rem;
+    line-height: 1.4;
 }
 
 .headMeta {
@@ -44,11 +132,6 @@
     border: 1px solid var(--border-color);
 }
 
-.modeTag {
-    color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-}
-
 .cards {
     display: flex;
     flex-direction: column;
@@ -56,6 +139,7 @@
 }
 
 .card {
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -63,12 +147,52 @@
     border-radius: 10px;
     background: var(--bg-color-light);
     border: 1px solid var(--border-color);
+    color: inherit;
+    font: inherit;
+    text-align: left;
     transition: box-shadow .2s, border-color .2s;
+}
+
+.versionButton {
+    padding: 3px 10px;
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--primary-color) 7%, white);
+    color: var(--primary-color);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.versionButton:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.modelButton {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card.clickable {
+    cursor: pointer;
+}
+
+.card.clickable:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .card.current {
     border-color: var(--primary-color);
     box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.card.selected {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 .cardIndex {
@@ -104,13 +228,6 @@
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-color-dark);
-}
-
-.cardNode {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-    margin-top: 3px;
-    font-family: monospace;
 }
 
 .cardState {

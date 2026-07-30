@@ -1,10 +1,11 @@
 .wrap {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 1.25rem;
+    gap: 0.9rem;
+    padding: 1rem;
     height: 100%;
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .placeholder {
@@ -17,32 +18,189 @@
     font-size: 0.95rem;
 }
 
-.header {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.75rem;
+.actionBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0 0.7rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.stageLabel {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
+.actionBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
 }
 
-.stageTitle {
-    margin: 0.25rem 0 0;
-    font-size: 1.15rem;
-    color: var(--text-color-dark);
+.primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.secondary {
+    background: #fff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.success {
+    background: #16a34a;
+    color: #fff;
+}
+
+.regenerateAction {
+    border-color: #f97316;
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.regenerateAction:not(:disabled):hover {
+    background: #ffedd5;
+}
+
+.magicAction {
+    border-color: #7c3aed;
+    background: #7c3aed;
+    color: #fff;
+}
+
+.magicAction:not(:disabled):hover {
+    background: #6d28d9;
+}
+
+.errorBox {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: #991b1b;
+}
+
+.errorBox span {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.errorBox p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
 }
 
 .section {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.stageHeader {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex: 0 0 auto;
+    min-height: 3.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background: #fff;
+    box-shadow: 0 8px 14px rgba(15, 23, 42, 0.06);
+    padding: 0.5rem 0.65rem;
 }
 
 .sectionTitle {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-color-secondary);
+}
+
+.headerComment {
+    flex: 0 0 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.65rem;
+}
+
+.autoEditPanel {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 0.65rem;
+    border: 1px solid #c4b5fd;
+    border-radius: 8px;
+    background: #f5f3ff;
+    padding: 0.75rem;
+}
+
+.autoEditHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.autoEditHeader > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.autoEditHeader strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #5b21b6;
+    font-size: 0.88rem;
+}
+
+.autoEditHeader span,
+.autoEditActions > span {
+    color: var(--text-color-secondary);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.autoEditClose {
+    flex: 0 0 auto;
+    border: 0;
+    background: transparent;
+    color: #6d28d9;
+    font-size: 0.76rem;
+    cursor: pointer;
+}
+
+.autoEditClose:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.autoEditActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.stageBody {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow-y: auto;
+    padding-right: 0.15rem;
 }
 
 .inputText {
@@ -93,6 +251,1164 @@
     color: var(--text-color-dark);
 }
 
+.editorShell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.editorTabs {
+    display: inline-flex;
+    align-self: flex-start;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.tabBtn,
+.tabActive {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0 0.75rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-color-secondary);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.tabActive {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.editorFields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.designedEditor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stageTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.stageTab,
+.stageTabActive {
+    min-height: 1.9rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-color-secondary);
+    padding: 0 0.45rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.stageTabActive {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.problemNav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    background: #fff;
+    box-shadow: 0 8px 12px rgba(15, 23, 42, 0.06);
+    transform: translateZ(0);
+}
+
+.problemNav .stageTab,
+.problemNav .stageTabActive {
+    flex: 0 0 auto;
+    min-width: max-content;
+}
+
+.problemSections {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    z-index: 0;
+}
+
+.problemSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    scroll-margin-top: 3.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.problemSection:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.problemSectionTitle {
+    color: var(--primary-color);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.problemSectionHeader,
+.inlineEditorHeader,
+.elementGroupHead,
+.cardTopline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+}
+
+.inlineEditorHeader {
+    min-height: 1.9rem;
+}
+
+.actionCluster {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.typeMenu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5.6rem, 1fr));
+    gap: 0.45rem;
+    border: 1px dashed #93c5fd;
+    border-radius: 8px;
+    background: #f8fbff;
+    padding: 0.65rem;
+}
+
+.typeMenu button {
+    min-height: 2rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dialogOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.28);
+    padding: 1rem;
+}
+
+.editorDialog {
+    display: flex;
+    width: min(25rem, calc(100vw - 2rem));
+    flex-direction: column;
+    gap: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+    padding: 1rem;
+}
+
+.dialogTitle {
+    margin: 0;
+    color: var(--text-color-dark);
+    font-size: 0.98rem;
+    line-height: 1.35;
+}
+
+.dialogText {
+    margin: 0.45rem 0 0;
+    color: var(--text-color-secondary);
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.dialogError {
+    color: #b91c1c;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.dialogActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.inlineFormCard {
+    background: #f8fbff;
+}
+
+.coordInputGrid {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1.35fr) repeat(3, minmax(4.5rem, 0.7fr));
+    gap: 0.65rem;
+    align-items: end;
+}
+
+.coordInputGrid2d {
+    grid-template-columns: minmax(8rem, 1.35fr) repeat(2, minmax(4.5rem, 0.7fr));
+}
+
+.inlineFormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.listEditor,
+.listEditorRows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.latexHint {
+    border: 1px solid #bfdbfe;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    padding: 0.5rem 0.6rem;
+}
+
+.latexHint code {
+    border-radius: 4px;
+    background: #fff;
+    color: #1e3a8a;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.75rem;
+    padding: 0.08rem 0.25rem;
+}
+
+.listEditorRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.listEditorRow .textInput,
+.listEditorRow .textArea {
+    flex: 1;
+}
+
+.definitionRows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.definitionRow {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 0.55fr) minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: start;
+}
+
+.elementGroups,
+.cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.elementGroupCard,
+.detailCard,
+.summaryBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.75rem;
+}
+
+.elementGroupHead span,
+.summaryBlock > span {
+    color: var(--text-color-dark);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.chipGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.editChip,
+.readChip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color-dark);
+    font-size: 0.8rem;
+}
+
+.readChip {
+    padding: 0 0.55rem;
+}
+
+.editChip button {
+    min-height: 1.8rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.editChip button:first-child {
+    max-width: 9rem;
+    overflow: hidden;
+    padding: 0 0.45rem 0 0.55rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editChip button:last-child {
+    border-left: 1px solid var(--border-color);
+    color: var(--text-color-secondary);
+    padding: 0 0.45rem;
+}
+
+.inlineEmpty {
+    border: 1px dashed var(--border-color);
+    border-radius: 7px;
+    background: var(--bg-color);
+    color: var(--text-color-secondary);
+    font-size: 0.82rem;
+    padding: 0.65rem;
+}
+
+.descriptionExtras {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.descriptionExtras div {
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.5rem;
+}
+
+.descriptionExtras div:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.descriptionExtras strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-color-dark);
+    font-size: 0.8rem;
+}
+
+.descriptionExtras p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+}
+
+.cardTopline .field,
+.cardTopline .textInput {
+    flex: 1;
+}
+
+.dagPreview {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 5rem;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #f8fbff;
+    padding: 0.8rem;
+}
+
+.dagNode,
+.dagNodeActive {
+    flex: 0 0 7rem;
+    min-height: 3.1rem;
+    border: 1px solid #cfe1ff;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text-color-dark);
+    padding: 0.45rem;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    cursor: pointer;
+}
+
+.dagNode span,
+.dagNodeActive span {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.dagNodeActive {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.dagEdge {
+    color: var(--text-color-secondary);
+    font-size: 1rem;
+}
+
+.nodeEditorCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.7rem;
+}
+
+.storyboardLayout {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+}
+
+.sceneList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.sceneItem,
+.sceneItemActive {
+    display: grid;
+    grid-template-columns: 1.55rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: #fff;
+    padding: 0.35rem 0.45rem;
+    color: var(--text-color-dark);
+    text-align: left;
+    cursor: pointer;
+}
+
+.sceneItemActive {
+    border-color: var(--primary-color);
+    background: #f4f8ff;
+}
+
+.sceneIndex {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    background: var(--bg-color);
+    color: var(--text-color-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.sceneItemActive .sceneIndex {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.sceneTitleText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+}
+
+.sceneEditor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.7rem;
+}
+
+.storyboardSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #f8fbff;
+    padding: 0.7rem;
+}
+
+.constraintMapGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.65rem;
+}
+
+.refGroups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.refGroupCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.65rem;
+}
+
+.refGroupHead {
+    display: grid;
+    grid-template-columns: minmax(11rem, 1fr) auto;
+    gap: 0.6rem;
+    align-items: end;
+}
+
+.objectTargetEditor {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.objectTargetEditor .textInput {
+    max-width: 16rem;
+}
+
+.mapEditor {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mapRows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.mapRow {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.9fr) minmax(14rem, 1.6fr) auto;
+    gap: 0.45rem;
+    align-items: start;
+}
+
+.boundsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: 0.65rem;
+}
+
+.detailCard strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-color-dark);
+    font-size: 0.84rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.codeEditorLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    gap: 0.75rem;
+    align-items: start;
+}
+
+.codeMain {
+    min-width: 0;
+}
+
+.codeModeBanner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #f8fbff;
+    padding: 0.65rem 0.75rem;
+}
+
+.codeModeTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    color: var(--text-color-dark);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.codeModeTitle svg {
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+
+.modeBadge {
+    flex: 0 0 auto;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--primary-color);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.55rem;
+}
+
+.evalPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.75rem;
+}
+
+.evalScore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 5rem;
+    border-radius: 8px;
+    background: #f1fbf5;
+    color: #15803d;
+}
+
+.evalScore span {
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.evalScore small {
+    margin-top: 0.15rem;
+    font-size: 0.76rem;
+}
+
+.metricList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.metricList div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.4rem;
+    font-size: 0.78rem;
+}
+
+.metricList span {
+    color: var(--text-color-secondary);
+}
+
+.metricList strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-color-dark);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.renderPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.renderHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.renderHead h3 {
+    margin: 0;
+    color: var(--text-color-dark);
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+.renderHead p {
+    margin: 0.35rem 0 0;
+    color: var(--text-color-secondary);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.doneBadge,
+.warnBadge {
+    flex-shrink: 0;
+    border-radius: 6px;
+    padding: 0.25rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.doneBadge {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.warnBadge {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.infoNotice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.infoNotice svg {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+}
+
+.previewFrame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid #111827;
+    border-radius: 8px;
+    background: #020617;
+}
+
+.htmlPreviewFrame {
+    aspect-ratio: auto;
+    min-height: 560px;
+    background: #f7f7f5;
+    transition: height 0.2s ease;
+}
+
+.resultVideo,
+.resultFrame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: #020617;
+}
+
+.previewPlaceholder {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    color: #cbd5e1;
+    font-size: 0.88rem;
+}
+
+.previewPlaceholder svg {
+    color: #64748b;
+    font-size: 2rem;
+}
+
+.renderActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-top: 0.15rem;
+}
+
+.renderActions .actionBtn {
+    width: 100%;
+    min-height: 2.45rem;
+}
+
+.renderActions .actionBtn span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fullAction {
+    grid-column: 1 / -1;
+}
+
+.miniGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 0.65rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.fieldLabel {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+}
+
+.textInput,
+.textArea,
+.codeArea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text-color-dark);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.textInput {
+    height: 2.15rem;
+    padding: 0 0.65rem;
+}
+
+.colorPicker {
+    display: grid;
+    grid-template-columns: 2.35rem minmax(0, 1fr);
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.colorInput {
+    width: 2.35rem;
+    height: 2.15rem;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: #fff;
+    cursor: pointer;
+    padding: 0.12rem;
+}
+
+.rangeControl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.25rem;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.rangeInput {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--primary-color);
+}
+
+.styleEditor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.65rem;
+}
+
+.styleEditorHeader {
+    color: var(--text-color-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.styleList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.styleRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: end;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: #fff;
+    padding: 0.55rem;
+}
+
+.styleControl {
+    min-width: 0;
+}
+
+.styleAddRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.textArea,
+.codeArea {
+    resize: vertical;
+    padding: 0.65rem;
+}
+
+.codeArea {
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.78rem;
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+}
+
+.textInput:focus,
+.textArea:focus,
+.codeArea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.15);
+}
+
+.toggleRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.84rem;
+    color: var(--text-color-dark);
+}
+
+.toggleRow label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.editorSubhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-color-dark);
+}
+
+.ghostBtn,
+.iconTextBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 1.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text-color-dark);
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.ghostBtn:disabled,
+.iconTextBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.ghostBtn {
+    padding: 0 0.65rem;
+}
+
+.iconTextBtn {
+    padding: 0 0.5rem;
+    color: #b91c1c;
+}
+
+.dangerAction {
+    background: #dc2626;
+    color: #fff;
+}
+
+.detailsBlock {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #fff;
+    padding: 0.65rem;
+}
+
+.detailsBlock summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 2rem;
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-color-dark);
+}
+
+.detailsBlock summary::-webkit-details-marker {
+    display: none;
+}
+
+.detailsBlock summary::marker {
+    content: "";
+}
+
+.compactDetails summary::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-right: 1.5px solid var(--text-color-secondary);
+    border-bottom: 1.5px solid var(--text-color-secondary);
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.compactDetails[open] > summary::before {
+    transform: rotate(45deg);
+}
+
+.compactDetails summary:hover::before {
+    border-color: var(--primary-color);
+}
+
+.detailsBlock summary span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detailsBlock[open] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.compactDetails {
+    gap: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.compactDetails summary {
+    padding: 0.65rem 0.75rem;
+}
+
+.compactDetails summary small {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-color-secondary);
+    font-size: 0.76rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detailsContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    border-top: 1px solid var(--border-color);
+    padding: 0.65rem 0.75rem 0.75rem;
+}
+
+.storyboardSection.compactDetails {
+    border-color: #dbeafe;
+    background: #f8fbff;
+}
+
+.refGroupCard.compactDetails {
+    gap: 0;
+    padding: 0;
+}
+
+.jsonError {
+    color: #b91c1c;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.emptyHint {
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: var(--text-color-secondary);
+    font-size: 0.85rem;
+    background: var(--bg-color);
+}
+
+.actionLine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
 .locked {
     margin-top: auto;
     display: flex;
@@ -116,4 +1432,77 @@
     color: var(--text-color-secondary);
     line-height: 1.5;
     margin-top: 0.25rem;
+}
+
+@media (max-width: 1440px) {
+    .storyboardLayout,
+    .codeEditorLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .sceneList {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    }
+
+    .renderActions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .stageHeader {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .stageHeader .actionLine {
+        justify-content: flex-start;
+    }
+
+    .autoEditHeader,
+    .autoEditActions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .autoEditActions .actionBtn {
+        width: 100%;
+    }
+
+    .coordInputGrid,
+    .coordInputGrid2d {
+        grid-template-columns: 1fr;
+    }
+
+    .listEditorRow {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .definitionRow {
+        grid-template-columns: 1fr;
+    }
+
+    .mapRow {
+        grid-template-columns: 1fr;
+    }
+
+    .refGroupHead {
+        grid-template-columns: 1fr;
+    }
+
+    .styleRow,
+    .styleAddRow {
+        grid-template-columns: 1fr;
+    }
+
+    .listEditorRow .iconTextBtn,
+    .definitionRow .iconTextBtn,
+    .mapRow .iconTextBtn,
+    .refGroupHead .actionCluster,
+    .styleRow .iconTextBtn,
+    .styleAddRow .ghostBtn {
+        align-self: flex-end;
+    }
 }
