@@ -96,10 +96,31 @@
 }
 
 .maskedKey {
-    margin-top: 0.5rem;
     font-family: monospace;
     color: #6c757d;
     font-size: 0.9rem;
+}
+
+.modalBody {
+    max-height: calc(100vh - 190px);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.configSummary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.8rem;
+    margin-top: 0.5rem;
+    color: #6c757d;
+    font-size: 0.82rem;
+}
+
+.baseUrl {
+    flex-basis: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .editArea {
@@ -153,4 +174,137 @@
 .saveBtn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.otherRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px dashed #b8c4d1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #343a40;
+    cursor: pointer;
+    text-align: left;
+}
+
+.otherRow:hover {
+    border-color: var(--primary-color, #007bff);
+    background: #f2f7ff;
+}
+
+.otherRow span:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.otherRow small {
+    color: #6c757d;
+}
+
+.otherPlus {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.customForm {
+    border: 1px solid #e1e7ef;
+    border-radius: 10px;
+    padding: 1rem;
+    background: #fbfcfe;
+}
+
+.customFormTitle {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #263445;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0;
+    color: #374151;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.formField input,
+.formField select {
+    min-width: 0;
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: #fff;
+    color: #212529;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.formField small {
+    color: #7b8794;
+    font-weight: 400;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.checkField {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: end;
+    min-height: 38px;
+    margin: 0;
+    color: #374151;
+    font-size: 0.88rem;
+}
+
+.checkField input {
+    width: 16px;
+    height: 16px;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.cancelBtn {
+    padding: 0.55rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: #fff;
+    color: #495057;
+    cursor: pointer;
+}
+
+@media (max-width: 620px) {
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .fullWidth {
+        grid-column: auto;
+    }
 }

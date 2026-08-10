@@ -42,7 +42,7 @@ const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
             try {
                 const res = await mathvisionApi.get('/llm/providers');
                 if (res.data.code === 200) {
-                    const list = (res.data.data || []).filter((p) => p.configured);
+                    const list = (res.data.data || []).filter((p) => p.configured && p.status === 'enabled');
                     setProviders(list);
                     if (list.length && !providerCode) setProviderCode(list[0].providerCode);
                 }

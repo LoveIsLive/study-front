@@ -170,7 +170,7 @@ const StageFlow = ({
                         onClick={() => setModelSwitchOpen(true)}
                         title="切换下一阶段使用的模型"
                     >
-                        <FontAwesomeIcon icon={faRobot} /> {task.providerCode} / {task.modelName}
+                        <FontAwesomeIcon icon={faRobot} /> {task.providerName || task.providerCode} / {task.modelName}
                     </button>
                     <button type="button" className={styles.versionButton} onClick={onOpenVersions}>
                         <FontAwesomeIcon icon={faCodeBranch} /> V{task.currentVersion || 1} 版本历史

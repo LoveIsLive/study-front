@@ -104,7 +104,7 @@ const ModelSwitchModal = ({ show, onClose, task, onUpdate }) => {
                     <FontAwesomeIcon icon={faRobot} />
                     <div>
                         <span>当前模型</span>
-                        <strong>{task.providerCode} / {task.modelName}</strong>
+                        <strong>{task.providerName || task.providerCode} / {task.modelName}</strong>
                     </div>
                 </div>
 
