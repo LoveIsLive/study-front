@@ -613,6 +613,29 @@ const useMathVisionStore = create((set, get) => ({
         return res.data.data;
     },
 
+    requestQualityReview: async (taskId, stage, version) => {
+        const res = await mathvisionApi.post(`/tasks/${taskId}/stages/${stage}/quality-review`, {
+            version,
+        });
+        if (res.data.code !== 200) {
+            throw new Error(res.data.message || '智能检查提交失败');
+        }
+        const detail = res.data.data;
+        const selectedStageCode = stage || defaultStageForTask(detail);
+        set({
+            taskDetail: detail,
+            activeTaskId: detail?.taskId || taskId,
+            selectedStageCode,
+            stageData: null,
+        });
+        await Promise.all([
+            get().loadStageData(detail?.taskId || taskId, selectedStageCode, { showLoading: false }),
+            get().loadTasks({ showLoading: false }),
+            get().loadVersions(detail?.taskId || taskId, { showLoading: false }),
+        ]);
+        return detail;
+    },
+
     confirmStage: async (taskId, stage, version, comment = '') => {
         const res = await mathvisionApi.post(`/tasks/${taskId}/stages/${stage}/confirm`, {
             version,

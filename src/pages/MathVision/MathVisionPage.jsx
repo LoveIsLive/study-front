@@ -39,7 +39,7 @@ const MathVisionPage = () => {
         startTask, regenerateStage, cancelTask,
         loadRecycleTasks, clearSelection, deleteTask, restoreTask, permanentlyDeleteTask,
         loadVersions, loadVersionDetail, activateVersion,
-        selectStage, saveStageContent, autoEditStage, confirmStage, applyTaskEvent,
+        selectStage, saveStageContent, autoEditStage, requestQualityReview, confirmStage, applyTaskEvent,
         loadSquare, publishToSquare, loadSquareToWorkbench, unpublishFromSquare,
     } = useMathVisionStore(useShallow((s) => ({
         tasks: s.tasks,
@@ -79,6 +79,7 @@ const MathVisionPage = () => {
         selectStage: s.selectStage,
         saveStageContent: s.saveStageContent,
         autoEditStage: s.autoEditStage,
+        requestQualityReview: s.requestQualityReview,
         confirmStage: s.confirmStage,
         applyTaskEvent: s.applyTaskEvent,
         loadSquare: s.loadSquare,
@@ -506,6 +507,19 @@ const MathVisionPage = () => {
         }
     }, [confirmStage, taskDetail]);
 
+    const handleQualityReview = useCallback(async (stage, version) => {
+        if (!taskDetail?.taskId) return;
+        setActionLoading(true);
+        try {
+            return await requestQualityReview(taskDetail.taskId, stage, version);
+        } catch (e) {
+            window.alert(e.message || '智能检查提交失败');
+            throw e;
+        } finally {
+            setActionLoading(false);
+        }
+    }, [requestQualityReview, taskDetail]);
+
     const handleAutoEditStage = useCallback(async (stage, baseStageVersion, instruction) => {
         if (!taskDetail?.taskId) return null;
         setActionLoading(true);
@@ -739,6 +753,7 @@ const MathVisionPage = () => {
                                 onCancel={handleCancel}
                                 onSaveStage={handleSaveStage}
                                 onAutoEditStage={handleAutoEditStage}
+                                onQualityReview={handleQualityReview}
                                 onConfirmStage={handleConfirmStage}
                             />
                         )}

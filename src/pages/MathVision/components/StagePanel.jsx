@@ -28,6 +28,12 @@ const EDITABLE_STAGES = new Set([
     'code_generation',
 ]);
 
+const QUALITY_REVIEW_NODE_LABELS = {
+    visual_storyboard: 'Storyboard 规范检查',
+    code_generation: '代码质量检查',
+    render_result: '画面质量检查',
+};
+
 const AUTO_EDIT_STAGE_CONFIG = {
     problem_normalization: {
         title: '题目识别自动编辑',
@@ -2845,6 +2851,7 @@ const StagePanel = ({
     onCancel,
     onSaveStage,
     onAutoEditStage,
+    onQualityReview,
     onConfirmStage,
 }) => {
     const [draft, setDraft] = useState({});
@@ -2927,6 +2934,28 @@ const StagePanel = ({
             : !!panelTask?.currentArtifactJson && !!panelTask.currentArtifactVersion && panelTask.status === 'waiting_confirm'
     ), [panelTask, stageData]);
 
+    const qualityReviewStatus = stageData?.qualityReviewStatus
+        || resultData?.qualityReview?.status
+        || 'pending';
+    const isCurrentTaskStage = !!task?.currentStage
+        && panelTask?.currentStage === task.currentStage;
+    const showQualityReviewAction = !!onQualityReview
+        && !!stageData?.qualityReviewSupported
+        && isCurrentTaskStage
+        && !!panelTask?.currentArtifactJson
+        && !!panelTask?.currentArtifactVersion;
+    const canQualityReview = showQualityReviewAction
+        && !['queued', 'running'].includes(panelTask?.status)
+        && !panelTask?.cancelRequested
+        && (!!stageData?.canRunQualityReview
+            || (canEdit && panelTask?.status === 'waiting_confirm'));
+    const qualityReviewLabel = qualityReviewStatus === 'requested'
+        ? '智能检查中...'
+        : qualityReviewStatus === 'completed'
+            ? (canQualityReview ? '重新智能检查' : '已完成智能检查')
+            : '智能检查';
+    const qualityReviewTitle = QUALITY_REVIEW_NODE_LABELS[panelTask?.currentStage] || '智能检查';
+
     const autoEditConfig = AUTO_EDIT_STAGE_CONFIG[panelTask?.currentStage];
     const showAutoEditAction = !!onAutoEditStage
         && !!autoEditConfig
@@ -2945,17 +2974,23 @@ const StagePanel = ({
         && !panelTask?.cancelRequested;
 
     const canRunAfterSave = canEdit || canConfirmStage;
-    const confirmLabel = canEdit
-        ? (canConfirmStage ? '保存并确认' : '保存并重跑后续')
-        : '确认';
-    const canStartTask = !!onStart && ['created', 'failed', 'canceled'].includes(panelTask?.status);
-    const startActionLabel = panelTask?.status === 'failed'
-        ? '重试当前阶段'
-        : (panelTask?.status === 'canceled' ? '继续任务' : '开始任务');
-    const startActionIcon = panelTask?.status === 'failed' ? faRotateRight : faPlay;
+    const confirmLabel = showQualityReviewAction
+        ? (panelTask?.currentStage === 'render_result'
+            ? '确认完成'
+            : (canEdit ? '保存并进入下一阶段' : '确认并进入下一阶段'))
+        : canEdit
+            ? (canConfirmStage ? '保存并确认' : '保存并重跑后续')
+            : '确认';
+    const canStartTask = !!onStart && ['created', 'canceled'].includes(panelTask?.status);
+    const startActionLabel = panelTask?.status === 'canceled' ? '继续任务' : '开始任务';
+    const showRetryAction = showRegenerateAction
+        || (!!onStart && panelTask?.status === 'failed');
+    const canRetryStage = showRegenerateAction
+        ? canRegenerateStage
+        : !!onStart && panelTask?.status === 'failed' && !panelTask?.cancelRequested;
     const canCancelTask = !!onCancel && (panelTask?.status === 'queued' || panelTask?.status === 'running');
     const taskCancelRequested = !!panelTask?.cancelRequested;
-    const hasTaskActions = canStartTask || canCancelTask || showRegenerateAction;
+    const hasTaskActions = canStartTask || canCancelTask || showRetryAction || showQualityReviewAction;
 
     const commitDraft = useCallback((nextDraft) => {
         const next = clone(nextDraft);
@@ -3005,6 +3040,37 @@ const StagePanel = ({
         await onConfirmStage(panelTask.currentStage, versionToConfirm, comment);
     }, [panelTask, comment, canEdit, rawText, onSaveStage, onConfirmStage]);
 
+    const handleQualityReview = useCallback(async () => {
+        if (!panelTask?.taskId || !onQualityReview || !canQualityReview) return;
+        let versionToReview = panelTask.currentArtifactVersion;
+        if (canEdit && onSaveStage) {
+            let content;
+            try {
+                content = parseJson(rawText);
+                setRawError('');
+            } catch (e) {
+                setRawError('JSON 格式不正确，保存前需要修正');
+                return;
+            }
+            const saved = await onSaveStage(
+                panelTask.currentStage,
+                panelTask.currentArtifactVersion,
+                content,
+                comment,
+            );
+            versionToReview = saved?.stageVersion || versionToReview;
+        }
+        await onQualityReview(panelTask.currentStage, versionToReview);
+    }, [
+        panelTask,
+        comment,
+        canEdit,
+        canQualityReview,
+        rawText,
+        onSaveStage,
+        onQualityReview,
+    ]);
+
     const handleAutoEdit = useCallback(async () => {
         if (!panelTask?.taskId || !onAutoEditStage || !canAutoEditStage) return;
         const instruction = autoEditInstruction.trim();
@@ -3040,7 +3106,7 @@ const StagePanel = ({
                     onClick={() => onStart?.(panelTask.currentStage)}
                     disabled={actionLoading}
                 >
-                    <FontAwesomeIcon icon={actionLoading ? faSpinner : startActionIcon} spin={actionLoading} />
+                    <FontAwesomeIcon icon={actionLoading ? faSpinner : faPlay} spin={actionLoading} />
                     <span>{startActionLabel}</span>
                 </button>
             )}
@@ -3050,18 +3116,24 @@ const StagePanel = ({
                     <span>{taskCancelRequested ? '取消中' : '取消任务'}</span>
                 </button>
             )}
-            {showRegenerateAction && (
+            {showRetryAction && (
                 <button
-                    className={`${styles.actionBtn} ${styles.regenerateAction}`}
+                    className={`${styles.actionBtn} ${styles.primary}`}
                     type="button"
-                    onClick={() => onRegenerateStage?.(panelTask.currentStage)}
-                    disabled={actionLoading || !canRegenerateStage}
-                    title={canRegenerateStage
-                        ? '创建新版本，并重新执行当前阶段及全部后续阶段'
-                        : '任务执行中、取消中或当前阶段不可重新生成'}
+                    onClick={() => {
+                        if (showRegenerateAction) {
+                            onRegenerateStage?.(panelTask.currentStage);
+                        } else {
+                            onStart?.(panelTask.currentStage);
+                        }
+                    }}
+                    disabled={actionLoading || !canRetryStage}
+                    title={canRetryStage
+                        ? '重新执行当前阶段及全部后续阶段'
+                        : '任务执行中、取消中或当前阶段不可重试'}
                 >
                     <FontAwesomeIcon icon={actionLoading ? faSpinner : faRotateRight} spin={actionLoading} />
-                    <span>重新生成当前及后续</span>
+                    <span>重试</span>
                 </button>
             )}
             {showAutoEditAction && (
@@ -3079,6 +3151,25 @@ const StagePanel = ({
                 >
                     <FontAwesomeIcon icon={actionLoading ? faSpinner : faMagic} spin={actionLoading} />
                     <span>自动编辑</span>
+                </button>
+            )}
+            {showQualityReviewAction && (
+                <button
+                    className={`${styles.actionBtn} ${styles.reviewAction}`}
+                    type="button"
+                    onClick={handleQualityReview}
+                    disabled={actionLoading || !canQualityReview || !!rawError}
+                    title={canQualityReview
+                        ? `运行${qualityReviewTitle}；检查完成后仍由你决定是否进入下一阶段`
+                        : qualityReviewStatus === 'requested'
+                            ? `${qualityReviewTitle}正在执行`
+                            : `${qualityReviewTitle}已完成`}
+                >
+                    <FontAwesomeIcon
+                        icon={actionLoading || qualityReviewStatus === 'requested' ? faSpinner : faMagic}
+                        spin={actionLoading || qualityReviewStatus === 'requested'}
+                    />
+                    <span>{qualityReviewLabel}</span>
                 </button>
             )}
             {canEdit && (
@@ -3115,7 +3206,8 @@ const StagePanel = ({
             <div className={styles.section}>
                 <div className={styles.stageHeader}>
                     <div className={styles.sectionTitle}>阶段产物</div>
-                    {(hasTaskActions || canEdit || canConfirmStage || showAutoEditAction) && renderActionButtons()}
+                    {(hasTaskActions || canEdit || canConfirmStage || showAutoEditAction || showQualityReviewAction)
+                        && renderActionButtons()}
                 </div>
                 {autoEditOpen && showAutoEditAction && (
                     <div className={styles.autoEditPanel}>
