@@ -129,6 +129,19 @@ const SCENE_MODE_OPTIONS = [
     { value: '2d', label: '2D' },
     { value: '3d', label: '3D' },
 ];
+const ACTION_TYPE_OPTIONS = [
+    { value: 'create', label: '创建' },
+    { value: 'write', label: '显示文字' },
+    { value: 'transform', label: '变换' },
+    { value: 'highlight', label: '高亮强调' },
+    { value: 'move', label: '移动' },
+    { value: 'fade_out', label: '淡出' },
+    { value: 'camera', label: '调整镜头' },
+    { value: 'restyle', label: '调整样式' },
+];
+const ACTION_TYPE_LABELS = Object.fromEntries(
+    ACTION_TYPE_OPTIONS.map((option) => [option.value, option.label]),
+);
 const PLACEMENT_POSITIONING_OPTIONS = [
     { value: 'absolute', label: '绝对坐标' },
     { value: 'relative', label: '相对定位' },
@@ -2575,6 +2588,8 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                         {sceneArray('actions').map((rawAction, index) => {
                                             const action = isPlainObject(rawAction) ? rawAction : { description: String(rawAction || '') };
                                             const actionType = action.type || '未设置类型';
+                                            const actionTypeLabel = ACTION_TYPE_LABELS[action.type]
+                                                || actionType;
                                             const actionSummary = [
                                                 targetSummary(action.targets),
                                                 compactText(action.description || action.voiceover_text, '暂无描述'),
@@ -2582,7 +2597,7 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                             return (
                                                 <CollapsibleBlock
                                                     key={`action-${index}`}
-                                                    title={`动作 ${index + 1}：${actionType}`}
+                                                    title={`动作 ${index + 1}：${actionTypeLabel}`}
                                                     summary={actionSummary}
                                                 >
                                                     <div className={styles.cardTopline}>
@@ -2596,7 +2611,21 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                                             <input className={styles.textInput} type="number" value={action.order ?? index + 1} onChange={(event) => updateAction(index, { order: Number(event.target.value) })} />
                                                         </Field>
                                                         <Field label="动作类型">
-                                                            <TextInput value={action.type} placeholder="create / transform / highlight" onChange={(type) => updateAction(index, { type })} />
+                                                            <select
+                                                                className={styles.textInput}
+                                                                value={action.type || ''}
+                                                                onChange={(event) => updateAction(index, { type: event.target.value })}
+                                                            >
+                                                                {!action.type && <option value="">请选择动作类型</option>}
+                                                                {action.type && !ACTION_TYPE_LABELS[action.type] && (
+                                                                    <option value={action.type}>{action.type}（历史值）</option>
+                                                                )}
+                                                                {ACTION_TYPE_OPTIONS.map((option) => (
+                                                                    <option key={option.value} value={option.value}>
+                                                                        {option.label}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
                                                         </Field>
                                                         <Field label="目标对象">
                                                             {renderObjectChipSelector(action.targets, (targets) => updateAction(index, { targets }), '暂无目标对象', '添加目标对象')}
