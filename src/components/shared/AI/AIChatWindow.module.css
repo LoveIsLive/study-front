@@ -339,8 +339,8 @@
 .emptyState {
     display: flex;
     flex-direction: column;
-    alignItems: center;
-    justifyContent: center;
+    align-items: center;
+    justify-content: center;
     height: 100%;
     animation: fadeIn 0.8s ease-out;
 }
