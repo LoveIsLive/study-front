@@ -230,7 +230,25 @@ const CONSTRAINT_DOMAIN_OPTIONS = [
     'style',
     'lifecycle',
 ];
+const CONSTRAINT_DOMAIN_LABELS = {
+    placement: '定位',
+    construction: '构造',
+    constraint: '约束',
+    metric: '度量',
+    marker: '标记',
+    motion: '运动',
+    attachment: '附着',
+    layout: '布局',
+    visibility: '可见性',
+    style: '样式',
+    lifecycle: '生命周期',
+};
 const CONSTRAINT_STRENGTH_OPTIONS = ['hard', 'repair_hard', 'soft'];
+const CONSTRAINT_STRENGTH_LABELS = {
+    hard: '硬约束',
+    repair_hard: '修复硬约束',
+    soft: '软约束',
+};
 const CONSTRAINT_RELATIONS_BY_DOMAIN = {
     placement: ['point_at', 'other'],
     construction: [
@@ -268,6 +286,57 @@ const CONSTRAINT_RELATIONS_BY_DOMAIN = {
     visibility: ['visible_during', 'hidden_after', 'fade_with', 'other'],
     style: ['style_matches', 'other'],
     lifecycle: ['persistent_across_scenes', 'exits_after_scene', 'other'],
+};
+const CONSTRAINT_RELATION_LABELS = {
+    point_at: '定位于指定点',
+    connects_points: '连接多个点',
+    line_through_points: '过点作直线',
+    ray_from_to: '从一点指向另一点',
+    vector_from_to: '由两点确定向量',
+    intersection_of: '求交点',
+    reflection_across: '关于对象对称',
+    rotate_about: '绕指定点旋转',
+    midpoint_of: '取中点',
+    projection_onto: '投影到对象上',
+    parallel_through: '过点作平行线',
+    perpendicular_through: '过点作垂线',
+    perpendicular_bisector: '作垂直平分线',
+    circle_through: '作过点的圆',
+    minimum_of: '取最小值',
+    lies_on: '位于对象上',
+    on_side_of: '位于对象一侧',
+    parallel_to: '与对象平行',
+    perpendicular_to: '与对象垂直',
+    same_side_of: '位于同侧',
+    opposite_side_of: '位于异侧',
+    collinear: '保持共线',
+    equal_length: '长度相等',
+    equal_angle: '角度相等',
+    equal_measure_group: '度量相等',
+    distance_between: '保持对象间距',
+    angle_between: '保持夹角',
+    arc_sweep: '保持圆弧扫过关系',
+    right_angle_at: '在指定位置标记直角',
+    moves_on_object: '沿对象移动',
+    moves_along_range: '沿指定范围移动',
+    slider_driven: '由滑块驱动',
+    follows_path: '跟随路径',
+    trace_of: '记录对象轨迹',
+    label_for: '标签对应对象',
+    fixed_offset_from: '相对对象保持固定偏移',
+    anchored_to: '锚定到对象',
+    fixed_overlay: '固定在画面叠加层',
+    keep_inside_safe_area: '保持在安全区域内',
+    avoid_overlap: '避免重叠',
+    maintain_clearance: '保持间距',
+    group_alignment: '保持组对齐',
+    visible_during: '在指定阶段可见',
+    hidden_after: '指定阶段后隐藏',
+    fade_with: '随对象淡出',
+    style_matches: '样式保持一致',
+    persistent_across_scenes: '跨场景保持',
+    exits_after_scene: '场景结束后退出',
+    other: '其他',
 };
 const DEFAULT_CONSTRAINT_DOMAIN = 'constraint';
 const DEFAULT_CONSTRAINT_RELATION = 'other';
@@ -2083,11 +2152,13 @@ const StoryboardEditor = ({ draft, onDraft }) => {
             .join('，');
         return axes ? `${positioning}，${axes}` : positioning;
     };
-    const constraintSummary = (constraint = {}) => {
+const constraintSummary = (constraint = {}) => {
         const currentDomain = normalizeConstraintDomain(constraint.domain);
         const currentRelation = normalizeConstraintRelation(currentDomain, constraint.relation);
         const currentStrength = normalizeConstraintStrength(constraint.strength);
-        return `${currentDomain} / ${currentRelation} / ${currentStrength}`;
+        return `${CONSTRAINT_DOMAIN_LABELS[currentDomain] || currentDomain} / `
+            + `${CONSTRAINT_RELATION_LABELS[currentRelation] || currentRelation} / `
+            + `${CONSTRAINT_STRENGTH_LABELS[currentStrength] || currentStrength}`;
     };
     const targetSummary = (targets) => compactValues(refObjectItems(targets), (item) => item, '暂无目标对象');
     const boundsSummary = () => {
@@ -2265,11 +2336,11 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                             return (
                                 <CollapsibleBlock
                                     key={`constraint-${index}`}
-                                    title={constraint.id || currentRelation || `约束 ${index + 1}`}
+                                    title={constraint.id || CONSTRAINT_RELATION_LABELS[currentRelation] || currentRelation || `约束 ${index + 1}`}
                                     summary={constraintSummary(constraint)}
                                 >
                                     <div className={styles.cardTopline}>
-                                        <strong>{constraint.id || currentRelation || `约束 ${index + 1}`}</strong>
+                                        <strong>{constraint.id || CONSTRAINT_RELATION_LABELS[currentRelation] || currentRelation || `约束 ${index + 1}`}</strong>
                                         <button className={styles.iconTextBtn} type="button" onClick={() => onChange(constraints.filter((_, i) => i !== index))}>
                                             <FontAwesomeIcon icon={faTrash} /> 删除
                                         </button>
@@ -2291,7 +2362,9 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                                 }}
                                             >
                                                 {CONSTRAINT_DOMAIN_OPTIONS.map((domain) => (
-                                                    <option key={domain} value={domain}>{domain}</option>
+                                                    <option key={domain} value={domain}>
+                                                        {CONSTRAINT_DOMAIN_LABELS[domain] || domain}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </Field>
@@ -2301,8 +2374,15 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                                 value={currentRelation}
                                                 onChange={(event) => updateConstraint(index, { relation: event.target.value })}
                                             >
+                                                {constraint.relation && !relationOptions.includes(constraint.relation) && (
+                                                    <option value={constraint.relation}>
+                                                        {constraint.relation}（历史值）
+                                                    </option>
+                                                )}
                                                 {relationOptions.map((relation) => (
-                                                    <option key={relation} value={relation}>{relation}</option>
+                                                    <option key={relation} value={relation}>
+                                                        {CONSTRAINT_RELATION_LABELS[relation] || relation}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </Field>
@@ -2313,7 +2393,9 @@ const StoryboardEditor = ({ draft, onDraft }) => {
                                                 onChange={(event) => updateConstraint(index, { strength: event.target.value })}
                                             >
                                                 {CONSTRAINT_STRENGTH_OPTIONS.map((strength) => (
-                                                    <option key={strength} value={strength}>{strength}</option>
+                                                    <option key={strength} value={strength}>
+                                                        {CONSTRAINT_STRENGTH_LABELS[strength] || strength}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </Field>
