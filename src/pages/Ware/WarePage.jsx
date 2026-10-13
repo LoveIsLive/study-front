@@ -10,6 +10,7 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import useAuthStore from "../../store/authStore";
 import { wareApi } from "../../services/api";
+import { stripTrailingSlash } from "../../services/warePath";
 import { buildNewPath } from "../../utils/helpers";
 import Breadcrumb from "./components/Breadcrumb";
 import FileTable from "./components/FileTable";
@@ -47,14 +48,14 @@ const getWareApiPath = (path, courseId) => {
 
     // 强制转换为带前缀的绝对路径 (按照要求的 {学校名}/{班级名}/{courseid} 结构)
     if (isAdmin) {
-      return `/${schoolName}/${className}/${courseId}${cleanPath}`;
+      return stripTrailingSlash(`/${schoolName}/${className}/${courseId}${cleanPath}`);
     } else if (isPrincipal) {
-      return `/${className}/${courseId}${cleanPath}`;
+      return stripTrailingSlash(`/${className}/${courseId}${cleanPath}`);
     }
   }
-  
-  // 普通用户保持原样
-  return path;
+
+  // 教师/学生/访客：保留相对路径，结尾斜杠由这里去掉，课程前缀由请求拦截器补上
+  return stripTrailingSlash(path);
 };
 const WarePage = ({ courseId: propCourseId }) => {
   const { token } = useAuthStore();
