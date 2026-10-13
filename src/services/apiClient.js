@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import useAuthStore from "../store/authStore";
 import { config } from "../utils/config";
+import { withCoursePrefix } from "./warePath";
 
 const createApiClient = (baseURL) => {
   const apiClient = axios.create({
@@ -60,13 +61,10 @@ const createApiClient = (baseURL) => {
           const courseIdStr = String(state.currentCourseId);
 
           if (axiosConfig.params && axiosConfig.params.path) {
-            let path = axiosConfig.params.path;
-            if (path.includes("/ware/home"))
-              path = path.replace(/\/ware\/home/g, "");
-            if (!path.startsWith(`/${courseIdStr}`)) {
-              const normalizedPath = path.startsWith("/") ? path : "/" + path;
-              axiosConfig.params.path = `/${courseIdStr}${normalizedPath}`;
-            }
+            axiosConfig.params.path = withCoursePrefix(
+              axiosConfig.params.path,
+              courseIdStr,
+            );
           }
 
           if (axiosConfig.data) {
@@ -78,31 +76,18 @@ const createApiClient = (baseURL) => {
                 axiosConfig.data.path &&
                 typeof axiosConfig.data.path === "string"
               ) {
-                let path = axiosConfig.data.path;
-                if (path.includes("/ware/home"))
-                  path = path.replace(/\/ware\/home/g, "");
-                if (!path.startsWith(`/${courseIdStr}`)) {
-                  const normalizedPath = path.startsWith("/")
-                    ? path
-                    : "/" + path;
-                  axiosConfig.data.path = `/${courseIdStr}${normalizedPath}`;
-                }
+                axiosConfig.data.path = withCoursePrefix(
+                  axiosConfig.data.path,
+                  courseIdStr,
+                );
               }
             } else if (axiosConfig.data instanceof FormData) {
               const pathValue = axiosConfig.data.get("path");
               if (pathValue && typeof pathValue === "string") {
-                let newPath = pathValue;
-                if (newPath.includes("/ware/home"))
-                  newPath = newPath.replace(/\/ware\/home/g, "");
-                if (!newPath.startsWith(`/${courseIdStr}`)) {
-                  const normalizedPath = newPath.startsWith("/")
-                    ? newPath
-                    : "/" + newPath;
-                  axiosConfig.data.set(
-                    "path",
-                    `/${courseIdStr}${normalizedPath}`,
-                  );
-                }
+                axiosConfig.data.set(
+                  "path",
+                  withCoursePrefix(pathValue, courseIdStr),
+                );
               }
             }
           }
