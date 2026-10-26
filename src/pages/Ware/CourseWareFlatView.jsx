@@ -25,6 +25,7 @@ import {
   faBoxOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import { wareApi } from "../../services/api";
+import { stripTrailingSlash } from "../../services/warePath";
 import { isPreviewable, formatFileSize } from "../../utils/helpers";
 import useAuthStore from "../../store/authStore";
 import useAIStore from "../../store/aiStore";
@@ -61,13 +62,15 @@ const getWareApiPath = (path, courseId) => {
       localStorage.getItem("adminSelectedClassName") || "未知班级";
 
     if (isAdmin) {
-      return `/${schoolName}/${className}/${courseId}${cleanPath}`;
+      return stripTrailingSlash(
+        `/${schoolName}/${className}/${courseId}${cleanPath}`,
+      );
     } else if (isPrincipal) {
-      return `/${className}/${courseId}${cleanPath}`;
+      return stripTrailingSlash(`/${className}/${courseId}${cleanPath}`);
     }
   }
 
-  return path;
+  return stripTrailingSlash(path);
 };
 
 const getFileIconConfig = (fileName, isDir) => {
