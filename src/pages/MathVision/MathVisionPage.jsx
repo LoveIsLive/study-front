@@ -481,11 +481,11 @@ const MathVisionPage = () => {
         }
     }, [cancelTask, taskDetail]);
 
-    const handleSaveStage = useCallback(async (stage, version, content, comment) => {
+    const handleSaveStage = useCallback(async (stage, version, content, comment, baseEtag) => {
         if (!taskDetail?.taskId) return;
         setActionLoading(true);
         try {
-            return await saveStageContent(taskDetail.taskId, stage, version, content, comment);
+            return await saveStageContent(taskDetail.taskId, stage, version, content, comment, baseEtag);
         } catch (e) {
             window.alert(e.message || '保存失败');
             throw e;
@@ -640,7 +640,11 @@ const MathVisionPage = () => {
                     if (!message.body) return;
                     try {
                         const event = JSON.parse(message.body);
-                        applyTaskEvent(event);
+                        // Events are refresh hints. Read current DB state instead of applying delayed snapshots.
+                        loadTasks({ showLoading: false });
+                        if (String(event.taskId) === String(activeTaskIdRef.current)) {
+                            loadDetail(event.taskId, { showLoading: false, loadStage: false });
+                        }
                         if (String(event.taskId) === String(activeTaskIdRef.current)
                             && STAGE_REFRESH_EVENTS.has(event.event)) {
                             const state = useMathVisionStore.getState();
@@ -669,6 +673,20 @@ const MathVisionPage = () => {
             client.deactivate();
         };
     }, [token, applyTaskEvent, loadTasks, loadDetail]);
+
+    useEffect(() => {
+        if (!token) return undefined;
+        const timer = setInterval(() => {
+            const state = useMathVisionStore.getState();
+            const detailRunning = ['queued', 'running'].includes(state.taskDetail?.status);
+            if (!detailRunning && !state.tasks.some((task) => ['queued', 'running'].includes(task.status))) return;
+            state.loadTasks({ showLoading: false }).catch(() => {});
+            if (detailRunning && state.activeTaskId && !state.loadingDetail) {
+                state.loadDetail(state.activeTaskId, { showLoading: false, loadStage: true }).catch(() => {});
+            }
+        }, 10000);
+        return () => clearInterval(timer);
+    }, [token]);
 
     return (
         <div className={styles.page}>

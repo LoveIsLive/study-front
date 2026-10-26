@@ -2972,6 +2972,7 @@ const StagePanel = ({
     const [comment, setComment] = useState('');
     const [autoEditOpen, setAutoEditOpen] = useState(false);
     const [autoEditInstruction, setAutoEditInstruction] = useState('');
+    const draftEtag = useRef(null);
     const [autoEditError, setAutoEditError] = useState('');
 
     const panelTask = useMemo(() => {
@@ -2999,6 +3000,7 @@ const StagePanel = ({
 
     useEffect(() => {
         if (!panelTask?.currentArtifactJson) {
+            draftEtag.current = null;
             setDraft({});
             setRawText('');
             setRawError('');
@@ -3010,6 +3012,7 @@ const StagePanel = ({
         }
         try {
             const parsed = parseJson(panelTask.currentArtifactJson);
+            draftEtag.current = stageData?.contentEtag;
             setDraft(parsed);
             setRawText(prettyJson(parsed));
             setRawError('');
@@ -3030,6 +3033,7 @@ const StagePanel = ({
         panelTask?.currentStage,
         panelTask?.currentArtifactVersion,
         panelTask?.currentArtifactJson,
+        stageData?.contentEtag,
     ]);
 
     const canEdit = useMemo(() => {
@@ -3130,7 +3134,7 @@ const StagePanel = ({
             setRawError('JSON 格式不正确，保存前需要修正');
             return;
         }
-        await onSaveStage(panelTask.currentStage, panelTask.currentArtifactVersion, content, comment);
+        await onSaveStage(panelTask.currentStage, panelTask.currentArtifactVersion, content, comment, draftEtag.current);
     }, [panelTask, rawText, comment, onSaveStage]);
 
     const handleConfirm = useCallback(async () => {
@@ -3145,7 +3149,7 @@ const StagePanel = ({
                 setRawError('JSON 格式不正确，保存前需要修正');
                 return;
             }
-            const saved = await onSaveStage(panelTask.currentStage, panelTask.currentArtifactVersion, content, comment);
+            const saved = await onSaveStage(panelTask.currentStage, panelTask.currentArtifactVersion, content, comment, draftEtag.current);
             versionToConfirm = saved?.stageVersion || versionToConfirm;
         }
         await onConfirmStage(panelTask.currentStage, versionToConfirm, comment);
@@ -3168,6 +3172,7 @@ const StagePanel = ({
                 panelTask.currentArtifactVersion,
                 content,
                 comment,
+                draftEtag.current,
             );
             versionToReview = saved?.stageVersion || versionToReview;
         }

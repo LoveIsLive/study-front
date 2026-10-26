@@ -575,11 +575,12 @@ const useMathVisionStore = create((set, get) => ({
         }));
     },
 
-    saveStageContent: async (taskId, stage, version, content, comment = '') => {
+    saveStageContent: async (taskId, stage, version, content, comment = '', baseEtag) => {
         const res = await mathvisionApi.put(`/tasks/${taskId}/stages/${stage}/content`, {
             version,
             content,
             comment,
+            baseEtag,
         });
         if (res.data.code !== 200) {
             throw new Error(res.data.message || '保存失败');
