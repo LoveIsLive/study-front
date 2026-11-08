@@ -8,6 +8,7 @@ import { useUploader } from '../../../hooks/useUploader';
 import Modal from '../../../components/common/Modal/Modal';
 import FileUpload from '../../../components/shared/FileUpload/FileUpload';
 import styles from './CreateTaskModal.module.css';
+import AutoQualityReviewSwitch from './AutoQualityReviewSwitch';
 
 const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
     const createTask = useMathVisionStore((s) => s.createTask);
@@ -16,6 +17,7 @@ const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
     const [message, setMessage] = useState('');
     const [title, setTitle] = useState('');
     const [mode, setMode] = useState('manual');
+    const [autoQualityReview, setAutoQualityReview] = useState(true);
     const [outputTarget, setOutputTarget] = useState('manim');
     const [providerCode, setProviderCode] = useState('');
     const [modelName, setModelName] = useState('');
@@ -31,6 +33,7 @@ const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
 
     const resetForm = useCallback(() => {
         setMessage(''); setTitle(''); setMode('manual'); setOutputTarget('manim');
+        setAutoQualityReview(true);
         setProviderCode(''); setModelName(''); setFiles([]);
         setModels([]); setSubmitting(false);
     }, []);
@@ -94,6 +97,7 @@ const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
                 message: message.trim(),
                 title: title.trim() || undefined,
                 mode,
+                autoQualityReview,
                 outputTarget,
                 providerCode,
                 modelName,
@@ -174,6 +178,13 @@ const CreateTaskModal = ({ isOpen, onClose, onCreated }) => {
                                 onClick={() => setMode('auto')}
                             >自动模式</button>
                         </div>
+                        {mode === 'auto' && (
+                            <AutoQualityReviewSwitch
+                                checked={autoQualityReview}
+                                disabled={submitting}
+                                onChange={setAutoQualityReview}
+                            />
+                        )}
                     </div>
                     <div className={styles.field}>
                         <label>输出目标</label>

@@ -6,6 +6,7 @@ import {
     faCircle, faRobot, faHand, faCodeBranch, faPen,
 } from '@fortawesome/free-solid-svg-icons';
 import ModelSwitchModal from './ModelSwitchModal';
+import AutoQualityReviewSwitch from './AutoQualityReviewSwitch';
 import styles from './StageFlow.module.css';
 
 const STAGES = [
@@ -59,8 +60,8 @@ const RuntimeSettings = ({ task, onUpdate }) => {
                 icon: 'success',
                 title: mode === 'auto' ? '已切换为自动模式' : '已切换为手动模式',
                 text: updated?.status === 'queued'
-                    ? '下一阶段已进入执行队列。'
-                    : '设置将在下一阶段运行时生效。',
+                    ? '任务已进入执行队列。'
+                    : updated?.status === 'completed' ? '任务已完成。' : '当前阶段结束后将按新模式继续。',
                 timer: 1700,
                 showConfirmButton: false,
             });
@@ -68,6 +69,22 @@ const RuntimeSettings = ({ task, onUpdate }) => {
             Swal.fire({
                 icon: 'error',
                 title: '切换运行模式失败',
+                text: error.response?.data?.message || error.message || '请稍后重试',
+            });
+        } finally {
+            setSaving('');
+        }
+    };
+
+    const updateAutoReview = async (enabled) => {
+        if (!onUpdate || saving) return;
+        setSaving('review');
+        try {
+            await onUpdate(task.taskId, { autoQualityReview: enabled });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: '修改智能检查设置失败',
                 text: error.response?.data?.message || error.message || '请稍后重试',
             });
         } finally {
@@ -98,7 +115,18 @@ const RuntimeSettings = ({ task, onUpdate }) => {
                     </button>
                 </div>
             </div>
-            <div className={styles.settingsHint}>自动执行下一阶段或手动确认。</div>
+            {task.mode === 'auto' && (
+                <AutoQualityReviewSwitch
+                    checked={task.autoQualityReview !== false}
+                    disabled={Boolean(saving)}
+                    onChange={updateAutoReview}
+                />
+            )}
+            <div className={styles.settingsHint}>
+                {task.mode !== 'auto' ? '自动执行下一阶段或手动确认。'
+                    : task.autoQualityReview !== false ? '生成后自动检查，再继续下一阶段。'
+                        : '生成后直接继续下一阶段，已开始的检查会继续完成。'}
+            </div>
         </div>
     );
 };
