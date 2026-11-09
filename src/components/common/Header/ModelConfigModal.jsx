@@ -60,15 +60,28 @@ const ProviderRow = ({ info, onChanged, onEditCustom }) => {
         setTesting(true);
         try {
             const res = await mathvisionApi.post(`/llm/providers/${info.providerCode}/credential/test`);
-            const data = res.data.data;
+            if (res.data.code !== 200) throw new Error(res.data.message || '测试提交失败');
+            let data = res.data.data;
+            const deadline = Date.now() + 35000;
+            while (data?.testState === 'pending' && data.testId && Date.now() < deadline) {
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                const result = await mathvisionApi.get(
+                    `/llm/providers/${info.providerCode}/credential/tests/${data.testId}`, { timeout: 5000 });
+                if (result.data.code !== 200) throw new Error(result.data.message || '获取测试结果失败');
+                data = result.data.data;
+            }
+            const details = (data.workerResults || []).map((result) =>
+                `${result.worker}：${result.state === 'testing' ? '测试中' : result.message || result.state}`);
             Swal.fire({
-                icon: data.success ? 'success' : 'error',
-                title: data.success ? 'API Key 可用' : '测试未通过',
-                text: data.message || '',
+                icon: data.success ? 'success' : 'warning',
+                title: data.success ? 'Worker 测试通过' : '尚未确认 Worker 可用',
+                text: [data.testState === 'pending' ? '等待测试超时，请稍后重试；凭据状态未修改' : data.message,
+                    ...details].filter(Boolean).join('\n'),
+                customClass: { htmlContainer: styles.testResults },
             });
             await onChanged();
         } catch (e) {
-            Swal.fire({ icon: 'error', title: '测试失败', text: e.response?.data?.message || '请稍后重试' });
+            Swal.fire({ icon: 'warning', title: '测试暂不可用', text: e.response?.data?.message || e.message || '请稍后重试；凭据状态未修改' });
         } finally {
             setTesting(false);
         }
@@ -99,7 +112,9 @@ const ProviderRow = ({ info, onChanged, onEditCustom }) => {
                 </div>
                 <div className={styles.actions}>
                     {info.configured && (
-                        <button className={styles.iconBtn} title="测试" onClick={handleTest} disabled={testing}>
+                        <button className={styles.iconBtn} title={testing ? 'Worker 测试中...' : '由 Worker 测试可用性'}
+                            aria-label={testing ? 'Worker 测试中' : `测试 ${info.providerName} 的 Worker 可用性`}
+                            onClick={handleTest} disabled={testing}>
                             <FontAwesomeIcon icon={testing ? faSpinner : faVial} spin={testing} />
                         </button>
                     )}
@@ -317,7 +332,7 @@ const ModelConfigModal = ({ isOpen, onClose }) => {
 
     return (
         <Modal show={isOpen} onClose={onClose} title="模型配置" size="large">
-            <p className={styles.hint}>为各模型厂家配置 API Key。仅展示脱敏值, 系统不会返回明文。</p>
+            <p className={styles.hint}>为各模型厂家配置 API Key，仅展示脱敏值。测试由 Worker 执行，任一节点通过即可。</p>
             <div className={styles.modalBody}>
                 {loading ? (
                     <div className={styles.loading}><FontAwesomeIcon icon={faSpinner} spin /> 加载中...</div>
