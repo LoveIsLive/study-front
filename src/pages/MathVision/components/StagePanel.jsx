@@ -58,21 +58,22 @@ const AUTO_EDIT_STAGE_CONFIG = {
 };
 
 const resolveCodeOutputMode = (draft = {}, task = {}) => {
-    const target = String(task?.outputTarget || draft.outputTarget || '').toLowerCase();
-    const format = String(draft.artifactFormat || '').toLowerCase();
+    const artifactFormat = draft?.artifact_format;
+    const target = String(task?.outputTarget || draft?.output_target || '').toLowerCase();
+    const format = String(artifactFormat || '').toLowerCase();
     if (target === 'geogebra' || format.includes('geogebra')) {
         return {
             target: 'geogebra',
             title: 'GeoGebra 交互图',
             editorLabel: 'GeoGebra 代码',
-            formatLabel: draft.artifactFormat || 'geogebra_commands',
+            formatLabel: artifactFormat || 'geogebra_commands',
         };
     }
     return {
         target: 'manim',
         title: 'Manim 视频',
         editorLabel: 'Manim Python 代码',
-        formatLabel: draft.artifactFormat || 'python',
+        formatLabel: artifactFormat || 'python',
     };
 };
 
@@ -92,16 +93,16 @@ const fileNameFromPath = (path, fallback = 'mathvision-result') => {
     return name || fallback;
 };
 const resolveArtifactPath = (artifact = {}, task = {}) => (
-    artifact.artifactPath
-    || artifact.storageArtifactPath
-    || artifact.videoPath
+    artifact?.artifact_path
+    || artifact?.storage_artifact_path
+    || artifact?.video_path
     || task.finalArtifactPath
     || ''
 );
 const resolveArtifactType = (artifact = {}, task = {}) => (
-    artifact.artifactType
+    artifact?.artifact_type
     || task.finalArtifactType
-    || (artifact.outputTarget === 'geogebra' ? 'html' : 'mp4')
+    || (artifact?.output_target === 'geogebra' ? 'html' : 'mp4')
 );
 const buildDownloadUrl = async (path, fileName, mode = 'attachment') => {
     const res = await mathvisionApi.get('/download/get/downloadId', {
@@ -2749,12 +2750,12 @@ const CodeEditor = ({ task, draft, onDraft }) => {
             <div className={styles.codeEditorLayout}>
                 <div className={styles.codeMain}>
                     <Field label={outputMode.editorLabel}>
-                        <TextArea value={draft.generatedCode} rows={24} code onChange={(generatedCode) => onDraft({ ...draft, generatedCode })} />
+                        <TextArea value={draft?.generated_code} rows={24} code onChange={(generatedCode) => onDraft({ ...draft, generated_code: generatedCode })} />
                     </Field>
                 </div>
                 <aside className={styles.evalPanel}>
                     <div className={styles.evalScore}>
-                        <span>{draft.generatedCode ? draft.generatedCode.split(/\r?\n/).length : 0}</span>
+                        <span>{draft?.generated_code ? draft?.generated_code.split(/\r?\n/).length : 0}</span>
                         <small>代码行数</small>
                     </div>
                     <div className={styles.metricList}>
@@ -2773,13 +2774,13 @@ const RenderResultViewer = ({ task, artifact, result }) => {
     const [htmlPreviewHeight, setHtmlPreviewHeight] = useState(700);
     const htmlPreviewObserverRef = useRef(null);
     const htmlPreviewTimersRef = useRef([]);
-    const renderResult = result?.renderResult || artifact || {};
+    const renderResult = result?.render_result || artifact || {};
     const artifactPath = resolveArtifactPath(renderResult, task);
     const artifactType = String(resolveArtifactType(renderResult, task) || '').toLowerCase();
-    const fileName = renderResult.artifactFileName || fileNameFromPath(artifactPath, `mathvision-result.${artifactType || 'dat'}`);
+    const fileName = renderResult?.artifact_file_name || fileNameFromPath(artifactPath, `mathvision-result.${artifactType || 'dat'}`);
     const isVideo = artifactType === 'mp4' || artifactType === 'video';
     const isHtml = artifactType === 'html';
-    const renderSuccess = result?.success ?? result?.renderSuccess ?? renderResult.success ?? !!artifactPath;
+    const renderSuccess = result?.success ?? result?.render_success ?? renderResult.success ?? !!artifactPath;
 
     const clearHtmlPreviewObservers = useCallback(() => {
         htmlPreviewObserverRef.current?.disconnect();
@@ -3050,7 +3051,7 @@ const StagePanel = ({
     ), [panelTask, stageData]);
 
     const qualityReviewStatus = stageData?.qualityReviewStatus
-        || resultData?.qualityReview?.status
+        || resultData?.quality_review?.status
         || 'pending';
     const isCurrentTaskStage = !!task?.currentStage
         && panelTask?.currentStage === task.currentStage;
